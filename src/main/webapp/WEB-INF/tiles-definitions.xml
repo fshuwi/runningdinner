@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+
+ 	<definition name="template-welcome" template="/WEB-INF/views/welcomelayout.jsp">
+  		<put-attribute name="pageTitle" value="Run Your Dinner" />
+  		<put-attribute name="htmlHeader" value="/WEB-INF/views/defaultHtmlHeader.jsp"/>
+  		<put-attribute name="menu" value="/WEB-INF/views/menu.jsp" />
+  		<put-attribute name="content" value="" />
+  		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp"/>
+  		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>
+  		<put-attribute name="customScripts" value=""/>
+ 	</definition>
+ 	
+ 	 <definition name="template-main" template="/WEB-INF/views/mainlayout.jsp">
+  		<put-attribute name="pageTitle" value="Run Your Dinner - Wizard" />
+  		<put-attribute name="htmlHeader" value="/WEB-INF/views/defaultHtmlHeader.jsp"/>
+  		<put-attribute name="menu" value="/WEB-INF/views/menu.jsp" />
+  		<put-attribute name="content" value="" />
+  		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp"/>
+  		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>
+ 	</definition>
+ 	
+
+	<!--	
+ 	<definition name="template-admin" template="/WEB-INF/views/adminlayout.jsp">
+  		<put-attribute name="pageTitle" value="Run Your Dinner" />
+  		<put-attribute name="mainContent" value="" />
+  		<put-attribute name="header" value=""/>
+  		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp"/>
+ 	</definition>
+ 	
+ 	<definition name="error" template="/WEB-INF/views/errorlayout.jsp">
+ 		<put-attribute name="includes" value="/WEB-INF/views/commonincludes.jsp" />
+ 		<put-attribute name="pageTitle" value="Run Your Dinner" />
+ 	</definition>
+ 	-->
+ 	
+ 	<!--	
+ 	<definition name="profile/*" extends="template-main">
+  		<put-attribute name="mainContent" value="/WEB-INF/view/jsp/profile/{1}.jsp" />
+ 	</definition>
+ 	
+ 	 <definition name="offers/*" extends="template-main">
+  		<put-attribute name="mainContent" value="/WEB-INF/view/jsp/offers/{1}.jsp" />
+ 	</definition>
+ 	-->
+ 	
+ 	
+ 	<definition name="welcome/start" extends="template-welcome">
+  		<put-attribute name="content" value="/WEB-INF/views/welcome/start.jsp" />
+  		<put-attribute name="customScripts" value="/WEB-INF/views/welcome/scripts.jsp" />
+ 	</definition>
+	 	
+ 	<definition name="welcome/*" extends="template-main">
+  		<put-attribute name="content" value="/WEB-INF/views/welcome/{1}.jsp" />
+  		<put-attribute name="customScripts" value="/WEB-INF/views/welcome/scripts.jsp" />
+ 	</definition>
+ 	
+</tiles-definitions>
