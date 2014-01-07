@@ -18,6 +18,12 @@
 	
 	<context:component-scan base-package="org.runningdinner.repository" />
 	
+	<!-- Configure services (respectively service implementations) manually -->    
+    <bean id="runningDinnerWebService" class="org.runningdinner.service.impl.RunningDinnerWebServiceImpl" />
+    <bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
+    <bean id="participantLocationHandlerFactory" class="org.runningdinner.service.TempParticipantLocationHandlerFactory" />
+    <bean id="participantLocationHandler" factory-bean="participantLocationHandlerFactory" factory-method="create" />
+	
     <!-- enables scanning for @Transactional annotations -->
     <tx:annotation-driven />
         
@@ -55,5 +61,5 @@
  		Enabled usage of EntityManager during whole http request
 	 -->      
     <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" id="entityManagerInterceptor" />
-    
+   
 </beans>

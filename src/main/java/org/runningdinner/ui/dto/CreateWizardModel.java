@@ -24,7 +24,11 @@ public class CreateWizardModel {
 
 	private Set<MealClass> meals;
 
-	private String uploadedFilePath;
+	private String uploadedFileLocation;
+
+	private String newUuid;
+
+	private String administrationUrl;
 
 	protected CreateWizardModel() {
 	}
@@ -131,12 +135,28 @@ public class CreateWizardModel {
 		this.meals = meals;
 	}
 
-	public String getUploadedFilePath() {
-		return uploadedFilePath;
+	public String getUploadedFileLocation() {
+		return uploadedFileLocation;
 	}
 
-	public void setUploadedFilePath(String uploadedFilePath) {
-		this.uploadedFilePath = uploadedFilePath;
+	public void setUploadedFileLocation(String uploadedFileLocation) {
+		this.uploadedFileLocation = uploadedFileLocation;
+	}
+
+	public String getNewUuid() {
+		return newUuid;
+	}
+
+	public void setNewUuid(String newUuid) {
+		this.newUuid = newUuid;
+	}
+
+	public String getAdministrationUrl() {
+		return administrationUrl;
+	}
+
+	public void setAdministrationUrl(String administrationUrl) {
+		this.administrationUrl = administrationUrl;
 	}
 
 }

@@ -7,10 +7,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.MealClass;
-import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
+import org.runningdinner.service.impl.RunningDinnerWebServiceImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.UploadFileModel;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
@@ -19,6 +20,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Component
 public class CreateWizardValidator implements Validator {
+
+	private RunningDinnerWebServiceImpl runningDinnerService;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -80,28 +83,18 @@ public class CreateWizardValidator implements Validator {
 		UploadFileModel uploadFileModel = (UploadFileModel)target;
 		MultipartFile file = uploadFileModel.getFile();
 		if (file != null) {
-			if (INPUT_FILE_TYPE.UNKNOWN == getFileType(file)) {
+			if (INPUT_FILE_TYPE.UNKNOWN == runningDinnerService.determineFileType(file)) {
 				errors.rejectValue("file", "error.file.invalidtype");
 			}
 		}
 	}
 
-	public INPUT_FILE_TYPE getFileType(MultipartFile file) {
-		if (file != null) {
-			INPUT_FILE_TYPE fileType = ConverterFactory.determineFileType(file.getOriginalFilename());
-			if (INPUT_FILE_TYPE.UNKNOWN != fileType) {
-				return fileType;
-			}
-
-			fileType = ConverterFactory.determineFileType(file.getContentType());
-			if (INPUT_FILE_TYPE.UNKNOWN != fileType) {
-				return fileType;
-			}
-		}
-		return INPUT_FILE_TYPE.UNKNOWN;
-	}
-
 	public void validateMealTimes(Object target, Errors errors) {
 
+	}
+
+	@Autowired
+	public void setRunningDinnerService(RunningDinnerWebServiceImpl runningDinnerService) {
+		this.runningDinnerService = runningDinnerService;
 	}
 }
