@@ -14,7 +14,6 @@
 			<div class="row">
 				<div class="col-xs-6">
 					<form:input path="file" id="file" type="file" />
-					<%-- <input type="file" name=file" id="file" /> --%>
 					<p class="help-block"><spring:message code="label.upload.file.help"/></p>
 				</div>
 				<div class="col-xs-4">
@@ -22,26 +21,25 @@
 				</div>
 			</div>
 		</div>
-		
-		
-		 <div class="form-group" id="title.form.div">
-			<label class="control-label" for="title">Titel test</label>
-			<div class="row">
-				<div class="col-xs-4">
-					<form:input path="test" class="form-control" id="title" placeholder="Test" />
-				</div>
-				<div class="col-xs-4">
-					<form:errors path="test" cssClass="control-label"/>
-				</div>
-			</div>
- 		</div>
-		
-		
-		
+				
 		<div class="panel panel-primary">
 			<div class="panel-heading"><h4 class="panel-title">Einstellungen zum Einlesen der Datei</h4></div>
+			
 			<div class="panel-body">
-			<p class="help-block">Hier kann das Format der Datei mit den Teilnehmern an die eigenen Beduerfnisse angepasst werden.</p>
+				<p class="help-block">Hier kann das Format der Datei mit den Teilnehmern an die eigenen Beduerfnisse angepasst werden.</p>
+				
+				<div class="form-group" id="configuration.startRow.form.div">
+					<label class="control-label" for="startRow">Erste Zeile</label>
+					<div class="row">
+						<div class="col-xs-2">
+							<form:input path="configuration.startRow" class="form-control" id="startRow" />
+						</div>
+						<div class="col-xs-4">
+							<form:errors path="configuration.startRow" cssClass="control-label"/>
+						</div>
+					</div>
+	 			</div>
+			
 			<table class="table table-striped table-bordered">
 			<thead>
 				<tr>

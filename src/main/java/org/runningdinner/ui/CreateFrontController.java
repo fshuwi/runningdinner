@@ -5,6 +5,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,12 +14,14 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.runningdinner.core.GenderAspects;
+import org.runningdinner.core.GenderAspect;
+import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
+import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
-import org.runningdinner.service.impl.RunningDinnerWebServiceImpl;
+import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.GenderAspectOption;
 import org.runningdinner.ui.dto.UploadFileModel;
@@ -47,7 +50,7 @@ public class CreateFrontController {
 
 	private MessageSource messages;
 	private CreateWizardValidator validator;
-	private RunningDinnerWebServiceImpl runningDinnerService;
+	private RunningDinnerServiceImpl runningDinnerService;
 
 	private static Map<Integer, String> wizardViews = new HashMap<Integer, String>(4);
 
@@ -132,6 +135,17 @@ public class CreateFrontController {
 		return getFullViewName(wizardViews.get(targetView));
 	}
 
+	/**
+	 * Performs the main wizard action (last step before finishing) and uploads the participant file.<br>
+	 * 
+	 * @param locale
+	 * @param request
+	 * @param uploadFileModel
+	 * @param bindingResult
+	 * @param sessionStatus
+	 * @param currentWizardView
+	 * @return
+	 */
 	@RequestMapping(value = "/wizard-upload", method = RequestMethod.POST)
 	public String doWizardFileUpload(Locale locale, HttpServletRequest request,
 			@ModelAttribute("uploadFileModel") UploadFileModel uploadFileModel, BindingResult bindingResult, SessionStatus sessionStatus,
@@ -151,7 +165,7 @@ public class CreateFrontController {
 		}
 
 		try {
-			handleFileUploadStep(uploadFileModel, bindingResult, request);
+			handleFileUploadStep(uploadFileModel, bindingResult, request, locale);
 
 			// Advance to next view
 			return getFullViewName(wizardViews.get(targetView));
@@ -167,6 +181,13 @@ public class CreateFrontController {
 		}
 	}
 
+	/**
+	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format)
+	 * 
+	 * @param convEx
+	 * @param locale
+	 * @return
+	 */
 	private String constructErrorMessage(final ConversionException convEx, final Locale locale) {
 		final CONVERSION_ERROR conversionError = convEx.getConversionError();
 		final int rowNumber = convEx.getRowNumber();
@@ -185,8 +206,22 @@ public class CreateFrontController {
 		return messages.getMessage(errorCode, params, locale);
 	}
 
-	private void handleFileUploadStep(UploadFileModel uploadFileModel, BindingResult bindingResult, HttpServletRequest request)
-			throws IOException, ConversionException {
+	/**
+	 * Main method in controller which performs the following steps:<br>
+	 * - Parse uploaded participants-file<br>
+	 * - Copy the uploaded-file (respectively the parsed participants) to a persistent storage location for later retrieval<br>
+	 * - Calculate participant preview data and set it into request<br>
+	 * - Generate new uuid and administration link for running dinner<br>
+	 * 
+	 * @param uploadFileModel
+	 * @param bindingResult
+	 * @param request
+	 * @param locale
+	 * @throws IOException
+	 * @throws ConversionException
+	 */
+	private void handleFileUploadStep(UploadFileModel uploadFileModel, BindingResult bindingResult, HttpServletRequest request,
+			Locale locale) throws IOException, ConversionException {
 
 		HttpSession session = request.getSession();
 		CreateWizardModel createWizardModel = (CreateWizardModel)session.getAttribute("createWizardModel");
@@ -205,8 +240,10 @@ public class CreateFrontController {
 		String location = runningDinnerService.copyParticipantFileToTempLocation(file, session.getId());
 		createWizardModel.setUploadedFileLocation(location);
 
-		// #3 Set parsed participants into request-attribute, don't use session as this list might be quite big
+		// #3a) Set parsed participants into request-attribute, don't use session as this list might be quite big
 		request.setAttribute("participants", participants);
+		// #3b) Check whether all participants can be used for creating the dinner or not
+		setParticipantPreviewStatus(participants, createWizardModel, request, locale);
 
 		// #4 Generate UUID and Admin-Link and set it to model
 		String uuid = runningDinnerService.generateNewUUID();
@@ -214,13 +251,66 @@ public class CreateFrontController {
 		createWizardModel.setAdministrationUrl(runningDinnerService.constructAdministrationUrl(uuid, request));
 	}
 
+	/**
+	 * Performs calculation whether all patricipants can successfully be assigned to teams with the current running diner configuration.<br>
+	 * The results are put into request context and can then be rendered inside the view.
+	 * 
+	 * @param participants
+	 * @param createWizardModel
+	 * @param request
+	 * @param locale
+	 */
+	private void setParticipantPreviewStatus(List<Participant> participants, CreateWizardModel createWizardModel,
+			HttpServletRequest request, Locale locale) {
+
+		final RunningDinnerConfig runningDinnerConfig = createRunningDinnerConfig(createWizardModel);
+
+		try {
+			List<Participant> notAssignableParticipants = runningDinnerService.calculateNotAssignableParticipants(runningDinnerConfig,
+					participants);
+			request.setAttribute("notAssignableParticipants", notAssignableParticipants);
+
+			if (notAssignableParticipants.size() == 0) {
+				request.setAttribute("participantStatus", "success");
+				request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.success", null, locale));
+			}
+			else {
+				request.setAttribute("participantStatus", "warning");
+				request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.warning", null, locale));
+			}
+		}
+		catch (NoPossibleRunningDinnerException e) {
+			request.setAttribute("participantStatus", "danger");
+			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.error", null, locale));
+			request.setAttribute("notAssignableParticipants", new HashSet<Participant>(0));
+		}
+	}
+
+	/**
+	 * Used for select-box in first wizard step
+	 * 
+	 * @param locale
+	 * @return
+	 */
 	@ModelAttribute("genderAspects")
 	public List<GenderAspectOption> popuplateGenderAspects(Locale locale) {
 		List<GenderAspectOption> result = new ArrayList<GenderAspectOption>(3);
-		result.add(new GenderAspectOption(GenderAspects.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
-		result.add(new GenderAspectOption(GenderAspects.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
-		result.add(new GenderAspectOption(GenderAspects.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
+		result.add(new GenderAspectOption(GenderAspect.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
+		result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
+		result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
 		return result;
+	}
+
+	/**
+	 * Constructs a new running dinner config instance based upon the current settings in the wizard-model
+	 * 
+	 * @param createWizardModel
+	 * @return
+	 */
+	private RunningDinnerConfig createRunningDinnerConfig(final CreateWizardModel createWizardModel) {
+		return RunningDinnerConfig.newConfigurer().withEqualDistributedCapacityTeams(createWizardModel.isEqualTeamDistribution()).withGenderAspects(
+				createWizardModel.getGenderTeamDistribution()).withTeamSize(createWizardModel.getTeamSize()).havingMeals(
+				createWizardModel.getMeals()).build();
 	}
 
 	/**
@@ -248,7 +338,7 @@ public class CreateFrontController {
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerWebServiceImpl runningDinnerService) {
+	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
 

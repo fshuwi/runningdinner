@@ -5,7 +5,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import org.joda.time.DateTime;
-import org.runningdinner.core.GenderAspects;
+import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
 
 public class CreateWizardModel {
@@ -20,7 +20,7 @@ public class CreateWizardModel {
 
 	private boolean equalTeamDistribution;
 
-	private GenderAspects genderTeamDistribution;
+	private GenderAspect genderTeamDistribution;
 
 	private Set<MealClass> meals;
 
@@ -29,6 +29,8 @@ public class CreateWizardModel {
 	private String newUuid;
 
 	private String administrationUrl;
+
+	private String email;
 
 	protected CreateWizardModel() {
 	}
@@ -41,7 +43,7 @@ public class CreateWizardModel {
 
 	public void initDefaults() {
 		this.teamSize = 2;
-		this.genderTeamDistribution = GenderAspects.IGNORE_GENDER;
+		this.genderTeamDistribution = GenderAspect.IGNORE_GENDER;
 		this.equalTeamDistribution = true;
 
 		this.meals = new LinkedHashSet<MealClass>(3);
@@ -119,11 +121,11 @@ public class CreateWizardModel {
 		this.equalTeamDistribution = equalTeamDistribution;
 	}
 
-	public GenderAspects getGenderTeamDistribution() {
+	public GenderAspect getGenderTeamDistribution() {
 		return genderTeamDistribution;
 	}
 
-	public void setGenderTeamDistribution(GenderAspects genderTeamDistribution) {
+	public void setGenderTeamDistribution(GenderAspect genderTeamDistribution) {
 		this.genderTeamDistribution = genderTeamDistribution;
 	}
 
@@ -157,6 +159,14 @@ public class CreateWizardModel {
 
 	public void setAdministrationUrl(String administrationUrl) {
 		this.administrationUrl = administrationUrl;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 }

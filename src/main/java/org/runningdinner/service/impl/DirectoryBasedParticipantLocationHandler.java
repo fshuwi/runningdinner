@@ -34,6 +34,8 @@ public class DirectoryBasedParticipantLocationHandler implements TempParticipant
 	@Override
 	public String pushToTempLocation(MultipartFile file, String uniqueIdentifier) throws IOException {
 
+		// TODO: Use serialization instead!
+
 		final String filename = getUniqueFilename(file, uniqueIdentifier);
 		final String filepath = tmpUploadDirectory + File.separator + filename;
 		final File newFile = new File(filepath);
