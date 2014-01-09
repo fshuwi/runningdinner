@@ -263,7 +263,7 @@ public class CreateFrontController {
 	private void setParticipantPreviewStatus(List<Participant> participants, CreateWizardModel createWizardModel,
 			HttpServletRequest request, Locale locale) {
 
-		final RunningDinnerConfig runningDinnerConfig = createRunningDinnerConfig(createWizardModel);
+		final RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
 
 		try {
 			List<Participant> notAssignableParticipants = runningDinnerService.calculateNotAssignableParticipants(runningDinnerConfig,
@@ -299,18 +299,6 @@ public class CreateFrontController {
 		result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
 		result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
 		return result;
-	}
-
-	/**
-	 * Constructs a new running dinner config instance based upon the current settings in the wizard-model
-	 * 
-	 * @param createWizardModel
-	 * @return
-	 */
-	private RunningDinnerConfig createRunningDinnerConfig(final CreateWizardModel createWizardModel) {
-		return RunningDinnerConfig.newConfigurer().withEqualDistributedCapacityTeams(createWizardModel.isEqualTeamDistribution()).withGenderAspects(
-				createWizardModel.getGenderTeamDistribution()).withTeamSize(createWizardModel.getTeamSize()).havingMeals(
-				createWizardModel.getMeals()).build();
 	}
 
 	/**

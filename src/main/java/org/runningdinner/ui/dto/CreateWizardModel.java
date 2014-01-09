@@ -7,6 +7,7 @@ import java.util.Set;
 import org.joda.time.DateTime;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
+import org.runningdinner.core.RunningDinnerConfig;
 
 public class CreateWizardModel {
 
@@ -79,6 +80,16 @@ public class CreateWizardModel {
 				// TODO: Set new day for times > 24 Uhr
 			}
 		}
+	}
+
+	/**
+	 * Constructs a new running dinner configuration instance based upon the current settings in the wizard-model
+	 * 
+	 * @return
+	 */
+	public RunningDinnerConfig createRunningDinnerConfiguration() {
+		return RunningDinnerConfig.newConfigurer().withEqualDistributedCapacityTeams(isEqualTeamDistribution()).withGenderAspects(
+				getGenderTeamDistribution()).withTeamSize(getTeamSize()).havingMeals(getMeals()).build();
 	}
 
 	public int getTeamSize() {
