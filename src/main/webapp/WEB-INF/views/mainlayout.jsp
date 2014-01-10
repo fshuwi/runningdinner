@@ -19,19 +19,20 @@
   		
   		<div class="container">  
   		
+  			
   			<div class="row">
-  				<div class="col-md-12">
+  				<div class="col-xs-12">
 		  			<ol class="breadcrumb">
-		  				<li><a href="javascript:void();" style="cursor:default;text-decoration:none;">1. Allgemein</a></li>
-		  				<li class="active">2. Zeiten festlegen</li>
-		  				<li><a href="javascript:void();" style="cursor:default;text-decoration:none;">3. Teilnehmerliste hochladen</a></li>
-		  				<li><a href="javascript:void();" style="cursor:default;text-decoration:none;">4. Fertigstellen</a></li>
+		  				<li class="active">1. Allgemein</li>
+		  				<li><a href="javascript:void();" style="cursor:default;text-decoration:none;">2. Zeiten festlegen</a></li>
+		  				<li class="active">3. Teilnehmerliste hochladen</li>
+		  				<li class="active">4. Fertigstellen</li>
 					</ol>
 				</div>
 			</div>
   				
   			<div class="row">
-				<div class="col-md-12">		
+				<div class="col-xs-12">		
   					<tiles:insertAttribute name="content" />
   				</div>
   			</div>

@@ -13,4 +13,20 @@ public class JspTagUtility {
 	public static <T> boolean contains(final Collection<T> collection, T element) {
 		return collection != null && collection.contains(element);
 	}
+
+	public static <T> T getValueOrDefault(final T value, final T defaultValue) {
+		if (value == null) {
+			return defaultValue;
+		}
+
+		if (value instanceof String) {
+			String strValue = (String)value;
+			if (strValue.trim().length() == 0) {
+				return defaultValue;
+			}
+		}
+
+		return value;
+
+	}
 }

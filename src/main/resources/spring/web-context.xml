@@ -49,4 +49,18 @@
 	<context:annotation-config />
 	<context:component-scan base-package="org.runningdinner.ui, org.runningdinner.ui.validator" />
 	
+	<!--
+	<beans:bean id="simpleMappingExceptionResolver" class="org.runningdinner.ui.error.GlobalExceptionHandler">
+		<beans:property name="exceptionMappings">
+			<beans:map>
+				<beans:entry key="IOException" value="errordefault"/>
+				<beans:entry key="IllegalStateException" value="errordefault" />
+			</beans:map>
+		</beans:property>
+		<beans:property name="defaultErrorView" value="errordefault" />
+		<beans:property name="exceptionAttribute" value="ex" />
+		<beans:property name="warnLogCategory" value="dummy"/>
+	</beans:bean>
+	-->
+	
 </beans:beans>
