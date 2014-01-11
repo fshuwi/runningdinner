@@ -1,12 +1,11 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
-<%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%><%
+<%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 
-%><%@ attribute name="name" required="true" description="Name of corresponding property in bean object" %>
-<%@ attribute name="label" required="true" description="Label appears in red color if input is considered as invalid after submission" %><%
-
-%><%@ attribute name="id" required="false" rtexprvalue="false" description="id for input field (if not set, the name is taken)" %>
+<%@ attribute name="name" required="true" description="Name of corresponding property in bean object" %>
+<%@ attribute name="label" required="true" description="Label appears in red color if input is considered as invalid after submission" %>
+<%@ attribute name="id" required="false" rtexprvalue="false" description="id for input field (if not set, the name is taken)" %>
 <%@ attribute name="placeholder" required="false" description="optional bootstrap placeholder" %>
 <%@ attribute name="helpForLabelInline" required="false" description="inline label help text" %>
 <%@ attribute name="helpForLabel" required="false" description="inline label help text" %>
@@ -16,10 +15,10 @@
 <%@ attribute name="labelTooltip" required="false" description="optional tooltip text" %>
 <%@ attribute name="labelTooltipPosition" required="false" rtexprvalue="false" %>
 <%@ attribute name="inputColClass" required="false" description="Defines the bootstrap column width class, default is col-xs-4" %>
-<%@ attribute name="inputErrorColClass" required="false" description="Defines the bootstrap column width class, default is col-xs-4" %><%
-
-%><%@ attribute name="type" required="false" description="Optional, defaults to text" %>
+<%@ attribute name="inputErrorColClass" required="false" description="Defines the bootstrap column width class, default is col-xs-4" %>
+<%@ attribute name="type" required="false" description="Optional, defaults to text" %>
 <%@ attribute name="cssStyle" required="false" %>
+<%@ attribute name="readonly" required="false" %>
 
 <c:set var="theId" value="${name}" />
 <c:if test="${not empty id}">
@@ -50,6 +49,10 @@
 <c:if test="${theType == 'file'}">
 	<c:set var="inputCssClass" value="" />
 </c:if>
+<c:set var="theReadonly" value="false" />
+<c:if test="${not empty readonly}">
+	<c:set var="theReadonly" value="${readonly}" />
+</c:if>
 
 <spring:bind path="${name}">
 	<div class="form-group <c:if test="${status.error}">has-error</c:if>" id="form-div-${theId}">
@@ -64,11 +67,12 @@
 			<div class="${theInputColClass}">
 				<c:choose>
 					<c:when test="${not empty inputTooltip}">
-						<form:input type="${theType}" path="${name}" class="${inputCssClass} doTooltip" id="${theId}" cssStyle="${cssStyle}"
+						<form:input type="${theType}" path="${name}" class="${inputCssClass} doTooltip" id="${theId}" cssStyle="${cssStyle}" readonly="${readonly}"
 									placeholder="${placeholder}" data-toggle="tooltip" data-original-title="${inputTooltip}" data-placement="${theInputTooltipPosition}"/>
 					</c:when>
 					<c:otherwise>
-						<form:input type="${theType}" path="${name}" class="${inputCssClass}" id="${theId}" placeholder="${placeholder}" cssStyle="${cssStyle}"/>
+						<form:input type="${theType}" path="${name}" class="${inputCssClass}" readonly="${readonly}"
+									id="${theId}" placeholder="${placeholder}" cssStyle="${cssStyle}"/>
 					</c:otherwise>
 				</c:choose>
 				<c:if test="${not empty helpForInput}"><p class="help-block">${helpForInput}</p></c:if>

@@ -1,9 +1,3 @@
-<!--
-<footer>
- 	<p>&copy; Clemens Stich</p>
-</footer>
--->
-
 <footer>
 	<div class="row">
 	
@@ -23,19 +17,19 @@
 	      <div class="col-md-3">
 	        <ul class="list-unstyled">
 	          <li>Applications<li>
-	          <li><a href="#">Product for Mac</a></li>
-	          <li><a href="#">Product for Windows</a></li>
-	          <li><a href="#">Product for Eclipse</a></li>
-	          <li><a href="#">Product mobile apps</a></li>              
+	          <li><a href="http://stackoverflow.com/questions/3037006/starting-new-transaction-in-spring-bean">Transaction 1</a></li>
+	          <li><a href="http://nurkiewicz.blogspot.no/2011/10/spring-pitfalls-proxying.html">Transaction 1</a></li>
+	          <li><a href="http://nurkiewicz.blogspot.de/2013/03/synchronizing-transactions-with.html">Transaction 1</a></li>
+	          <li><a href="http://stackoverflow.com/questions/3492380/spring-transaction-annotations-execute-on-success">Transaction 1</a></li>              
 	        </ul>
 	      </div>
 	      <div class="col-md-3">
 	        <ul class="list-unstyled">
 	          <li>Services<li>
 	          <li><a href="http://bootsnipp.com/snippets/featured/stats-example">BootSnip - ProgresBar Example</a></li>
-	          <li><a href="#">Presentations</a></li>
-	          <li><a href="#">Code snippets</a></li>
-	          <li><a href="#">Job board</a></li>              
+	          <li><a href="http://lifeinide.blogspot.de/2010/12/dynamic-forms-lazylist-and-transparent.html?showComment=1355160197390#c6923871316812590644">Dynamic Form 1</a></li>
+	          <li><a href="http://eggsylife.co.uk/2009/11/30/spring-forms-dynamic-lists-and-ajax/">Dynamic Form 2</a></li>
+	          <li><a href="http://viralpatel.net/blogs/spring-mvc-hashmap-form-example/">Dynamic form 3</a></li>              
 	        </ul>
 	      </div>
 	      <div class="col-md-3">

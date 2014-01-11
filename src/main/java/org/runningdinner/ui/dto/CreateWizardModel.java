@@ -1,5 +1,6 @@
 package org.runningdinner.ui.dto;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -8,8 +9,12 @@ import org.joda.time.DateTime;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.RunningDinnerConfig;
+import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.model.RunningDinnerInfo;
 
-public class CreateWizardModel {
+public class CreateWizardModel implements RunningDinnerInfo, Serializable {
+
+	private static final long serialVersionUID = 4185546597131800604L;
 
 	private int teamSize;
 
@@ -32,6 +37,8 @@ public class CreateWizardModel {
 	private String administrationUrl;
 
 	private String email;
+
+	private ParsingConfiguration parsingConfiguration; // TODO: Maybe this isn't needed!
 
 	protected CreateWizardModel() {
 	}
@@ -100,6 +107,7 @@ public class CreateWizardModel {
 		this.teamSize = teamSize;
 	}
 
+	@Override
 	public String getTitle() {
 		return title;
 	}
@@ -108,6 +116,7 @@ public class CreateWizardModel {
 		this.title = title;
 	}
 
+	@Override
 	public Date getDate() {
 		return date;
 	}
@@ -116,12 +125,22 @@ public class CreateWizardModel {
 		this.date = date;
 	}
 
+	@Override
 	public String getCity() {
 		return city;
 	}
 
 	public void setCity(String city) {
 		this.city = city;
+	}
+
+	@Override
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
 	public boolean isEqualTeamDistribution() {
@@ -172,12 +191,15 @@ public class CreateWizardModel {
 		this.administrationUrl = administrationUrl;
 	}
 
-	public String getEmail() {
-		return email;
+	public ParsingConfiguration getParsingConfiguration() {
+		if (parsingConfiguration == null) {
+			return ParsingConfiguration.newDefaultConfiguration();
+		}
+		return parsingConfiguration;
 	}
 
-	public void setEmail(String email) {
-		this.email = email;
+	public void setParsingConfiguration(ParsingConfiguration parsingConfiguration) {
+		this.parsingConfiguration = parsingConfiguration;
 	}
 
 }

@@ -1,6 +1,7 @@
 package org.runningdinner.ui.validator;
 
 import java.util.Date;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -106,6 +107,14 @@ public class CreateWizardValidator implements Validator {
 				errors.rejectValue("file", "error.file.invalidtype");
 			}
 		}
+
+		int startRow = uploadFileModel.getStartRow();
+		if (startRow <= 0) {
+			errors.rejectValue("startRow", "error.startRow.invalid");
+		}
+
+		Map<Integer, String> columnMappings = uploadFileModel.getColumnMappings();
+		// TODO Perform validation of column mapping stuff!
 	}
 
 	public void validateMealTimes(Object target, Errors errors) {

@@ -22,6 +22,7 @@ import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
+import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.GenderAspectOption;
 import org.runningdinner.ui.dto.UploadFileModel;
@@ -42,6 +43,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
 
 @Controller
@@ -78,6 +80,12 @@ public class CreateFrontController {
 		return getFullViewName("start");
 	}
 
+	@RequestMapping(value = "/finish", method = RequestMethod.GET)
+	public String finishWizard(@ModelAttribute("createWizardModel") CreateWizardModel createWizardModel, Model model) {
+		model.addAttribute("createWizardMOdel", createWizardModel);
+		return getFullViewName("finish");
+	}
+
 	@RequestMapping(value = "/")
 	public String index() {
 		return "redirect:/wizard";
@@ -85,7 +93,8 @@ public class CreateFrontController {
 
 	@RequestMapping(value = "/wizard", method = RequestMethod.POST)
 	public String doWizardStep(HttpServletRequest request, @ModelAttribute("createWizardModel") CreateWizardModel createWizardModel,
-			BindingResult bindingResult, Model model, SessionStatus sessionStatus, @RequestParam("_page") int currentWizardView) {
+			BindingResult bindingResult, Model model, SessionStatus sessionStatus, Locale locale,
+			final RedirectAttributes redirectAttributes, @RequestParam("_page") int currentWizardView) {
 
 		if (request.getParameter("_cancel") != null || !isWizardViewIndexInRange(currentWizardView)) {
 			sessionStatus.setComplete();
@@ -98,7 +107,12 @@ public class CreateFrontController {
 				return getFullViewName(wizardViews.get(currentWizardView));
 			}
 
-			// TODO: Persist!
+			createNewRunningDinner(createWizardModel);
+
+			sessionStatus.setComplete();
+
+			redirectAttributes.addFlashAttribute("createWizardModel", createWizardModel);
+			return "redirect:/finish";
 		}
 
 		int targetView = WebUtils.getTargetPage(request, "_target", currentWizardView);
@@ -121,7 +135,9 @@ public class CreateFrontController {
 				validator.validateMealTimes(createWizardModel, bindingResult);
 				if (!bindingResult.hasErrors()) {
 					createWizardModel.applyDateToMealTimes();
-					model.addAttribute("uploadFileModel", new UploadFileModel());
+					// Prepare upload form with default parsing config:
+					ParsingConfiguration parsingConfig = createWizardModel.getParsingConfiguration();
+					model.addAttribute("uploadFileModel", UploadFileModel.newFromParsingConfiguration(parsingConfig));
 				}
 				break;
 		}
@@ -133,6 +149,27 @@ public class CreateFrontController {
 
 		// Advance to next view
 		return getFullViewName(wizardViews.get(targetView));
+	}
+
+	private void createNewRunningDinner(CreateWizardModel createWizardModel) {
+
+		try {
+			final ParsingConfiguration parsingConfiguration = createWizardModel.getParsingConfiguration();
+			List<Participant> participants = runningDinnerService.getParticipantsFromTempLocation(
+					createWizardModel.getUploadedFileLocation(), parsingConfiguration);
+
+			RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
+
+			runningDinnerService.createRunningDinner(createWizardModel, runningDinnerConfig, participants, createWizardModel.getNewUuid());
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("Could not get participants list from location " + createWizardModel.getUploadedFileLocation(),
+					ex);
+		}
+		catch (ConversionException ex) {
+			throw new IllegalStateException("Conversion/Parsing error while  getting participants list from location "
+					+ createWizardModel.getUploadedFileLocation(), ex);
+		}
 	}
 
 	/**
@@ -148,8 +185,8 @@ public class CreateFrontController {
 	 */
 	@RequestMapping(value = "/wizard-upload", method = RequestMethod.POST)
 	public String doWizardFileUpload(Locale locale, HttpServletRequest request,
-			@ModelAttribute("uploadFileModel") UploadFileModel uploadFileModel, BindingResult bindingResult, SessionStatus sessionStatus,
-			@RequestParam("_page") int currentWizardView) {
+			@ModelAttribute("uploadFileModel") UploadFileModel uploadFileModel, Model model, BindingResult bindingResult,
+			SessionStatus sessionStatus, @RequestParam("_page") int currentWizardView) {
 
 		if (request.getParameter("_cancel") != null || !isWizardViewIndexInRange(currentWizardView)) {
 			sessionStatus.setComplete();
@@ -160,6 +197,9 @@ public class CreateFrontController {
 
 		validator.validateFileUploadControls(uploadFileModel, bindingResult);
 		if (bindingResult.hasErrors()) {
+			// Ensure that all mappings are displayed from 1th-Nth column (order may be cluttered due to request)
+			uploadFileModel.sortColumnMappings();
+
 			// Errors, display same view with error information
 			return getFullViewName(wizardViews.get(currentWizardView));
 		}
@@ -227,7 +267,8 @@ public class CreateFrontController {
 		CreateWizardModel createWizardModel = (CreateWizardModel)session.getAttribute("createWizardModel");
 
 		// #1 a) Construct ParsingConfiguration
-		ParsingConfiguration parsingConfiguration = ParsingConfiguration.newDefaultConfiguration(); // TODO for now
+		ParsingConfiguration parsingConfiguration = uploadFileModel.createParsingConfiguration();
+		createWizardModel.setParsingConfiguration(parsingConfiguration);
 
 		// #1 b) Try to parse temporary uploaded file with ExcelConverter and Parsing Configuration
 		// If fail => show same view with error info (exceptions are thrown
@@ -299,6 +340,11 @@ public class CreateFrontController {
 		result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
 		result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
 		return result;
+	}
+
+	@ModelAttribute("columnMappingOptionItems")
+	public List<ColumnMappingOption> popuplateColumnMappingOptionItems(Locale locale) {
+		return ColumnMappingOption.generateColumnMappingOptions(messages, locale);
 	}
 
 	/**

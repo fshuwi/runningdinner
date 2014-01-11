@@ -8,14 +8,15 @@
 
 <spring:message code="label.adminlink.help" var="adminLinkHelp"/>
 
-<h2><spring:message code="label.runningdinner.wizard.finish.headline"/></h2>
+<h2><spring:message code="label.runningdinner.wizard.finished.headline" text="Fertig!"/></h2>
 
 <div class="well">
-	<form:form method="post" id="startForm5" commandName="createWizardModel" htmlEscape="true" onsubmit="return false;" role="form">
-		<bs:inputField name="administrationUrl" label="" readonly="true" cssStyle="cursor:default;" helpForInput="${adminLinkHelp}" />
+	<form:form method="post" id="startForm5" onsubmit="return false;" role="form" htmlEscape="true" commandName="createWizardModel">
+		<bs:inputField name="administrationUrl" label="Administrations-Link" readonly="true" 
+					   cssStyle="cursor:default;" helpForInput="${adminLinkHelp}" inputColClass="col-xs-7"/>
 		
 		<div class="form-group">
-			<a href="#">Goto Administration</a>
+			<a href="${createWizardModel.administrationUrl}">Goto Administration</a>
 		</div>
 	</form:form>
 </div>

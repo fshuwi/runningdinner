@@ -14,21 +14,6 @@
 	<form:form enctype="multipart/form-data" method="post" id="startForm3" modelAttribute="uploadFileModel" action="wizard-upload" htmlEscape="true" role="form">
 		
 		<bs:inputField name="file" label="${fileLabel}" type="file" helpForInput="${fileHelpText}" inputColClass="col-xs-6"/>
-		
-		<%--
-		<div class="form-group" id="file.form.div">
-			<label for="uploadFile" class="control-label"><spring:message code="label.upload.file"/></label>
-			<div class="row">
-				<div class="col-xs-6">
-					<form:input path="file" id="file" type="file" />
-					<p class="help-block"><spring:message code="label.upload.file.help"/></p>
-				</div>
-				<div class="col-xs-4">
-					<form:errors path="file" cssClass="control-label"/>
-				</div>
-			</div>
-		</div>
-		--%>
 				
 		<div class="panel panel-primary">
 			<div class="panel-heading"><h4 class="panel-title">Einstellungen zum Einlesen der Datei</h4></div>
@@ -36,123 +21,47 @@
 			<div class="panel-body">
 				<p class="help-block">Hier kann das Format der Datei mit den Teilnehmern an die eigenen Beduerfnisse angepasst werden.</p>
 			
-				<bs:inputField name="configuration.startRow" label="Erste Zeile" inputColClass="col-xs-2" />
+				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-2" inputTooltip="Ab welcher Zeile beginnen die 'eigentlichen' Daten" />
 			
 				<table class="table table-striped table-bordered">
-				<thead>
-					<tr>
-						<th>Spalte</th>
-						<th>Information</th>
-						<th class="td-actions"></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>1</td>
-						<td>
-							<select class="form-control">
-								<option selected>Kompletter Name</option>
-								<option>Vorname</option>
-								<option>Nachname</option>
-								<option>Komplette Adresse</option>
-								<option>Strasse + HausNr</option>
-								<option>PLZ + Stadt</option>
-								<option>Strasse</option>
-								<option>HausNr</option>
-								<option>PLZ</option>
-								<option>Stadt</option>
-								<option>Anzahl Plaetze (Zahl)</option>
-							</select>
-						</td>
-						<td class="td-actions"><button class="btn btn-danger">Deaktivieren</button></td>
-						<!--<td class="td-actions"><a href="#"><span class="glyphicon glyphicon-remove"></span></a></td>-->
-					</tr>
-					<tr>
-						<td>2</td>
-						<td>
-							<select class="form-control">
-								<option>Kompletter Name</option>
-								<option>Vorname</option>
-								<option>Nachname</option>
-								<option>Komplette Adresse</option>
-								<option selected>Strasse + HausNr</option>
-								<option>PLZ + Stadt</option>
-								<option>Strasse</option>
-								<option>HausNr</option>
-								<option>PLZ</option>
-								<option>Stadt</option>
-								<option>Anzahl Plaetze (Zahl)</option>
-							</select>
-						</td>
-						<td class="td-actions"><button class="btn btn-danger">Deaktivieren</button></td>
-					</tr>
-					<tr>
-						<td>3</td>
-						<td>
-							<select class="form-control">
-								<option>Kompletter Name</option>
-								<option>Vorname</option>
-								<option>Nachname</option>
-								<option>Komplette Adresse</option>
-								<option>Strasse + HausNr</option>
-								<option selected>PLZ + Stadt</option>
-								<option>Strasse</option>
-								<option>HausNr</option>
-								<option>PLZ</option>
-								<option>Stadt</option>
-								<option>Anzahl Plaetze (Zahl)</option>
-							</select>
-						</td>
-						<td class="td-actions"><button class="btn btn-danger">Deaktivieren</button></td>
-					</tr>
-					<tr>
-						<td>4</td>
-						<td>
-							<select class="form-control">
-								<option>Kompletter Name</option>
-								<option>Vorname</option>
-								<option>Nachname</option>
-								<option>Komplette Adresse</option>
-								<option>Strasse + HausNr</option>
-								<option>PLZ + Stadt</option>
-								<option>Strasse</option>
-								<option>HausNr</option>
-								<option>PLZ</option>
-								<option>Stadt</option>
-								<option selected>Anzahl Plaetze (Zahl)</option>
-							</select>
-						</td>
-						<td class="td-actions"><button class="btn btn-danger">Deaktivieren</button></td>
-					</tr>
-					<tr>
-						<td>5</td>
-						<td>
-							<select class="form-control">
-								<option>Kompletter Name</option>
-								<option>Vorname</option>
-								<option>Nachname</option>
-								<option>Komplette Adresse</option>
-								<option>Strasse + HausNr</option>
-								<option>PLZ + Stadt</option>
-								<option>Strasse</option>
-								<option>HausNr</option>
-								<option>PLZ</option>
-								<option>Stadt</option>
-								<option>Anzahl Plaetze (Zahl)</option>
-							</select>
-						</td>
-						<td class="td-actions"><button class="btn btn-success">Aktivieren</button></td>
-					</tr>
-					<tr>
-						<td>6</td>
-						<td>Undefiniert</td>
-						<td class="td-actions"><button class="btn btn-success">Aktivieren</button></td>
-					</tr>
+					<thead>
+						<tr>
+							<th>Spalte</th>
+							<th>Information</th>
+							<th class="td-actions"></th>
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach items="${uploadFileModel.columnMappings}" var="columnMapping">
+						 	<tr>
+						 		<td>${columnMapping.key + 1}</td>
+						 		<td>
+						 			<select class="form-control" id="select_${columnMapping.key}" name="columnMappings['${columnMapping.key}']" 
+						 					onchange="toggleColumnMappingStatus('select_${columnMapping.key}', 'status_${columnMapping.key}')">
+						 				<c:forEach items="${columnMappingOptionItems}" var="optionItem">
+						 					<option value="${optionItem.name}" <c:if test="${columnMapping.value == optionItem.name}">selected</c:if>>${optionItem.label}</option>
+						 				</c:forEach>
+						 			</select>
+						 		</td>
+						 		<td>
+						 			<c:choose>
+						 				<c:when test="${not empty columnMapping.value}">
+						 					<span id="status_${columnMapping.key}" class="label label-success">Spalte aktiv</span>
+						 				</c:when>
+						 				<c:otherwise>
+						 					<span  id="status_${columnMapping.key}" class="label label-danger">Spalte deaktiviert</span>
+						 				</c:otherwise>
+						 			</c:choose>
+						 		</td>
+						 	</tr>
+						 </c:forEach>
 					</tbody>
-					</table>
-				</div>
+				</table>
+				
+				<p class="help-block"><a href="#">Nichts kapiert? Hilfe!</a></p>
+				
 			</div>
-		
+		</div>
 		
 		<input type="hidden" value="2" name="_page" />
 		<input type="submit" class="btn btn-primary" value="Weiter" name="_target3" />

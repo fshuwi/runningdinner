@@ -4,7 +4,7 @@
 <script>
 	$(document).ready(function() {
 		$('.doTooltip').tooltip();		
-		highlightErrors(['title','date','teamSize', 'meals', 'file']);
+		// highlightErrors(['title','date','teamSize', 'meals', 'file']);
 	});
 	
 	function addMeal() {
@@ -84,6 +84,24 @@
 		});
 		
 		$('#meals').val(JSON.stringify(meals));
+	}
+	
+	function toggleColumnMappingStatus(selectId, spanId) {
+		statusSpan = $('#'+spanId);
+		if ($(statusSpan).hasClass('label-success')) {
+			if ($('#'+selectId).val() === "") {
+				$(statusSpan).removeClass('label-success');
+				$(statusSpan).addClass('label-danger');
+				$(statusSpan).text('Spalte deaktiviert');
+			}
+		}
+		else {
+			if ($('#'+selectId).val()) {
+				$(statusSpan).removeClass('label-danger');
+				$(statusSpan).addClass('label-success');
+				$(statusSpan).text('Spalte aktiv');
+			}
+		}
 	}
 	
 </script>

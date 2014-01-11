@@ -4,6 +4,9 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
+<%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+
+<spring:message code="label.adminlink.email.help" var="labelEmailHelp" />
 
 <h2><spring:message code="label.runningdinner.participantlist.headline"/></h2>
 <table class="table well table-condensed">
@@ -42,7 +45,8 @@
 	<div class="panel-body">${participantStatusMessage}</div>
 </div>
 
-<form:form class="well" method="post" id="startForm4" commandName="createWizardModel" htmlEscape="true" role="form">
+<form:form class="well" method="post" id="startForm4" action="wizard" commandName="createWizardModel" htmlEscape="true" role="form">
+	<%--
 	<div class="form-group">
 		<label for="adminLink">Administrations-Link</label>
 		<div class="row">
@@ -52,17 +56,9 @@
 		</div>
 		<p class="help-block"><spring:message code="label.adminlink.help" /></p>
 	</div>
-
-	<div class="form-group">
-		<label for="email">EMail Adresse</label>
-		<div class="row">
-			<div class="col-xs-4">
-				<form:input path="email" type="email" class="form-control" id="email" placeholder="EMail Adresse" />
-			</div>
-		</div>
-		<p class="help-block"><spring:message code="label.adminlink.email.help" /></p>
-	</div>
-
+	--%>
+	<bs:inputField name="email" label="EMail Adresse" placeholder="EMail Adresse" type="email" helpForInput="${labelEmailHelp}" inputColClass="col-xs-6"/>
+	
 	<input type="hidden" value="3" name="_page" />
 	<input type="submit" class="btn btn-success" value="Fertigstellen" name="_finish" data-placement="bottom" data-toggle="tooltip" data-original-title="Speichert die Liste und erstellt einen Dinner-Plan" />
 	<input type="submit" class="btn btn-danger" value="Abbrechen" name="_cancel" />

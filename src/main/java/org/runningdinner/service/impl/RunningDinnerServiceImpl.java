@@ -19,6 +19,7 @@ import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -165,6 +166,11 @@ public class RunningDinnerServiceImpl {
 
 	public void setHostUrlContext(String hostUrlContext) {
 		this.hostUrlContext = hostUrlContext;
+	}
+
+	public void createRunningDinner(final RunningDinnerInfo runningDinnerInfo, final RunningDinnerConfig runningDinnerConfig,
+			final List<Participant> participants, final String newUuid) {
+
 	}
 
 }
