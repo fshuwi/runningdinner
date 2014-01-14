@@ -4,12 +4,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GeneratedTeamsResult;
+import org.runningdinner.core.MealClass;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerCalculator;
@@ -19,17 +21,22 @@ import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 public class RunningDinnerServiceImpl {
 
 	@Value("${host.context.url}")
 	private String hostUrlContext;
+
+	private RunningDinnerRepository repository;
 
 	private TempParticipantLocationHandler tempParticipantLocationHandler;
 
@@ -107,6 +114,42 @@ public class RunningDinnerServiceImpl {
 		return INPUT_FILE_TYPE.UNKNOWN;
 	}
 
+	@Transactional
+	public RunningDinner createRunningDinner(final RunningDinnerInfo runningDinnerInfo, final RunningDinnerConfig runningDinnerConfig,
+			final List<Participant> participants, final String newUuid) {
+
+		RunningDinner result = new RunningDinner();
+		result.setCity(runningDinnerInfo.getCity());
+		result.setEmail(runningDinnerInfo.getEmail());
+		result.setTitle(runningDinnerInfo.getTitle());
+		result.setDate(runningDinnerInfo.getDate());
+
+		Set<MealClass> mealClasses = runningDinnerConfig.getMealClasses();
+		for (MealClass mealClass : mealClasses) {
+			repository.save(mealClass);
+		}
+		result.setConfiguration(runningDinnerConfig);
+
+		result.setUuid(newUuid);
+
+		// On performance problems use a bulk/batch update mechanism...
+		for (Participant participant : participants) {
+			repository.save(participant);
+		}
+		result.setParticipants(participants);
+
+		result = repository.save(result);
+		return result;
+	}
+
+	public RunningDinner findRunningDinner(final String uuid) {
+		return repository.findRunningDinnerByUuid(uuid);
+	}
+
+	public RunningDinner findRunningDinnerWithParticipants(final String uuid) {
+		return repository.findRunningDinnerByUuidWithParticipants(uuid);
+	}
+
 	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {
 		return tempParticipantLocationHandler.pushToTempLocation(file, uniqueIdentifier);
 	}
@@ -164,13 +207,13 @@ public class RunningDinnerServiceImpl {
 		this.uuidGenerator = uuidGenerator;
 	}
 
-	public void setHostUrlContext(String hostUrlContext) {
-		this.hostUrlContext = hostUrlContext;
+	@Autowired
+	public void setRepository(RunningDinnerRepository repository) {
+		this.repository = repository;
 	}
 
-	public void createRunningDinner(final RunningDinnerInfo runningDinnerInfo, final RunningDinnerConfig runningDinnerConfig,
-			final List<Participant> participants, final String newUuid) {
-
+	public void setHostUrlContext(String hostUrlContext) {
+		this.hostUrlContext = hostUrlContext;
 	}
 
 }

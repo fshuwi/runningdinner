@@ -42,7 +42,9 @@ public class MealClassPropertyEditorTest {
 		editor.setValue(mealClasses);
 		String json = editor.getAsText();
 		assertTrue(json.length() > 0);
-		assertEquals("[{\"label\":\"Vorspeise\"},{\"label\":\"Nachspeise\"},{\"label\":\"Hauptgericht\"}]", json);
+		assertEquals(
+				"[{\"label\":\"Vorspeise\",\"time\":null},{\"label\":\"Nachspeise\",\"time\":null},{\"label\":\"Hauptgericht\",\"time\":null}]",
+				json);
 		System.out.println(json);
 	}
 }

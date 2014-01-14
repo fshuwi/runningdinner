@@ -23,7 +23,7 @@
 			<artifactId>runningdinner-core</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-	
+			
 		<dependency>
 			<groupId>joda-time</groupId>
 			<artifactId>joda-time</artifactId>
@@ -233,6 +233,16 @@
 			<version>10.10.1.1</version>
 			<scope>test</scope>
 		</dependency>
+		
+		<!-- Reuse some test classes from core -->
+		<dependency>
+			<groupId>org.runningdinner</groupId>
+			<artifactId>runningdinner-core</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<classifier>tests</classifier>
+			<scope>test</scope>
+		</dependency>
+		
   </dependencies>
 
     <build>

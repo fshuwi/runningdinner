@@ -3,10 +3,13 @@ package org.runningdinner.model;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.Access;
+import javax.persistence.AccessType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -17,17 +20,20 @@ import org.runningdinner.core.Team;
 import org.runningdinner.core.model.AbstractEntity;
 
 @Entity
+@Access(AccessType.FIELD)
 public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	private static final long serialVersionUID = -6099048543502048569L;
 
-	@Column(length = 48)
+	@Column(length = 48, unique = true, nullable = false)
 	private String uuid;
 
+	@Column(nullable = false)
 	private String title;
 
 	private String city;
 
+	@Column(nullable = false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date date;
 
@@ -36,10 +42,11 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	@Embedded
 	private RunningDinnerConfig configuration;
 
-	@OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "runningdinner_fk")
 	private List<Participant> participants;
 
-	@OneToMany(cascade = CascadeType.REMOVE, orphanRemoval = true)
+	@OneToMany(cascade = CascadeType.REMOVE)
 	private List<Team> teams;
 
 	public String getUuid() {

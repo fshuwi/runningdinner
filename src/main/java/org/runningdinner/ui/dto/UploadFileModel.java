@@ -225,6 +225,7 @@ public class UploadFileModel {
 		ParsingConfiguration result = new ParsingConfiguration(nameColumnConfig, addressColumnConfig, numberOfSeatsColumnConfig);
 		result.setEmailColumnConfig(emailColumnConfig);
 		result.setMobileNumberColumnConfig(mobileColumnConfig);
+		result.setStartRow(getStartRow()-1); // Parsing usees zero-indexed rows, whereas user enters it 1-indexed
 
 		if (columnMappingNames.contains(ColumnMappingOption.SEQUENCE_NR)) {
 			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.SEQUENCE_NR);

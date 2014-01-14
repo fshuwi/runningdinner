@@ -3,6 +3,14 @@
 			xsi:schemaLocation = "http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd" version="2.0">
 
 	<persistence-unit name="runningdinner" transaction-type="RESOURCE_LOCAL">
+		<class>org.runningdinner.core.MealClass</class>
+		<class>org.runningdinner.core.RunningDinnerConfig</class>
+		<class>org.runningdinner.core.Participant</class>
+		<class>org.runningdinner.core.ParticipantName</class>
+		<class>org.runningdinner.core.ParticipantAddress</class>
+		<class>org.runningdinner.core.Team</class>
+		<class>org.runningdinner.core.VisitationPlan</class>
+		<class>org.runningdinner.model.RunningDinner</class>
 	</persistence-unit>
 
 </persistence>
