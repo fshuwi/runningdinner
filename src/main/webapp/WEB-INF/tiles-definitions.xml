@@ -55,6 +55,8 @@
  	</definition>
 
  	 <definition name="admin/start" extends="template-admin-overview">
+ 	 	<put-attribute name="info" value="/WEB-INF/views/admin/info.jsp" />
+ 	 	<put-attribute name="activities" value="/WEB-INF/views/admin/activities.jsp" />
   		<put-attribute name="content" value="/WEB-INF/views/admin/start.jsp" />
   		<put-attribute name="customScripts" value="/WEB-INF/views/admin/scripts.jsp" />
  	</definition>

@@ -26,6 +26,7 @@
     	 
     <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
     	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate" p:emailMessageSource-ref="emailMessageSource" />
-    	
-			
+    				
+    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" />
+    
 </beans>

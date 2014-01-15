@@ -91,6 +91,20 @@ public class TestRunningDinnerService {
 		checkParticipants(participants);
 	}
 
+	@Test
+	public void testGetNumberOfTeams() {
+		testCreateRunningDinner();
+		int number = runningDinnerService.getNumberOfTeamsForDinner("mydinner");
+		assertEquals(0, number);
+	}
+
+	@Test
+	public void testPersistGeneratedTeams() {
+		testCreateRunningDinner();
+		runningDinnerService.createTeamAndVisitationPlans("myuuid");
+		assertEquals(2, runningDinnerService.getNumberOfTeamsForDinner("mydinner"));
+	}
+
 	private void checkParticipants(List<Participant> participants) {
 		assertEquals(20, participants.size());
 		int cnt = 1;

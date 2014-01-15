@@ -34,7 +34,7 @@ public class AdminUrlGenerator {
 			hostUrlContextToUse = StringUtils.chop(hostUrlContextToUse);
 		}
 
-		String adminUrlPart = AdminController.ADMIN_URL_PATTERN.replaceFirst("\\{uuid\\}", uuid);
+		String adminUrlPart = AdminController.ADMIN_URL_PATTERN.replaceFirst("\\{" + AdminController.ADMIN_URL_UUID_MARKER + "\\}", uuid);
 		return hostUrlContextToUse + adminUrlPart;
 	}
 

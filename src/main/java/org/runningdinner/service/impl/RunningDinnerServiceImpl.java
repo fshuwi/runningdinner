@@ -2,6 +2,7 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -13,12 +14,16 @@ import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerCalculator;
 import org.runningdinner.core.RunningDinnerConfig;
+import org.runningdinner.core.Team;
+import org.runningdinner.core.VisitationPlan;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.event.publisher.EventPublisher;
+import org.runningdinner.exceptions.DinnerNotFoundException;
+import org.runningdinner.exceptions.NoPossibleRunningDinnerRuntimeException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
@@ -26,6 +31,8 @@ import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.web.multipart.MultipartFile;
 
 public class RunningDinnerServiceImpl {
@@ -135,21 +142,102 @@ public class RunningDinnerServiceImpl {
 
 		result = repository.save(result);
 
-		// TODO: Only after transaction commit, not now!
-		eventPublisher.notifyNewRunningDinner(result);
+		final RunningDinner constResultRef = result;
+
+		// Publish event only after transaction is successfully committed:
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				eventPublisher.notifyNewRunningDinner(constResultRef);
+			}
+		});
 
 		return result;
 	}
 
+	@Transactional
+	public GeneratedTeamsResult createTeamAndVisitationPlans(final String uuid) throws NoPossibleRunningDinnerRuntimeException {
+
+		RunningDinner dinner = repository.findRunningDinnerByUuidWithParticipants(uuid);
+
+		// create new team- and visitation-plans
+		GeneratedTeamsResult result = null;
+		try {
+			result = runningDinnerCalculator.generateTeams(dinner.getConfiguration(), dinner.getParticipants());
+			runningDinnerCalculator.assignRandomMealClasses(result, dinner.getConfiguration().getMealClasses());
+			runningDinnerCalculator.generateDinnerExecutionPlan(result, dinner.getConfiguration());
+		}
+		catch (NoPossibleRunningDinnerException ex) {
+			throw new NoPossibleRunningDinnerRuntimeException(ex);
+		}
+
+		List<Team> regularTeams = result.getRegularTeams();
+		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();
+
+		ArrayList<VisitationPlan> visitationPlans = new ArrayList<VisitationPlan>();
+		for (Team regularTeam : regularTeams) {
+			visitationPlans.add(regularTeam.getVisitationPlan());
+			repository.save(regularTeam);
+		}
+		for (VisitationPlan visitationPlan : visitationPlans) {
+			repository.save(visitationPlan);
+		}
+
+		// TODO
+		// for (Participant notAssignedParticipant : notAssignedParticipants) {
+		// notAssignedParticipant.set
+		// }
+
+		return result;
+	}
+
+	public int getNumberOfTeamsForDinner(final String uuid) {
+		return repository.getNumberOfTeamsForDinner(uuid);
+	}
+
+	public GeneratedTeamsResult generateTeamPlan(final RunningDinnerConfig runningDinnerConfig, final List<Participant> participants)
+			throws NoPossibleRunningDinnerException {
+		GeneratedTeamsResult generatedTeams = runningDinnerCalculator.generateTeams(runningDinnerConfig, participants);
+		runningDinnerCalculator.assignRandomMealClasses(generatedTeams, runningDinnerConfig.getMealClasses());
+		runningDinnerCalculator.generateDinnerExecutionPlan(generatedTeams, runningDinnerConfig);
+		return generatedTeams;
+	}
+
+	/**
+	 * 
+	 * @param uuid
+	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
+	 * @return
+	 */
 	public RunningDinner findRunningDinner(final String uuid) {
-		return repository.findRunningDinnerByUuid(uuid);
+		RunningDinner result = repository.findRunningDinnerByUuid(uuid);
+		if (result == null) {
+			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
+		}
+		return result;
 	}
 
+	/**
+	 * 
+	 * @param uuid
+	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
+	 * @return
+	 */
 	public RunningDinner findRunningDinnerWithParticipants(final String uuid) {
-		return repository.findRunningDinnerByUuidWithParticipants(uuid);
+		RunningDinner result = repository.findRunningDinnerByUuidWithParticipants(uuid);
+		if (result == null) {
+			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
+		}
+		return result;
 	}
 
+	/**
+	 * 
+	 * @param uuid
+	 * @return
+	 */
 	public List<Participant> getParticipantsFromRunningDinner(final String uuid) {
+		// TODO: This may also return an empty list even if the dinner with uuid doesn't exist
 		return repository.getParticipantsFromRunningDinner(uuid);
 	}
 

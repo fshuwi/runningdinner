@@ -10,8 +10,8 @@
 	          <li><a href="#">About us</a></li>
 	          <li><a href="#">Blog</a></li>
 	          <li><a href="#">Contact & support</a></li>
-	          <li><a href="#">Enterprise</a></li>
-	          <li><a href="#">Site status</a></li>
+	          <li><a href="http://www.javacodegeeks.com/2012/08/observer-pattern-with-spring-events.html">App Events SPring</a></li>
+	          <li><a href="http://www.javacodegeeks.com/2013/06/jpa-2-entitymanagers-transactions-and-everything-around-it.html">Transaction Gut</a></li>
 	        </ul>
 	      </div>
 	      <div class="col-md-3">

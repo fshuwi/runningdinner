@@ -42,11 +42,15 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	@Embedded
 	private RunningDinnerConfig configuration;
 
+	@Embedded
+	private AdministrationActivities activities;
+
 	@OneToMany(cascade = CascadeType.REMOVE)
 	@JoinColumn(name = "runningdinner_fk")
 	private List<Participant> participants;
 
 	@OneToMany(cascade = CascadeType.REMOVE)
+	@JoinColumn(name = "runningdinner_fk")
 	private List<Team> teams;
 
 	public String getUuid() {
@@ -111,6 +115,14 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	public void setTeams(List<Team> teams) {
 		this.teams = teams;
+	}
+
+	public AdministrationActivities getActivities() {
+		return activities;
+	}
+
+	public void setActivities(AdministrationActivities activities) {
+		this.activities = activities;
 	}
 
 }

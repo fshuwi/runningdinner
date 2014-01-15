@@ -38,6 +38,13 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
+	public int getNumberOfTeamsForDinner(final String runningDinnerUuid) {
+		TypedQuery<Number> query = em.createQuery("SELECT DISTINCT COUNT (t) FROM RunningDinner r JOIN r.teams t WHERE r.uuid=:uuid ",
+				Number.class);
+		query.setParameter("uuid", runningDinnerUuid);
+		return query.getSingleResult().intValue();
+	}
+
 	@Transactional
 	public <T extends AbstractEntity> T save(final T entity) {
 		if (entity.isNew()) {
