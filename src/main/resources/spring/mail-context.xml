@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:c="http://www.springframework.org/schema/c"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
+		
+	
+	<import resource="property-configuration.xml" />	
+	
+	<bean id="emailMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="emailmessages" />
+		
+	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
+    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}" />
+    	 
+    <bean id="runningDinnerCreatedMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
+    		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />	 
+    		
+    <!-- TODO: Define other templates -->
+    	 
+    <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
+    	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate" p:emailMessageSource-ref="emailMessageSource" />
+    	
+			
+</beans>

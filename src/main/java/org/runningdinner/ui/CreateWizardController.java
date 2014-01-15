@@ -21,6 +21,7 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
@@ -48,11 +49,12 @@ import org.springframework.web.util.WebUtils;
 
 @Controller
 @SessionAttributes("createWizardModel")
-public class CreateFrontController {
+public class CreateWizardController {
 
 	private MessageSource messages;
 	private CreateWizardValidator validator;
 	private RunningDinnerServiceImpl runningDinnerService;
+	private AdminUrlGenerator adminUrlGenerator;
 
 	private static Map<Integer, String> wizardViews = new HashMap<Integer, String>(4);
 
@@ -289,7 +291,7 @@ public class CreateFrontController {
 		// #4 Generate UUID and Admin-Link and set it to model
 		String uuid = runningDinnerService.generateNewUUID();
 		createWizardModel.setNewUuid(uuid);
-		createWizardModel.setAdministrationUrl(runningDinnerService.constructAdministrationUrl(uuid, request));
+		createWizardModel.setAdministrationUrl(adminUrlGenerator.constructAdministrationUrl(uuid, request));
 	}
 
 	/**
@@ -358,7 +360,7 @@ public class CreateFrontController {
 	}
 
 	protected String getFullViewName(final String viewName) {
-		return "welcome/" + viewName;
+		return "wizard/" + viewName;
 	}
 
 	@Autowired
@@ -374,6 +376,11 @@ public class CreateFrontController {
 	@Autowired
 	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
+	}
+
+	@Autowired
+	public void setAdminUrlGenerator(AdminUrlGenerator adminUrlGenerator) {
+		this.adminUrlGenerator = adminUrlGenerator;
 	}
 
 }

@@ -1,3 +1,10 @@
 body {
 	margin-top: 75px;
 }
+
+.inactiveWizardStep {
+	color: #999999;
+}
+.activeWizardStep {
+	color: #428BCA;
+}

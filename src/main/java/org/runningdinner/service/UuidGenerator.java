@@ -10,4 +10,13 @@ package org.runningdinner.service;
 public interface UuidGenerator {
 
 	String generateNewUUID();
+
+	/**
+	 * Checks whether a given string is a valid UUID.<br>
+	 * This can be used for pre-checking passed UUIDs before passing them to database queries.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	boolean isValid(final String uuid);
 }

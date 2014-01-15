@@ -16,11 +16,13 @@
 	
 	<context:annotation-config/>
 	
-	<context:component-scan base-package="org.runningdinner.repository" />
+	<context:component-scan 
+		base-package="org.runningdinner.repository, org.runningdinner.event.listener, org.runningdinner.event.publisher" />
 	
 	<!-- Configure services (respectively service implementations) manually -->    
     <bean id="runningDinnerService" class="org.runningdinner.service.impl.RunningDinnerServiceImpl" />
     <bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
+    <bean id="adminUrlGenerator" class="org.runningdinner.service.impl.AdminUrlGenerator" />
     <bean id="participantLocationHandlerFactory" class="org.runningdinner.service.TempParticipantLocationHandlerFactory" />
     <bean id="participantLocationHandler" factory-bean="participantLocationHandlerFactory" factory-method="create" />
 	
@@ -63,5 +65,5 @@
  		Enabled usage of EntityManager during whole http request
 	 -->      
     <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" id="entityManagerInterceptor" />
-   
+       
 </beans>

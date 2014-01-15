@@ -6,9 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import javax.servlet.http.HttpServletRequest;
-
-import org.apache.commons.lang3.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
@@ -21,27 +18,25 @@ import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 public class RunningDinnerServiceImpl {
 
-	@Value("${host.context.url}")
-	private String hostUrlContext;
-
+	// Spring managed dependencies
 	private RunningDinnerRepository repository;
-
 	private TempParticipantLocationHandler tempParticipantLocationHandler;
-
 	private UuidGenerator uuidGenerator;
+	private EventPublisher eventPublisher;
 
+	// Self managed dependency
 	private RunningDinnerCalculator runningDinnerCalculator = new RunningDinnerCalculator();
 
 	/**
@@ -139,6 +134,10 @@ public class RunningDinnerServiceImpl {
 		result.setParticipants(participants);
 
 		result = repository.save(result);
+
+		// TODO: Only after transaction commit, not now!
+		eventPublisher.notifyNewRunningDinner(result);
+
 		return result;
 	}
 
@@ -148,6 +147,10 @@ public class RunningDinnerServiceImpl {
 
 	public RunningDinner findRunningDinnerWithParticipants(final String uuid) {
 		return repository.findRunningDinnerByUuidWithParticipants(uuid);
+	}
+
+	public List<Participant> getParticipantsFromRunningDinner(final String uuid) {
+		return repository.getParticipantsFromRunningDinner(uuid);
 	}
 
 	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {
@@ -168,35 +171,6 @@ public class RunningDinnerServiceImpl {
 		return uuidGenerator.generateNewUUID();
 	}
 
-	/**
-	 * Builds a valid URL for administrating the running dinner identified by the passed uuid.<br>
-	 * Typically the URL is constructed out of a configured property which identifies host on which this app is running. If this property
-	 * does not exist then it is tried to construct the host out of the passed request.
-	 * 
-	 * @param uuid
-	 * @param request (Optional) Used when there is no configured host property for constructing the resulting URL
-	 * @return
-	 */
-	public String constructAdministrationUrl(final String uuid, final HttpServletRequest request) {
-		String hostUrlContextToUse = this.hostUrlContext;
-		if (StringUtils.isEmpty(hostUrlContext)) {
-			hostUrlContextToUse = generateHostContextFromRequest(request);
-		}
-
-		if (StringUtils.isEmpty(hostUrlContextToUse)) {
-			throw new IllegalStateException("Host URL of current server could not be retrieved");
-		}
-
-		if (!hostUrlContextToUse.endsWith("/")) {
-			hostUrlContextToUse += "/";
-		}
-		return hostUrlContextToUse + "event/" + uuid + "/admin";
-	}
-
-	protected String generateHostContextFromRequest(final HttpServletRequest request) {
-		throw new UnsupportedOperationException("not yet implemented");
-	}
-
 	@Autowired
 	public void setTempParticipantLocationHandler(TempParticipantLocationHandler tempParticipantLocationHandler) {
 		this.tempParticipantLocationHandler = tempParticipantLocationHandler;
@@ -212,8 +186,9 @@ public class RunningDinnerServiceImpl {
 		this.repository = repository;
 	}
 
-	public void setHostUrlContext(String hostUrlContext) {
-		this.hostUrlContext = hostUrlContext;
+	@Autowired
+	public void setEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
 	}
 
 }

@@ -17,16 +17,32 @@
   		  
   		<tiles:insertAttribute name="menu" />
   		
-  		<div class="container">  
-  		
+  		<%-- Use current view name for determining the current highlighted breadcrumb element --%>	
+  		<tiles:useAttribute name="currentView" id="currentStep" classname="java.lang.String" />
+  		<c:set var="timesClass" value="inactiveWizardStep" />
+  		<c:set var="uploadClass" value="inactiveWizardStep" />	
+  		<c:set var="finishClass" value="inactiveWizardStep" />
+  		<c:choose>
+  			<c:when test="${currentStep == 'times'}">
+  				<c:set var="timesClass" value="activeWizardStep" />
+  			</c:when>
+  			<c:when test="${currentStep == 'upload'}">
+  				<c:set var="uploadClass" value="activeWizardStep" />
+  			</c:when>
+  			<c:when test="${currentStep == 'save'}">
+  				<c:set var="finishClass" value="activeWizardStep" />
+  			</c:when>  			
+  		</c:choose>		
   			
+  		<div class="container">
+  				
   			<div class="row">
   				<div class="col-xs-12">
 		  			<ol class="breadcrumb">
-		  				<li class="active">1. Allgemein</li>
-		  				<li><a href="javascript:void();" style="cursor:default;text-decoration:none;">2. Zeiten festlegen</a></li>
-		  				<li class="active">3. Teilnehmerliste hochladen</li>
-		  				<li class="active">4. Fertigstellen</li>
+		  				<li class="inactiveWizardStep">1. Allgemein</li>
+		  				<li class="${timesClass}">2. Zeiten festlegen</li>
+		  				<li class="${uploadClass}">3. Teilnehmerliste hochladen</li>
+		  				<li class="${finishClass}">4. Fertigstellen</li>
 					</ol>
 				</div>
 			</div>

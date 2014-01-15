@@ -81,8 +81,18 @@ public class TestRunningDinnerService {
 		assertEquals(2, result.getConfiguration().getTeamSize());
 
 		List<Participant> participants = result.getParticipants();
-		assertEquals(20, participants.size());
+		checkParticipants(participants);
+	}
 
+	@Test
+	public void testGetParticipants() {
+		testCreateRunningDinner();
+		List<Participant> participants = runningDinnerService.getParticipantsFromRunningDinner("mydinner");
+		checkParticipants(participants);
+	}
+
+	private void checkParticipants(List<Participant> participants) {
+		assertEquals(20, participants.size());
 		int cnt = 1;
 		for (Participant p : participants) {
 			assertEquals(cnt++, p.getParticipantNumber());
