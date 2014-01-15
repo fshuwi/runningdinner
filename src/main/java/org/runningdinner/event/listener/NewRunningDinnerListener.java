@@ -13,7 +13,6 @@ public class NewRunningDinnerListener implements ApplicationListener<NewRunningD
 		RunningDinner newRunningDinner = event.getNewRunningDinner();
 		String email = newRunningDinner.getEmail();
 		String uuid = newRunningDinner.getUuid(); // TODO: Admin-link...
-		// SADF
 		System.out.println("Received Event for sendining email to " + email + " with UUID " + uuid);
 	}
 }
