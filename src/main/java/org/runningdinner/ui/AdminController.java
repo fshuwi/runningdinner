@@ -27,7 +27,7 @@ public class AdminController {
 	public String adminOverview(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
-		RunningDinner foundRunningDinner = runningDinnerService.findRunningDinner(uuid);
+		RunningDinner foundRunningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 		model.addAttribute("runningDinner", foundRunningDinner);
 		model.addAttribute("uuid", foundRunningDinner.getUuid()); // Convenience access
 
@@ -38,7 +38,7 @@ public class AdminController {
 	public String showTeamArrangement(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
-		int numberOfTeamsForDinner = runningDinnerService.getNumberOfTeamsForDinner(uuid);
+		int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
 		if (numberOfTeamsForDinner > 0) {
 			// Team/Dinner-plan already persisted, fetch it from DB:
 
@@ -50,7 +50,7 @@ public class AdminController {
 			model.addAttribute("notAssignedParticipants", generatedTeamsResult.getNotAssignedParticipants());
 		}
 
-		RunningDinner dinner = runningDinnerService.findRunningDinner(uuid);
+		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 		AdministrationActivities activities = dinner.getActivities();
 
 		return getFullViewName("start");

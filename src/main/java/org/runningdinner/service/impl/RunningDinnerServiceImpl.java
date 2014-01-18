@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.runningdinner.core.CoreUtil;
@@ -26,6 +29,7 @@ import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.exceptions.NoPossibleRunningDinnerRuntimeException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.model.VisitationPlanInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
@@ -134,12 +138,12 @@ public class RunningDinnerServiceImpl {
 
 		result.setUuid(newUuid);
 
-		// On performance problems use a bulk/batch update mechanism...
+		// TODO On performance problems use a bulk/batch update mechanisms
+
 		for (Participant participant : participants) {
 			repository.save(participant);
 		}
 		result.setParticipants(participants);
-
 		result = repository.save(result);
 
 		final RunningDinner constResultRef = result;
@@ -158,7 +162,10 @@ public class RunningDinnerServiceImpl {
 	@Transactional
 	public GeneratedTeamsResult createTeamAndVisitationPlans(final String uuid) throws NoPossibleRunningDinnerRuntimeException {
 
-		RunningDinner dinner = repository.findRunningDinnerByUuidWithParticipants(uuid);
+		RunningDinner dinner = repository.findDinnerByUuidWithParticipants(uuid);
+		if (dinner == null) {
+			throw new DinnerNotFoundException("Could not find dinner with uuid " + uuid);
+		}
 
 		// create new team- and visitation-plans
 		GeneratedTeamsResult result = null;
@@ -174,28 +181,34 @@ public class RunningDinnerServiceImpl {
 		List<Team> regularTeams = result.getRegularTeams();
 		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();
 
-		ArrayList<VisitationPlan> visitationPlans = new ArrayList<VisitationPlan>();
+		// #1 Save first every team
 		for (Team regularTeam : regularTeams) {
-			visitationPlans.add(regularTeam.getVisitationPlan());
 			repository.save(regularTeam);
 		}
-		for (VisitationPlan visitationPlan : visitationPlans) {
+
+		// #2 Then save the visitation plan for every team (this cannot be done in above loop, because not every team may have been
+		// persisted yet)
+		Set<VisitationPlan> visitationPlans = new HashSet<VisitationPlan>();
+		for (Team regularTeam : regularTeams) {
+			VisitationPlan visitationPlan = regularTeam.getVisitationPlan();
 			repository.save(visitationPlan);
+			visitationPlans.add(visitationPlan);
 		}
 
-		// TODO
-		// for (Participant notAssignedParticipant : notAssignedParticipants) {
-		// notAssignedParticipant.set
-		// }
+		// #3 Finally assign visitation plans (and therefore teams):
+		// We just assign the visitation-plans to the Running-Dinner. By using the Visitation-Plans we are able to navigate to the teams
+		// etc. pp:
+		dinner.setVisitationPlans(visitationPlans);
+
+		// #4 Save the team-less participants:
+		dinner.setNotAssignedParticipants(notAssignedParticipants);
+
+		// TODO On performance problems use a bulk/batch update mechanisms
 
 		return result;
 	}
 
-	public int getNumberOfTeamsForDinner(final String uuid) {
-		return repository.getNumberOfTeamsForDinner(uuid);
-	}
-
-	public GeneratedTeamsResult generateTeamPlan(final RunningDinnerConfig runningDinnerConfig, final List<Participant> participants)
+	protected GeneratedTeamsResult generateTeamPlan(final RunningDinnerConfig runningDinnerConfig, final List<Participant> participants)
 			throws NoPossibleRunningDinnerException {
 		GeneratedTeamsResult generatedTeams = runningDinnerCalculator.generateTeams(runningDinnerConfig, participants);
 		runningDinnerCalculator.assignRandomMealClasses(generatedTeams, runningDinnerConfig.getMealClasses());
@@ -203,14 +216,74 @@ public class RunningDinnerServiceImpl {
 		return generatedTeams;
 	}
 
+	public List<VisitationPlanInfo> loadVisitationPlanRepresentationsForDinner(final String uuid) {
+
+		// TODO: Implement paging
+
+		// #1 First bigger DB-JOIN query: Get all visitation plans
+		List<VisitationPlan> visitationPlans = loadVisitationPlansForDinner(uuid);
+
+		// #2 Cumulate all involved teams...
+		Set<Team> teamsToFetch = new HashSet<Team>();
+		for (VisitationPlan visitationPlan : visitationPlans) {
+			Set<Team> hostTeams = visitationPlan.getHostTeams();
+			Set<Team> guestTeams = visitationPlan.getGuestTeams();
+			Team team = visitationPlan.getTeam();
+
+			teamsToFetch.add(team);
+			teamsToFetch.addAll(hostTeams);
+			teamsToFetch.addAll(guestTeams);
+		}
+
+		// #3 ... and fetch these teams by their Ids:
+		// (Note: The number of teams that are actually fetched is significantly smaller as expected.
+		// Example: For 6 VisitationPlan entities which have e.g. 5 associated team-entities per each instance, we do NOT fetch 6*5=30
+		// team-instances, but we fetch in fact just 6 team-instances. This is because the same team-entities are distributed across several
+		// VisitationPlan entities. Thus we have limited the whole method to one bigger JOIN query and one smaller IN-Query.)
+		Set<Long> teamIds = repository.getEntityIds(teamsToFetch);
+		List<Team> fullyLoadedTeams = repository.loadTeamsById(teamIds);
+
+		Map<Long, Team> tmpTemMappings = new HashMap<Long, Team>();
+		for (Team fullyLoadedTeam : fullyLoadedTeams) {
+			tmpTemMappings.put(fullyLoadedTeam.getId(), fullyLoadedTeam);
+		}
+
+		ArrayList<VisitationPlanInfo> result = new ArrayList<VisitationPlanInfo>(visitationPlans.size());
+
+		// #4 Reassign the loaded teams to the according visitation-plans and return DTO list:
+		for (VisitationPlan visitationPlan : visitationPlans) {
+			Long teamId = visitationPlan.getTeam().getId();
+			Team team = tmpTemMappings.get(teamId);
+
+			VisitationPlanInfo vpi = new VisitationPlanInfo(team);
+
+			Set<Team> hostTeams = visitationPlan.getHostTeams();
+			for (Team hostTeam : hostTeams) {
+				vpi.addHostTeam(tmpTemMappings.get(hostTeam.getId()));
+			}
+
+			Set<Team> guestTeams = visitationPlan.getGuestTeams();
+			for (Team guestTeam : guestTeams) {
+				vpi.addGuestTeam(tmpTemMappings.get(guestTeam.getId()));
+			}
+
+			result.add(vpi);
+		}
+
+		return result;
+	}
+
 	/**
+	 * Tries to load an existing running dinner.<br>
+	 * There are Just the basic details loaded. For retrieving the associated entities like participants,teams and visitation-plans another
+	 * load-method must be used.
 	 * 
 	 * @param uuid
 	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
 	 * @return
 	 */
-	public RunningDinner findRunningDinner(final String uuid) {
-		RunningDinner result = repository.findRunningDinnerByUuid(uuid);
+	public RunningDinner loadDinnerWithBasicDetails(final String uuid) {
+		RunningDinner result = repository.findDinnerByUuid(uuid);
 		if (result == null) {
 			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
 		}
@@ -218,13 +291,14 @@ public class RunningDinnerServiceImpl {
 	}
 
 	/**
+	 * See loadDinnerWithBasicDetails, but fetches also all participants of the dinner.
 	 * 
 	 * @param uuid
 	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
 	 * @return
 	 */
-	public RunningDinner findRunningDinnerWithParticipants(final String uuid) {
-		RunningDinner result = repository.findRunningDinnerByUuidWithParticipants(uuid);
+	public RunningDinner loadDinnerWithParticipants(final String uuid) {
+		RunningDinner result = repository.findDinnerByUuidWithParticipants(uuid);
 		if (result == null) {
 			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
 		}
@@ -232,13 +306,58 @@ public class RunningDinnerServiceImpl {
 	}
 
 	/**
+	 * Loads all participants of a dinner identified by the passed uuid.<br>
+	 * Use this, if you are just interested in the participants and not in other dinner-details.
 	 * 
 	 * @param uuid
 	 * @return
 	 */
-	public List<Participant> getParticipantsFromRunningDinner(final String uuid) {
+	public List<Participant> loadAllParticipantsOfDinner(final String uuid) {
 		// TODO: This may also return an empty list even if the dinner with uuid doesn't exist
-		return repository.getParticipantsFromRunningDinner(uuid);
+		return repository.loadAllParticipantsOfDinner(uuid);
+	}
+
+	/**
+	 * Loads all participants that could not successfully be assigned into teams.<br>
+	 * Note: This makes only sense if there have been built teams already.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public List<Participant> loadNotAssignableParticipantsOfDinner(final String uuid) {
+		return repository.loadNotAssignableParticipantsFromDinner(uuid);
+	}
+
+	/**
+	 * Loads all successfully generated teams (and all contained data) for a dinner.<br>
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public List<Team> loadRegularTeamsFromDinner(final String uuid) {
+		return repository.loadRegularTeamsFromDinner(uuid);
+	}
+
+	/**
+	 * Detects how many teams have been built for the dinner identified by the passed uuid
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public int loadNumberOfTeamsForDinner(final String uuid) {
+		return repository.loadNumberOfTeamsForDinner(uuid);
+	}
+
+	/**
+	 * Loads all generated visitation-plans for a dinner identified by the passed uuid.<br>
+	 * Note: The resulting visitation-plans contain just light team-objects, so for retrieving team-based info for a single visitation-plan
+	 * these info must be separately fetched.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	public List<VisitationPlan> loadVisitationPlansForDinner(final String uuid) {
+		return repository.loadVisitationPlansForDinner(uuid);
 	}
 
 	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {

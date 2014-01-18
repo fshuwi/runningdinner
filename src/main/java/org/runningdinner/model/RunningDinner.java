@@ -1,7 +1,11 @@
 package org.runningdinner.model;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.Access;
 import javax.persistence.AccessType;
@@ -9,16 +13,32 @@ import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
-import org.runningdinner.core.Team;
+import org.runningdinner.core.VisitationPlan;
 import org.runningdinner.core.model.AbstractEntity;
 
+/**
+ * Central entity of application.<br>
+ * User can create RunnignDinner instances and administrate them later.<br>
+ * RunningDinner instance contains basic info details, the configuration options of the dinner and a very simple "workflow"-state about
+ * administration activities.<br>
+ * Furthermore it contains all participants and the team-arrangments of the participants including the visitation-plans (dinner-routes) for
+ * each arranged team.<br>
+ * A dinner instance is identified by an on creation generated UUID.
+ * 
+ * @author i01002492
+ * 
+ */
 @Entity
 @Access(AccessType.FIELD)
 public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
@@ -45,14 +65,34 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	@Embedded
 	private AdministrationActivities activities;
 
-	@OneToMany(cascade = CascadeType.REMOVE)
-	@JoinColumn(name = "runningdinner_fk")
-	private List<Participant> participants;
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	@JoinColumn(name = "runningdinner_all_fk")
+	@OrderBy(value = "participantNumber")
+	private Set<Participant> participants;
 
-	@OneToMany(cascade = CascadeType.REMOVE)
-	@JoinColumn(name = "runningdinner_fk")
-	private List<Team> teams;
+	/**
+	 * By using the VisitationPlan-association we can also access the assigned teams of a RunningDinner.<br>
+	 * This may be a little awkward, but helps with JPA implementation issues for building queries.
+	 */
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	@JoinColumn(name = "runningdinner_visitation_fk")
+	private Set<VisitationPlan> visitationPlans;
 
+	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
+	@JoinColumn(name = "runningdinner_notassigned_fk")
+	@OrderBy(value = "participantNumber")
+	private Set<Participant> notAssignedParticipants;
+
+	public RunningDinner() {
+		super();
+		this.activities = new AdministrationActivities();
+	}
+
+	/**
+	 * UUID which is used to find a RunningDinner instance
+	 * 
+	 * @return
+	 */
 	public String getUuid() {
 		return uuid;
 	}
@@ -85,6 +125,9 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.date = date;
 	}
 
+	/**
+	 * The email address of the creator of the RunningDinner
+	 */
 	public String getEmail() {
 		return email;
 	}
@@ -102,19 +145,26 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	}
 
 	public List<Participant> getParticipants() {
-		return participants;
+		if (participants == null) {
+			return Collections.emptyList();
+		}
+		ArrayList<Participant> result = new ArrayList<Participant>(participants);
+		return result;
 	}
 
 	public void setParticipants(List<Participant> participants) {
-		this.participants = participants;
+		this.participants = new HashSet<Participant>(participants);
 	}
 
-	public List<Team> getTeams() {
-		return teams;
+	public Set<VisitationPlan> getVisitationPlans() {
+		if (visitationPlans == null) {
+			return Collections.emptySet();
+		}
+		return visitationPlans;
 	}
 
-	public void setTeams(List<Team> teams) {
-		this.teams = teams;
+	public void setVisitationPlans(Set<VisitationPlan> visitationPlans) {
+		this.visitationPlans = visitationPlans;
 	}
 
 	public AdministrationActivities getActivities() {
@@ -123,6 +173,44 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	public void setActivities(AdministrationActivities activities) {
 		this.activities = activities;
+	}
+
+	public List<Participant> getNotAssignedParticipants() {
+		if (notAssignedParticipants == null) {
+			return Collections.emptyList();
+		}
+		ArrayList<Participant> result = new ArrayList<Participant>(notAssignedParticipants);
+		return result;
+	}
+
+	public void setNotAssignedParticipants(List<Participant> notAssignedParticipants) {
+		this.notAssignedParticipants = new HashSet<Participant>(notAssignedParticipants);
+	}
+
+	@Override
+	public int hashCode() {
+		return new HashCodeBuilder(11, 31).append(getUuid()).hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (obj == this) {
+			return true;
+		}
+		if (obj.getClass() != getClass()) {
+			return false;
+		}
+
+		RunningDinner other = (RunningDinner)obj;
+		return new EqualsBuilder().append(getUuid(), other.getUuid()).isEquals();
+	}
+
+	@Override
+	public String toString() {
+		return getTitle() + " - " + getUuid();
 	}
 
 }
