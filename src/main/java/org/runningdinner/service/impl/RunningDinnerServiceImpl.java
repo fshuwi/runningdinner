@@ -2,12 +2,8 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.runningdinner.core.CoreUtil;
@@ -18,7 +14,6 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerCalculator;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
-import org.runningdinner.core.VisitationPlan;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
@@ -29,7 +24,6 @@ import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.exceptions.NoPossibleRunningDinnerRuntimeException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.model.VisitationPlanInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
@@ -186,21 +180,12 @@ public class RunningDinnerServiceImpl {
 			repository.save(regularTeam);
 		}
 
-		// #2 Then save the visitation plan for every team (this cannot be done in above loop, because not every team may have been
-		// persisted yet)
-		Set<VisitationPlan> visitationPlans = new HashSet<VisitationPlan>();
-		for (Team regularTeam : regularTeams) {
-			VisitationPlan visitationPlan = regularTeam.getVisitationPlan();
-			repository.save(visitationPlan);
-			visitationPlans.add(visitationPlan);
-		}
-
-		// #3 Finally assign visitation plans (and therefore teams):
+		// #2 Finally assign visitation plans (and therefore teams):
 		// We just assign the visitation-plans to the Running-Dinner. By using the Visitation-Plans we are able to navigate to the teams
 		// etc. pp:
-		dinner.setVisitationPlans(visitationPlans);
+		dinner.setTeams(regularTeams);
 
-		// #4 Save the team-less participants:
+		// #3 Save the team-less participants:
 		dinner.setNotAssignedParticipants(notAssignedParticipants);
 
 		// TODO On performance problems use a bulk/batch update mechanisms
@@ -216,61 +201,60 @@ public class RunningDinnerServiceImpl {
 		return generatedTeams;
 	}
 
-	public List<VisitationPlanInfo> loadVisitationPlanRepresentationsForDinner(final String uuid) {
+	public List<Team> loadRegularTeamsWithVisitationPlanFromDinner(final String uuid) {
 
+		return repository.loadRegularTeamsWithArrangementsFromDinner(uuid);
 		// TODO: Implement paging
 
-		// #1 First bigger DB-JOIN query: Get all visitation plans
-		List<VisitationPlan> visitationPlans = loadVisitationPlansForDinner(uuid);
-
-		// #2 Cumulate all involved teams...
-		Set<Team> teamsToFetch = new HashSet<Team>();
-		for (VisitationPlan visitationPlan : visitationPlans) {
-			Set<Team> hostTeams = visitationPlan.getHostTeams();
-			Set<Team> guestTeams = visitationPlan.getGuestTeams();
-			Team team = visitationPlan.getTeam();
-
-			teamsToFetch.add(team);
-			teamsToFetch.addAll(hostTeams);
-			teamsToFetch.addAll(guestTeams);
-		}
-
-		// #3 ... and fetch these teams by their Ids:
-		// (Note: The number of teams that are actually fetched is significantly smaller as expected.
-		// Example: For 6 VisitationPlan entities which have e.g. 5 associated team-entities per each instance, we do NOT fetch 6*5=30
-		// team-instances, but we fetch in fact just 6 team-instances. This is because the same team-entities are distributed across several
-		// VisitationPlan entities. Thus we have limited the whole method to one bigger JOIN query and one smaller IN-Query.)
-		Set<Long> teamIds = repository.getEntityIds(teamsToFetch);
-		List<Team> fullyLoadedTeams = repository.loadTeamsById(teamIds);
-
-		Map<Long, Team> tmpTemMappings = new HashMap<Long, Team>();
-		for (Team fullyLoadedTeam : fullyLoadedTeams) {
-			tmpTemMappings.put(fullyLoadedTeam.getId(), fullyLoadedTeam);
-		}
-
-		ArrayList<VisitationPlanInfo> result = new ArrayList<VisitationPlanInfo>(visitationPlans.size());
-
-		// #4 Reassign the loaded teams to the according visitation-plans and return DTO list:
-		for (VisitationPlan visitationPlan : visitationPlans) {
-			Long teamId = visitationPlan.getTeam().getId();
-			Team team = tmpTemMappings.get(teamId);
-
-			VisitationPlanInfo vpi = new VisitationPlanInfo(team);
-
-			Set<Team> hostTeams = visitationPlan.getHostTeams();
-			for (Team hostTeam : hostTeams) {
-				vpi.addHostTeam(tmpTemMappings.get(hostTeam.getId()));
-			}
-
-			Set<Team> guestTeams = visitationPlan.getGuestTeams();
-			for (Team guestTeam : guestTeams) {
-				vpi.addGuestTeam(tmpTemMappings.get(guestTeam.getId()));
-			}
-
-			result.add(vpi);
-		}
-
-		return result;
+		// // #2 Cumulate all involved teams...
+		// Set<Team> teamsToFetch = new HashSet<Team>();
+		// for (VisitationPlan visitationPlan : visitationPlans) {
+		// Set<? extends Team> hostTeams = visitationPlan.getHostTeams();
+		// Set<? extends Team> guestTeams = visitationPlan.getGuestTeams();
+		// Team team = visitationPlan.getTeam();
+		//
+		// teamsToFetch.add(team);
+		// teamsToFetch.addAll(hostTeams);
+		// teamsToFetch.addAll(guestTeams);
+		// }
+		//
+		// // #3 ... and fetch these teams by their Ids:
+		// // (Note: The number of teams that are actually fetched is significantly smaller as expected.
+		// // Example: For 6 VisitationPlan entities which have e.g. 5 associated team-entities per each instance, we do NOT fetch 6*5=30
+		// // team-instances, but we fetch in fact just 6 team-instances. This is because the same team-entities are distributed across
+		// several
+		// // VisitationPlan entities. Thus we have limited the whole method to one bigger JOIN query and one smaller IN-Query.)
+		// Set<Long> teamIds = repository.getEntityIds(teamsToFetch);
+		// List<Team> fullyLoadedTeams = repository.loadTeamsById(teamIds);
+		//
+		// Map<Long, Team> tmpTemMappings = new HashMap<Long, Team>();
+		// for (Team fullyLoadedTeam : fullyLoadedTeams) {
+		// tmpTemMappings.put(fullyLoadedTeam.getId(), fullyLoadedTeam);
+		// }
+		//
+		// ArrayList<VisitationPlanInfo> result = new ArrayList<VisitationPlanInfo>(visitationPlans.size());
+		//
+		// // #4 Reassign the loaded teams to the according visitation-plans and return DTO list:
+		// for (VisitationPlan visitationPlan : visitationPlans) {
+		// Long teamId = visitationPlan.getTeam().getId();
+		// Team team = tmpTemMappings.get(teamId);
+		//
+		// VisitationPlanInfo vpi = new VisitationPlanInfo(team);
+		//
+		// Set<? extends Team> hostTeams = visitationPlan.getHostTeams();
+		// for (Team hostTeam : hostTeams) {
+		// vpi.addHostTeam(tmpTemMappings.get(hostTeam.getId()));
+		// }
+		//
+		// Set<? extends Team> guestTeams = visitationPlan.getGuestTeams();
+		// for (Team guestTeam : guestTeams) {
+		// vpi.addGuestTeam(tmpTemMappings.get(guestTeam.getId()));
+		// }
+		//
+		// result.add(vpi);
+		// }
+		//
+		// return result;
 	}
 
 	/**
@@ -356,9 +340,9 @@ public class RunningDinnerServiceImpl {
 	 * @param uuid
 	 * @return
 	 */
-	public List<VisitationPlan> loadVisitationPlansForDinner(final String uuid) {
-		return repository.loadVisitationPlansForDinner(uuid);
-	}
+	// public List<VisitationPlan> loadVisitationPlansForDinner(final String uuid) {
+	// return repository.loadVisitationPlansForDinner(uuid);
+	// }
 
 	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {
 		return tempParticipantLocationHandler.pushToTempLocation(file, uniqueIdentifier);

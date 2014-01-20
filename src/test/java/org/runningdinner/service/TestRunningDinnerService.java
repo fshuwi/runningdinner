@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.persistence.EntityManagerFactory;
@@ -18,8 +19,6 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.model.VisitationPlanInfo;
-import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +44,6 @@ public class TestRunningDinnerService {
 
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
-
-	@Autowired
-	RunningDinnerRepository rep;
 
 	@Test
 	public void testCreateRunningDinner() {
@@ -113,7 +109,7 @@ public class TestRunningDinnerService {
 	}
 
 	@Test
-	public void testGetNumberOfGeneratedTeams() {
+	public void testGetNumberOfGeneratedTeamsWithNoTeams() {
 		testCreateRunningDinner();
 		entityManagerFactory.getCache().evictAll();
 		int number = runningDinnerService.loadNumberOfTeamsForDinner(MY_TEST_UUID);
@@ -128,9 +124,14 @@ public class TestRunningDinnerService {
 
 		entityManagerFactory.getCache().evictAll();
 
-		// With 16 participants 6 regular teams can be built uo (->RunningDinnerCalculator)
+		// With 16 participants just 6 regular teams (with 2 members for each team) can be built up (->RunningDinnerCalculator)
 		// 4 participants cannot be assigned to regular teams then
 		assertEquals(6, runningDinnerService.loadNumberOfTeamsForDinner(MY_TEST_UUID));
+	}
+
+	@Test
+	public void testGetTeamsForDinner() {
+		testPersistGeneratedTeams();
 
 		entityManagerFactory.getCache().evictAll();
 
@@ -145,52 +146,29 @@ public class TestRunningDinnerService {
 			assertEquals(cnt++, team.getTeamNumber());
 			assertNotNull(team.getMealClass());
 			assertEquals(2, team.getTeamMembers().size());
+			// Check both team members for having successfully retrieved some persistent values:
+			Iterator<Participant> tmpIter = team.getTeamMembers().iterator();
+			assertEquals("MyStreet", tmpIter.next().getAddress().getStreet());
+			assertEquals("MyStreet", tmpIter.next().getAddress().getStreet());
+
 		}
 
 		entityManagerFactory.getCache().evictAll();
-
-		// List<VisitationPlan> visitationPlans = runningDinnerService.loadVisitationPlansForDinner(MY_TEST_UUID);
-		// assertEquals(6, visitationPlans.size());
-		//
-		// entityManagerFactory.getCache().evictAll();
-
-		List<VisitationPlanInfo> planInfos = runningDinnerService.loadVisitationPlanRepresentationsForDinner(MY_TEST_UUID);
-		assertEquals(6, planInfos.size());
-		for (VisitationPlanInfo planInfo : planInfos) {
-			assertEquals(2, planInfo.getTeam().getTeamMembers().size());
-			assertEquals(2, planInfo.getGuestTeams().size());
-			assertEquals(2, planInfo.getHostTeams().size());
-		}
 	}
 
-	// @Test
-	// public void testFuckJpa() {
-	// testPersistGeneratedTeams();
-	//
-	// // List<Team> loadTeams = rep.loadTeams();
-	// // assertEquals(6, loadTeams.size());
-	//
-	// assertEquals(6, rep.loadNumberOfTeamsForDinner(MY_TEST_UUID));
-	//
-	// List<VisitationPlan> plans = rep.loadVisitationPlansForDinner(MY_TEST_UUID);
-	// assertEquals(6, plans.size());
-	//
-	// Set<Team> teamsToFullyLoad = new HashSet<Team>();
-	// for (VisitationPlan plan : plans) {
-	// Set<Team> hostTeams = plan.getHostTeams();
-	// Set<Team> guestTeams = plan.getGuestTeams();
-	// Team team = plan.getTeam();
-	//
-	// teamsToFullyLoad.add(team);
-	// teamsToFullyLoad.addAll(hostTeams);
-	// teamsToFullyLoad.addAll(guestTeams);
-	// }
-	// List<Team> fullyLoadedTeams = rep.loadTeamsById(rep.getEntityIds(teamsToFullyLoad));
-	// assertEquals(6, fullyLoadedTeams.size());
-	//
-	// List<Team> teams = rep.loadRegularTeamsFromDinner(MY_TEST_UUID);
-	// assertEquals(6, teams.size());
-	// }
+	@Test
+	public void testGetVisitationPlans() {
+		testPersistGeneratedTeams();
+
+		entityManagerFactory.getCache().evictAll();
+
+		List<Team> teamsWithArrangements = runningDinnerService.loadRegularTeamsWithVisitationPlanFromDinner(MY_TEST_UUID);
+		for (Team team : teamsWithArrangements) {
+			assertEquals(2, team.getVisitationPlan().getGuestTeams().size());
+			assertEquals(2, team.getVisitationPlan().getHostTeams().size());
+		}
+
+	}
 
 	private List<Participant> generateParticipants() {
 		// Generate 20 dummy participants...

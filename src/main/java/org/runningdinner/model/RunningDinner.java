@@ -1,6 +1,7 @@
 package org.runningdinner.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -15,6 +16,7 @@ import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
 import javax.persistence.Temporal;
@@ -24,7 +26,7 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
-import org.runningdinner.core.VisitationPlan;
+import org.runningdinner.core.Team;
 import org.runningdinner.core.model.AbstractEntity;
 
 /**
@@ -66,20 +68,18 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	private AdministrationActivities activities;
 
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-	@JoinColumn(name = "runningdinner_all_fk")
+	@JoinColumn(name = "dinner_id")
 	@OrderBy(value = "participantNumber")
 	private Set<Participant> participants;
 
-	/**
-	 * By using the VisitationPlan-association we can also access the assigned teams of a RunningDinner.<br>
-	 * This may be a little awkward, but helps with JPA implementation issues for building queries.
-	 */
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-	@JoinColumn(name = "runningdinner_visitation_fk")
-	private Set<VisitationPlan> visitationPlans;
+	@JoinColumn(name = "dinner_id")
+	@OrderBy(value = "teamNumber")
+	private Set<Team> teams;
+	// private Set<VisitationPlan> visitationPlans;
 
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
-	@JoinColumn(name = "runningdinner_notassigned_fk")
+	@JoinTable(name = "NotAssignedParticipant", joinColumns = @JoinColumn(name = "dinner_id"), inverseJoinColumns = @JoinColumn(name = "participant_id"))
 	@OrderBy(value = "participantNumber")
 	private Set<Participant> notAssignedParticipants;
 
@@ -156,19 +156,30 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.participants = new HashSet<Participant>(participants);
 	}
 
-	public Set<VisitationPlan> getVisitationPlans() {
-		if (visitationPlans == null) {
-			return Collections.emptySet();
-		}
-		return visitationPlans;
-	}
-
-	public void setVisitationPlans(Set<VisitationPlan> visitationPlans) {
-		this.visitationPlans = visitationPlans;
-	}
+	// public Set<VisitationPlan> getVisitationPlans() {
+	// if (visitationPlans == null) {
+	// return Collections.emptySet();
+	// }
+	// return visitationPlans;
+	// }
+	//
+	// public void setVisitationPlans(Set<VisitationPlan> visitationPlans) {
+	// this.visitationPlans = visitationPlans;
+	// }
 
 	public AdministrationActivities getActivities() {
 		return activities;
+	}
+
+	public Set<Team> getTeams() {
+		if (teams == null) {
+			return Collections.emptySet();
+		}
+		return teams;
+	}
+
+	public void setTeams(Collection<Team> teams) {
+		this.teams = new HashSet<Team>(teams);
 	}
 
 	public void setActivities(AdministrationActivities activities) {
