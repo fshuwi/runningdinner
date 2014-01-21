@@ -48,7 +48,7 @@ import org.springframework.web.util.WebUtils;
 
 @Controller
 @SessionAttributes("createWizardModel")
-public class CreateWizardController {
+public class CreateWizardController extends AbstractBaseController {
 
 	private MessageSource messages;
 	private CreateWizardValidator validator;
@@ -277,10 +277,8 @@ public class CreateWizardController {
 		String location = runningDinnerService.copyParticipantFileToTempLocation(file, session.getId());
 		createWizardModel.setUploadedFileLocation(location);
 
-		// #3a) Set parsed participants into request-attribute, don't use session as this list might be quite big
-		request.setAttribute("participants", participants);
-		// #3b) Check whether all participants can be used for creating the dinner or not
-		setParticipantPreviewStatus(participants, createWizardModel, request, locale);
+		// #3 Prepare participant table preview:
+		setParticipantListViewAttributes(request, participants, createWizardModel.createRunningDinnerConfiguration(), locale);
 
 		// #4 Generate UUID and Admin-Link and set it to model
 		String uuid = runningDinnerService.generateNewUUID();
@@ -368,6 +366,11 @@ public class CreateWizardController {
 		this.messages = messageSource;
 	}
 
+	@Override
+	protected MessageSource getMessageSource() {
+		return this.messages;
+	}
+
 	@Autowired
 	public void setValidator(CreateWizardValidator validator) {
 		this.validator = validator;
@@ -376,6 +379,11 @@ public class CreateWizardController {
 	@Autowired
 	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
+	}
+
+	@Override
+	public RunningDinnerServiceImpl getRunningDinnerService() {
+		return runningDinnerService;
 	}
 
 	@Autowired

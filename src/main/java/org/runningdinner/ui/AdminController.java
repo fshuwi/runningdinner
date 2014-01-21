@@ -2,10 +2,14 @@ package org.runningdinner.ui;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
+import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
@@ -21,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 @Controller
-public class AdminController {
+public class AdminController extends AbstractBaseController {
 
 	public static final String ADMIN_URL_UUID_MARKER = "uuid";
 	public static final String ADMIN_URL_PATTERN = "/event/{" + ADMIN_URL_UUID_MARKER + "}/admin";
@@ -87,6 +91,24 @@ public class AdminController {
 		return getFullViewName("teams");
 	}
 
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/participants", method = RequestMethod.GET)
+	public String showParticipantsList(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Locale locale, HttpServletRequest request,
+			Model model) {
+		adminValidator.validateUuid(uuid);
+
+		RunningDinner dinner = runningDinnerService.loadDinnerWithParticipants(uuid);
+
+		List<Participant> participants = dinner.getParticipants();
+		RunningDinnerConfig configuration = dinner.getConfiguration();
+
+		// List<Participant> loadNotAssignableParticipantsOfDinner = runningDinnerService.loadNotAssignableParticipantsOfDinner(uuid);
+		// Normally we would also execute above query for this in database, but it's faster for computing this information in-memory as it
+		// is done in setParticpantListViewAttributes:
+		setParticipantListViewAttributes(request, participants, configuration, locale);
+
+		return getFullViewName("participants");
+	}
+
 	protected String getFullViewName(final String viewName) {
 		return "admin/" + viewName;
 	}
@@ -104,6 +126,16 @@ public class AdminController {
 	@Autowired
 	public void setAdminValidator(AdminValidator adminValidator) {
 		this.adminValidator = adminValidator;
+	}
+
+	@Override
+	protected MessageSource getMessageSource() {
+		return this.messages;
+	}
+
+	@Override
+	public RunningDinnerServiceImpl getRunningDinnerService() {
+		return runningDinnerService;
 	}
 
 }
