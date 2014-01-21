@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.MealClass;
+import org.runningdinner.core.converter.ConversionException;
+import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
@@ -115,6 +117,33 @@ public class CreateWizardValidator implements Validator {
 
 		Map<Integer, String> columnMappings = uploadFileModel.getColumnMappings();
 		// TODO Perform validation of column mapping stuff!
+	}
+
+	/**
+	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format) and put it to the
+	 * passed BindingResult.
+	 * 
+	 * @param convEx
+	 * @param locale
+	 * @return
+	 */
+	public void rejectConversionUploadError(Errors errors, ConversionException convEx, String fieldName) {
+
+		final CONVERSION_ERROR conversionError = convEx.getConversionError();
+		final int rowNumber = convEx.getRowNumber();
+
+		String errorCode = null;
+		Object[] params = null;
+		if (rowNumber < 0) {
+			errorCode = "error.conversion.row.unknown";
+			params = new Object[] { conversionError.name() };
+		}
+		else {
+			errorCode = "error.conversion.row";
+			params = new Object[] { conversionError.name(), convEx.getRowNumber() };
+		}
+
+		errors.rejectValue(fieldName, errorCode, params, null);
 	}
 
 	public void validateMealTimes(Object target, Errors errors) {

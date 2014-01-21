@@ -17,7 +17,6 @@ import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
-import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
@@ -137,9 +136,7 @@ public class CreateWizardController {
 				validator.validateMealTimes(createWizardModel, bindingResult);
 				if (!bindingResult.hasErrors()) {
 					createWizardModel.applyDateToMealTimes();
-					// Prepare upload form with default parsing config:
-					ParsingConfiguration parsingConfig = createWizardModel.getParsingConfiguration();
-					model.addAttribute("uploadFileModel", UploadFileModel.newFromParsingConfiguration(parsingConfig));
+					prepareUploadView(model, createWizardModel);
 				}
 				break;
 		}
@@ -151,6 +148,12 @@ public class CreateWizardController {
 
 		// Advance to next view
 		return getFullViewName(wizardViews.get(targetView));
+	}
+
+	protected void prepareUploadView(Model model, CreateWizardModel createWizardModel) {
+		// Prepare upload form with default parsing config:
+		ParsingConfiguration parsingConfig = createWizardModel.getParsingConfiguration();
+		model.addAttribute("uploadFileModel", UploadFileModel.newFromParsingConfiguration(parsingConfig));
 	}
 
 	private void createNewRunningDinner(CreateWizardModel createWizardModel) {
@@ -204,19 +207,24 @@ public class CreateWizardController {
 
 		try {
 			handleFileUploadStep(uploadFileModel, bindingResult, request, locale);
-
 			// Advance to next view
 			return getFullViewName(wizardViews.get(targetView));
 		}
 		catch (ConversionException convEx) {
-			rejectConversionError(bindingResult, convEx, locale);
+			validator.rejectConversionUploadError(bindingResult, convEx, "file");
 			return renderUploadViewAgainAfterError(currentWizardView, uploadFileModel);
 		}
 		catch (Exception ex) {
-			// Technical error
-			// TODO: Need generic error handling (view, logging)
+			// Technical error => Pass to global exception handler
 			throw new RuntimeException(ex.getMessage(), ex);
 		}
+	}
+
+	@RequestMapping(value = "/wizard-upload", method = RequestMethod.GET)
+	public String wizardFileUploadGETHandler(@ModelAttribute("createWizardModel") CreateWizardModel createWizardModel, Model model) {
+		// Prevent HTTP error when user tries to load upload view directly from browser
+		prepareUploadView(model, createWizardModel);
+		return getFullViewName("upload");
 	}
 
 	/**
@@ -232,33 +240,6 @@ public class CreateWizardController {
 		uploadFileModel.sortColumnMappings();
 
 		return getFullViewName(wizardViews.get(uploadView));
-	}
-
-	/**
-	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format) and put it to the
-	 * passed BindingResult.
-	 * 
-	 * @param convEx
-	 * @param locale
-	 * @return
-	 */
-	private void rejectConversionError(BindingResult bindingResult, ConversionException convEx, Locale locale) {
-
-		final CONVERSION_ERROR conversionError = convEx.getConversionError();
-		final int rowNumber = convEx.getRowNumber();
-
-		String errorCode = null;
-		Object[] params = null;
-		if (rowNumber < 0) {
-			errorCode = "error.conversion.row.unknown";
-			params = new Object[] { conversionError.name() };
-		}
-		else {
-			errorCode = "error.conversion.row";
-			params = new Object[] { conversionError.name(), convEx.getRowNumber() };
-		}
-
-		bindingResult.rejectValue("file", errorCode, params, null);
 	}
 
 	/**
@@ -357,6 +338,12 @@ public class CreateWizardController {
 		return result;
 	}
 
+	/**
+	 * Used for select-box in upload wizard step
+	 * 
+	 * @param locale
+	 * @return
+	 */
 	@ModelAttribute("columnMappingOptionItems")
 	public List<ColumnMappingOption> popuplateColumnMappingOptionItems(Locale locale) {
 		return ColumnMappingOption.generateColumnMappingOptions(messages, locale);

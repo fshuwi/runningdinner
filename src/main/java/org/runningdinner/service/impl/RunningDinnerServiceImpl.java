@@ -126,7 +126,7 @@ public class RunningDinnerServiceImpl {
 			repository.save(participant);
 		}
 		result.setParticipants(participants);
-		result = repository.save(result);
+		repository.save(result);
 
 		final RunningDinner constResultRef = result;
 
