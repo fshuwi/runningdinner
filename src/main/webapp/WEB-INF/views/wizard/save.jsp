@@ -46,17 +46,7 @@
 </div>
 
 <form:form class="well" method="post" id="startForm4" action="wizard" commandName="createWizardModel" htmlEscape="true" role="form">
-	<%--
-	<div class="form-group">
-		<label for="adminLink">Administrations-Link</label>
-		<div class="row">
-			<div class="col-xs-7">
-				<form:input path="administrationUrl" class="form-control" id="adminLink" readonly="true" cssStyle="cursor:default;" />
-			</div>
-		</div>
-		<p class="help-block"><spring:message code="label.adminlink.help" /></p>
-	</div>
-	--%>
+
 	<bs:inputField name="email" label="EMail Adresse" placeholder="EMail Adresse" type="email" helpForInput="${labelEmailHelp}" inputColClass="col-xs-6"/>
 	
 	<input type="hidden" value="3" name="_page" />

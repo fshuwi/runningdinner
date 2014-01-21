@@ -12,6 +12,7 @@ import javax.persistence.EntityManagerFactory;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.runningdinner.core.GenderAspect;
+import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.core.RunningDinnerCalculatorTest;
@@ -117,7 +118,7 @@ public class TestRunningDinnerService {
 	}
 
 	@Test
-	public void testPersistGeneratedTeams() {
+	public void testPersistGeneratedTeams() throws NoPossibleRunningDinnerException {
 		testCreateRunningDinner();
 		entityManagerFactory.getCache().evictAll();
 		runningDinnerService.createTeamAndVisitationPlans(MY_TEST_UUID);
@@ -130,7 +131,7 @@ public class TestRunningDinnerService {
 	}
 
 	@Test
-	public void testGetTeamsForDinner() {
+	public void testGetTeamsForDinner() throws NoPossibleRunningDinnerException {
 		testPersistGeneratedTeams();
 
 		entityManagerFactory.getCache().evictAll();
@@ -157,7 +158,7 @@ public class TestRunningDinnerService {
 	}
 
 	@Test
-	public void testGetVisitationPlans() {
+	public void testGetVisitationPlans() throws NoPossibleRunningDinnerException {
 		testPersistGeneratedTeams();
 
 		entityManagerFactory.getCache().evictAll();

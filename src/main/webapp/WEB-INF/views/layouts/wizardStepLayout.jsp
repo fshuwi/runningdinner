@@ -36,16 +36,18 @@
   			
   		<div class="container">
   				
-  			<div class="row">
-  				<div class="col-xs-12">
-		  			<ol class="breadcrumb">
-		  				<li class="inactiveWizardStep">1. Allgemein</li>
-		  				<li class="${timesClass}">2. Zeiten festlegen</li>
-		  				<li class="${uploadClass}">3. Teilnehmerliste hochladen</li>
-		  				<li class="${finishClass}">4. Fertigstellen</li>
-					</ol>
+  			<c:if test="${currentStep != 'finish'}">	
+	  			<div class="row">
+	  				<div class="col-xs-12">
+			  			<ol class="breadcrumb">
+			  				<li class="inactiveWizardStep">1. Allgemein</li>
+			  				<li class="${timesClass}">2. Zeiten festlegen</li>
+			  				<li class="${uploadClass}">3. Teilnehmerliste hochladen</li>
+			  				<li class="${finishClass}">4. Fertigstellen</li>
+						</ol>
+					</div>
 				</div>
-			</div>
+			</c:if>
   				
   			<div class="row">
 				<div class="col-xs-12">		

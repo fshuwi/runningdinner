@@ -12,7 +12,8 @@
 		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd">
 		
 	
-	<import resource="property-configuration.xml" />	
+	<import resource="property-configuration.xml" />
+	<import resource="app-context.xml" />	
 	
 	<bean id="emailMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="emailmessages" />
 		
@@ -27,6 +28,7 @@
     <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
     	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate" p:emailMessageSource-ref="emailMessageSource" />
     				
-    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" />
+    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:adminUrlGenerator-ref="adminUrlGenerator" p:emailService-ref="emailService"
+    />
     
 </beans>

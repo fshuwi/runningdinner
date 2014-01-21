@@ -2,7 +2,6 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -21,7 +20,6 @@ import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
-import org.runningdinner.exceptions.NoPossibleRunningDinnerRuntimeException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
@@ -73,23 +71,13 @@ public class RunningDinnerServiceImpl {
 	 * Checks whether all participants can assigned into teams with the provided configuration.<br>
 	 * If not, the resulting list contain all participants that cannot be assigned.<br>
 	 * If the resulting list is empty, then all participants can successfully be assigned into teams.<br>
-	 * <br>
-	 * Callers must also check the NoPossibleRunningDinnerException which is thrown if there are e.g. too few participants.
 	 * 
 	 * @param runningDinnerConfig
 	 * @param participants
 	 * @return
-	 * @throws NoPossibleRunningDinnerException Thrown when it is not possible to construct a running dinner with the provided configuration
-	 *             and the provided participants. This can happen if there are too few participants.
 	 */
-	public List<Participant> calculateNotAssignableParticipants(RunningDinnerConfig runningDinnerConfig, List<Participant> participants)
-			throws NoPossibleRunningDinnerException {
-
-		GeneratedTeamsResult generatedTeamsResult = runningDinnerCalculator.generateTeams(runningDinnerConfig, participants);
-		if (generatedTeamsResult.hasNotAssignedParticipants()) {
-			return generatedTeamsResult.getNotAssignedParticipants();
-		}
-		return Collections.emptyList();
+	public List<Participant> calculateNotAssignableParticipants(RunningDinnerConfig runningDinnerConfig, List<Participant> participants) {
+		return runningDinnerCalculator.calculateNotAssignableParticipants(runningDinnerConfig, participants);
 	}
 
 	/**
@@ -153,8 +141,9 @@ public class RunningDinnerServiceImpl {
 		return result;
 	}
 
-	@Transactional
-	public GeneratedTeamsResult createTeamAndVisitationPlans(final String uuid) throws NoPossibleRunningDinnerRuntimeException {
+	// TODO: Is this sufficient?
+	@Transactional(rollbackFor = NoPossibleRunningDinnerException.class)
+	public GeneratedTeamsResult createTeamAndVisitationPlans(final String uuid) throws NoPossibleRunningDinnerException {
 
 		RunningDinner dinner = repository.findDinnerByUuidWithParticipants(uuid);
 		if (dinner == null) {
@@ -162,15 +151,9 @@ public class RunningDinnerServiceImpl {
 		}
 
 		// create new team- and visitation-plans
-		GeneratedTeamsResult result = null;
-		try {
-			result = runningDinnerCalculator.generateTeams(dinner.getConfiguration(), dinner.getParticipants());
-			runningDinnerCalculator.assignRandomMealClasses(result, dinner.getConfiguration().getMealClasses());
-			runningDinnerCalculator.generateDinnerExecutionPlan(result, dinner.getConfiguration());
-		}
-		catch (NoPossibleRunningDinnerException ex) {
-			throw new NoPossibleRunningDinnerRuntimeException(ex);
-		}
+		GeneratedTeamsResult result = runningDinnerCalculator.generateTeams(dinner.getConfiguration(), dinner.getParticipants());
+		runningDinnerCalculator.assignRandomMealClasses(result, dinner.getConfiguration().getMealClasses());
+		runningDinnerCalculator.generateDinnerExecutionPlan(result, dinner.getConfiguration());
 
 		List<Team> regularTeams = result.getRegularTeams();
 		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();

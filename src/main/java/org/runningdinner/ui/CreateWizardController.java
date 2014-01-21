@@ -5,7 +5,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -15,7 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.runningdinner.core.GenderAspect;
-import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
@@ -46,6 +44,8 @@ import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
+
+// TODO: Remove parsing config from session attributes!
 
 @Controller
 @SessionAttributes("createWizardModel")
@@ -100,7 +100,7 @@ public class CreateWizardController {
 
 		if (request.getParameter("_cancel") != null || !isWizardViewIndexInRange(currentWizardView)) {
 			sessionStatus.setComplete();
-			return "redirect:/start";
+			return "redirect:/wizard";
 		}
 
 		if (request.getParameter("_finish") != null) {
@@ -199,11 +199,7 @@ public class CreateWizardController {
 
 		validator.validateFileUploadControls(uploadFileModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			// Ensure that all mappings are displayed from 1th-Nth column (order may be cluttered due to request)
-			uploadFileModel.sortColumnMappings();
-
-			// Errors, display same view with error information
-			return getFullViewName(wizardViews.get(currentWizardView));
+			return renderUploadViewAgainAfterError(currentWizardView, uploadFileModel);
 		}
 
 		try {
@@ -213,8 +209,8 @@ public class CreateWizardController {
 			return getFullViewName(wizardViews.get(targetView));
 		}
 		catch (ConversionException convEx) {
-			bindingResult.rejectValue("file", constructErrorMessage(convEx, locale));
-			return getFullViewName(wizardViews.get(currentWizardView));
+			rejectConversionError(bindingResult, convEx, locale);
+			return renderUploadViewAgainAfterError(currentWizardView, uploadFileModel);
 		}
 		catch (Exception ex) {
 			// Technical error
@@ -224,13 +220,30 @@ public class CreateWizardController {
 	}
 
 	/**
-	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format)
+	 * Displays the passed upload-view again with error information and takes care of correct ordering of column mappings of the
+	 * UploadFileModel
+	 * 
+	 * @param uploadView
+	 * @param uploadFileModel
+	 * @return
+	 */
+	protected String renderUploadViewAgainAfterError(final int uploadView, final UploadFileModel uploadFileModel) {
+		// Ensure that all mappings are displayed from 1th-Nth column (order may be cluttered due to request)
+		uploadFileModel.sortColumnMappings();
+
+		return getFullViewName(wizardViews.get(uploadView));
+	}
+
+	/**
+	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format) and put it to the
+	 * passed BindingResult.
 	 * 
 	 * @param convEx
 	 * @param locale
 	 * @return
 	 */
-	private String constructErrorMessage(final ConversionException convEx, final Locale locale) {
+	private void rejectConversionError(BindingResult bindingResult, ConversionException convEx, Locale locale) {
+
 		final CONVERSION_ERROR conversionError = convEx.getConversionError();
 		final int rowNumber = convEx.getRowNumber();
 
@@ -245,7 +258,7 @@ public class CreateWizardController {
 			params = new Object[] { conversionError.name(), convEx.getRowNumber() };
 		}
 
-		return messages.getMessage(errorCode, params, locale);
+		bindingResult.rejectValue("file", errorCode, params, null);
 	}
 
 	/**
@@ -308,24 +321,24 @@ public class CreateWizardController {
 
 		final RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
 
-		try {
-			List<Participant> notAssignableParticipants = runningDinnerService.calculateNotAssignableParticipants(runningDinnerConfig,
-					participants);
-			request.setAttribute("notAssignableParticipants", notAssignableParticipants);
+		List<Participant> notAssignableParticipants = runningDinnerService.calculateNotAssignableParticipants(runningDinnerConfig,
+				participants);
+		request.setAttribute("notAssignableParticipants", notAssignableParticipants);
 
-			if (notAssignableParticipants.size() == 0) {
-				request.setAttribute("participantStatus", "success");
-				request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.success", null, locale));
-			}
-			else {
-				request.setAttribute("participantStatus", "warning");
-				request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.warning", null, locale));
-			}
+		if (notAssignableParticipants.size() == 0) {
+			// Every participant can be assigned into a team
+			request.setAttribute("participantStatus", "success");
+			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.success", null, locale));
 		}
-		catch (NoPossibleRunningDinnerException e) {
+		else if (notAssignableParticipants.size() == participants.size()) {
+			// Too few participants for assigning them into valid team combinations
 			request.setAttribute("participantStatus", "danger");
 			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.error", null, locale));
-			request.setAttribute("notAssignableParticipants", new HashSet<Participant>(0));
+		}
+		else {
+			// Not every participant can successfuly be assigned into a team
+			request.setAttribute("participantStatus", "warning");
+			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.warning", null, locale));
 		}
 	}
 
