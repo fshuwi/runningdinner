@@ -73,17 +73,14 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return teamResults;
 	}
 
-	// public List<VisitationPlan> loadVisitationPlansForDinner(final String uuid) {
-	// TypedQuery<VisitationPlan> query = em.createQuery(
-	// //
-	// "SELECT DISTINCT v FROM RunningDinner r JOIN r.visitationPlans v LEFT JOIN FETCH v.team LEFT JOIN FETCH v.guestTeams LEFT JOIN FETCH v.hostTeams WHERE r.uuid=:uuid",
-	// // "SELECT DISTINCT v FROM VisitationPlan v JOIN FETCH v.team JOIN FETCH v.guestTeams JOIN FETCH v.hostTeams",
-	// "SELECT DISTINCT v FROM RunningDinner r JOIN r.visitationPlans v WHERE r.uuid=:uuid",
-	//
-	// VisitationPlan.class);
-	// query.setParameter("uuid", uuid);
-	// return query.getResultList();
-	// }
+	public List<Team> loadRegularTeamsFromDinnerByKeys(String uuid, Set<String> teamKeys) {
+		TypedQuery<Team> query = em.createQuery(
+				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass WHERE r.uuid=:uuid AND t.naturalKey IN :teamKeys ORDER BY t.teamNumber",
+				Team.class);
+		query.setParameter("uuid", uuid);
+		query.setParameter("teamKeys", teamKeys);
+		return query.getResultList();
+	}
 
 	public List<Team> loadTeamsById(Set<Long> teamIds) {
 		TypedQuery<Team> query = em.createQuery(

@@ -58,7 +58,7 @@ public class CreateWizardController extends AbstractBaseController {
 	private static Map<Integer, String> wizardViews = new HashMap<Integer, String>(4);
 
 	static {
-		wizardViews.put(0, "start");
+		wizardViews.put(0, "wizard-start");
 		wizardViews.put(1, "times");
 		wizardViews.put(2, "upload");
 		wizardViews.put(3, "save");
@@ -78,7 +78,7 @@ public class CreateWizardController extends AbstractBaseController {
 	public String startWizard(Model model, SessionStatus sessionStatus) {
 		CreateWizardModel wizardModel = CreateWizardModel.newModelWithDefaults();
 		model.addAttribute("createWizardModel", wizardModel);
-		return getFullViewName("start");
+		return getFullViewName("wizard-start");
 	}
 
 	@RequestMapping(value = "/finish", method = RequestMethod.GET)

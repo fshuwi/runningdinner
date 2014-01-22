@@ -1,4 +1,4 @@
-package org.runningdinner.ui.util;
+package org.runningdinner.ui.json;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -9,6 +9,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.runningdinner.core.MealClass;
+import org.runningdinner.ui.util.MealClassPropertyEditor;
 
 public class MealClassPropertyEditorTest {
 

@@ -24,8 +24,8 @@
 	<div class="tab-pane active" id="regular">
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
-				<div class="btn-toolbar">
-					<a class="btn btn-primary btn-sm" href="#${uuid}">Export...</a>
+				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
+					<a class="btn btn-info btn-sm" href="#${uuid}">Export...</a>
 				</div>
 			
 				<table class="table table-hover">
@@ -46,12 +46,8 @@
 								<td>${team.teamNumber}</td>
 								<td>
 									<div>
-										<c:set var="hostingParticipantName" value="" />
 										<c:forEach items="${team.teamMembers}" var="teamMember">
 											<h5 class="media-heading"><a href="#">${teamMember.name.fullnameFirstnameFirst}</a></h5>
-											<c:if test="${teamMember.host eq true}">
-												<c:set var="hostingParticipantName" value="${teamMember.name.fullnameFirstnameFirst}" />
-											</c:if>
 										</c:forEach>
 									</div>
 								</td>
@@ -70,8 +66,12 @@
 										</c:forEach>
 									</div>
 							   </td>
-							   <td class="col-xs-2" style="text-align:center;">										
-							   		<input type="text" class="form-control" name="${team.naturalKey}_host" value="${hostingParticipantName}" />
+							   <td class="col-xs-2" style="text-align:center;">	
+							   		<select class="form-control teamHoster" id="${team.naturalKey}" onchange="onTeamHosterChanged('${team.naturalKey}')">
+							   			<c:forEach items="${team.teamMembers}" var="teamMember">
+							   				<option value="${teamMember.naturalKey}" <c:if test="${teamMember.host eq true}">selected</c:if>>${teamMember.name.fullnameFirstnameFirst}</option>
+							   			</c:forEach>
+						 			</select>										
 							   </td>
 							   <td>
 								   <div><a class='btn btn-info btn-sm' href="#"><span class="glyphicon glyphicon-eye-open"></span> Vorschau</a></div>
@@ -85,11 +85,15 @@
 							<td></td>
 							<td></td>
 							<td></td>
-							<td><a class="btn btn-sm" href="#"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
+							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
 							<td><a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="#" data-placement="bottom" data-toggle="tooltip" data-original-title="Legt die Teams endgueltig fest. Alle Teilnehmer bekommen eine Mail mit der Info ueber Ihren Team-Partner"><span class="glyphicon glyphicon-play"></span> Teameinteilung finalisieren...</a></td>
 						</tr>
 					</tbody>
 				</table>
+				
+				<p>TODO: Das muss noch besser werden (eigenes ueber div etc.)</p>
+				<div id="saveTeamHostsResponse" class="alert hidden col-xs-4"></div>
+				
 			</c:when>
 			<c:otherwise>
 				<h5>Es gibt leider nicht genügend Teilnehmer für eine Teameinteilung mit den gespeicherten Dinner-Optionen!</h5>

@@ -3,9 +3,11 @@ package org.runningdinner.ui;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
@@ -13,16 +15,21 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
+import org.runningdinner.ui.dto.SingleTeamHostChange.TeamHostChangeList;
+import org.runningdinner.ui.dto.TeamHostsChangeResponse;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
 public class AdminController extends AbstractBaseController {
@@ -44,7 +51,7 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("runningDinner", foundRunningDinner);
 		model.addAttribute("uuid", foundRunningDinner.getUuid()); // Convenience access
 
-		return getFullViewName("start");
+		return getFullViewName("admin-start");
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams", method = RequestMethod.GET)
@@ -107,6 +114,30 @@ public class AdminController extends AbstractBaseController {
 		setParticipantListViewAttributes(request, participants, configuration, locale);
 
 		return getFullViewName("participants");
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/savehosts", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public TeamHostsChangeResponse saveTeamHosts(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+			@RequestBody TeamHostChangeList changedHostTeams) {
+		adminValidator.validateUuid(uuid);
+
+		if (CoreUtil.isEmpty(changedHostTeams)) {
+			return TeamHostsChangeResponse.createSuccessResponse();
+		}
+
+		Map<String, String> teamHostMappings = runningDinnerService.generateTeamHostMappings(changedHostTeams);
+
+		try {
+			runningDinnerService.updateTeamHosters(uuid, teamHostMappings);
+		}
+		catch (Exception ex) {
+			LOGGER.error("Failed to update team hosters for dinner {} with number of passed teamHostMappings {}", uuid,
+					teamHostMappings.size(), ex);
+			return TeamHostsChangeResponse.createErrorResponse(ex.getMessage());
+		}
+
+		return TeamHostsChangeResponse.createSuccessResponse();
 	}
 
 	protected String getFullViewName(final String viewName) {

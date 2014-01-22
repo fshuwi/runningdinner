@@ -17,25 +17,25 @@
 
 	<!-- landing page (with first wizard step) -->
  	<definition name="template-welcome" extends="template-basis" template="/WEB-INF/views/layouts/welcomeLayout.jsp">
- 		<put-attribute name="customScripts" value="/WEB-INF/views/wizard/scripts.jsp" />
+ 		<put-attribute name="customScripts" value="/WEB-INF/views/wizard/wizard-scripts.jsp" />
  	</definition>
  	
  	<!-- create dinner wizard steps -->
  	 <definition name="template-wizard-step" extends="template-basis" template="/WEB-INF/views/layouts/wizardStepLayout.jsp">
  	 	<put-attribute name="pageTitle" value="Run Your Dinner - Wizard" />
- 	 	<put-attribute name="customScripts" value="/WEB-INF/views/wizard/scripts.jsp" />
+ 	 	<put-attribute name="customScripts" value="/WEB-INF/views/wizard/wizard-scripts.jsp" />
  	</definition>
  	
  	<!-- landing page for administrating a dinner -->
  	 <definition name="template-admin-overview" extends="template-basis" template="/WEB-INF/views/layouts/adminOverviewLayout.jsp">
  	 	<put-attribute name="pageTitle" value="Run Your Dinner - Administration Overview" />
- 	 	<put-attribute name="customScripts" value="/WEB-INF/views/admin/scripts.jsp" />
+ 	 	<put-attribute name="customScripts" value="/WEB-INF/views/admin/admin-scripts.jsp" />
  	</definition>
  	
  	<!-- default layouts (used e.g. for single admin views) -->
  	 <definition name="template-default" extends="template-basis" template="/WEB-INF/views/layouts/defaultLayout.jsp">
  	 	<put-attribute name="pageTitle" value="Run Your Dinner" />
- 	 	<put-attribute name="customScripts" value="" />
+ 	 	<put-attribute name="customScripts" value="/WEB-INF/views/admin/admin-scripts.jsp" />
  	</definition>
  	
  	<!-- for displaying error info in whole browser window -->
@@ -45,8 +45,8 @@
  	
  	<definition name="view-participants" template="/WEB-INF/views/common/participantsListView.jsp" />
  	
- 	<definition name="wizard/start" extends="template-welcome">
-  		<put-attribute name="content" value="/WEB-INF/views/wizard/start.jsp" />
+ 	<definition name="wizard/wizard-start" extends="template-welcome">
+  		<put-attribute name="content" value="/WEB-INF/views/wizard/wizard-start.jsp" />
  	</definition>
 	 	
  	<definition name="wizard/*" extends="template-wizard-step">
@@ -55,16 +55,16 @@
 		<put-attribute name="currentView" value="{1}" />
  	</definition>
 
- 	 <definition name="admin/start" extends="template-admin-overview">
+ 	 <definition name="admin/admin-start" extends="template-admin-overview">
  	 	<put-attribute name="info" value="/WEB-INF/views/admin/info.jsp" />
  	 	<put-attribute name="activities" value="/WEB-INF/views/admin/activities.jsp" />
-  		<put-attribute name="content" value="/WEB-INF/views/admin/start.jsp" />
-  		<put-attribute name="customScripts" value="/WEB-INF/views/admin/scripts.jsp" />
+  		<put-attribute name="content" value="/WEB-INF/views/admin/admin-start.jsp" />
+  		<put-attribute name="pageTitle" value="ASDF2" />
  	</definition>
  	
  	 <definition name="admin/*" extends="template-default">
   		<put-attribute name="content" value="/WEB-INF/views/admin/{1}.jsp" />
-  		<put-attribute name="customScripts" value="/WEB-INF/views/admin/scripts.jsp" />
+  		<put-attribute name="pageTitle" value="ASDF" />
  	</definition>
  	
  	 <definition name="error/*" extends="template-error">

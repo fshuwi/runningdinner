@@ -7,7 +7,7 @@
 	      <div class="col-md-3">
 	        <ul class="list-unstyled">
 	          <li>GitHub<li>
-	          <li><a href="#">About us</a></li>
+	          <li><a href="http://localhost:8080/runningdinner/event/1a0096f6-1239-4c0a-a978-f94ccbfc13ae/admin">Dinner #1</a></li>
 	          <li><a href="#">Blog</a></li>
 	          <li><a href="#">Contact & support</a></li>
 	          <li><a href="http://www.javacodegeeks.com/2012/08/observer-pattern-with-spring-events.html">App Events SPring</a></li>

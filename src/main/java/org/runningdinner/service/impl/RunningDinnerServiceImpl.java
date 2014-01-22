@@ -2,7 +2,11 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.runningdinner.core.CoreUtil;
@@ -25,10 +29,14 @@ import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
+import org.runningdinner.ui.dto.SingleTeamHostChange;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 public class RunningDinnerServiceImpl {
@@ -41,6 +49,8 @@ public class RunningDinnerServiceImpl {
 
 	// Self managed dependency
 	private RunningDinnerCalculator runningDinnerCalculator = new RunningDinnerCalculator();
+
+	private static Logger LOGGER = LoggerFactory.getLogger(RunningDinnerServiceImpl.class);
 
 	/**
 	 * Parses participant list out from uploaded file
@@ -151,9 +161,13 @@ public class RunningDinnerServiceImpl {
 		}
 
 		// create new team- and visitation-plans
-		GeneratedTeamsResult result = runningDinnerCalculator.generateTeams(dinner.getConfiguration(), dinner.getParticipants());
+		GeneratedTeamsResult result = generateTeamPlan(dinner.getConfiguration(), dinner.getParticipants());
 		runningDinnerCalculator.assignRandomMealClasses(result, dinner.getConfiguration().getMealClasses());
 		runningDinnerCalculator.generateDinnerExecutionPlan(result, dinner.getConfiguration());
+
+		for (Team team : result.getRegularTeams()) {
+			System.out.println(team.getVisitationPlan().toString());
+		}
 
 		List<Team> regularTeams = result.getRegularTeams();
 		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();
@@ -313,6 +327,62 @@ public class RunningDinnerServiceImpl {
 	 */
 	public int loadNumberOfTeamsForDinner(final String uuid) {
 		return repository.loadNumberOfTeamsForDinner(uuid);
+	}
+
+	/**
+	 * 
+	 * @param uuid
+	 * @param teamHostMappings Contains the naturalKey of a team as key in the mapping, and the naturalKey of the new hosting participant as
+	 *            value in the mapping
+	 */
+	@Transactional
+	public void updateTeamHosters(final String uuid, Map<String, String> teamHostMappings) {
+
+		Set<String> teamKeys = teamHostMappings.keySet();
+		LOGGER.info("Call updateTeamHosters with {} teamKeys", teamKeys.size());
+
+		Collection<String> newParticipantKeysTmp = teamHostMappings.values();
+		LOGGER.info("Call updateTeamHosters with {} newParticipantKeys", newParticipantKeysTmp.size());
+
+		HashSet<String> newParticipantKeys = new HashSet<String>(newParticipantKeysTmp);
+		Assert.state(newParticipantKeys.size() == newParticipantKeysTmp.size(),
+				"Each participant naturalKey should have been unique in the passed teamHostMappings object, but it was not");
+		LOGGER.info("All participant naturalKeys are unique");
+
+		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
+		LOGGER.info("Found {} teams for the passed teamKeys", teams.size());
+		Assert.state(teams.size() == teamKeys.size(), "There should be modified " + teamKeys.size() + " teams, but found " + teams.size()
+				+ " teams in database");
+
+		for (Team team : teams) {
+			Set<Participant> teamMembers = team.getTeamMembers();
+			LOGGER.debug("Try to assign new hoster to team {}", team.getTeamNumber());
+
+			for (Participant teamMember : teamMembers) {
+				String naturalKey = teamMember.getNaturalKey();
+				if (newParticipantKeys.contains(naturalKey)) {
+					if (!teamMember.isHost()) { // Prevent unnecessary SQL update if this participant was already the host
+						teamMember.setHost(true);
+					}
+				}
+				else {
+					if (teamMember.isHost()) {
+						teamMember.setHost(false);
+					}
+				}
+			}
+
+			LOGGER.debug("Changed hoster of team {}", team.getTeamNumber());
+		}
+	}
+
+	public Map<String, String> generateTeamHostMappings(final List<SingleTeamHostChange> singleTeamHostChanges) {
+		Map<String, String> teamHostMapping = new HashMap<String, String>();
+		for (SingleTeamHostChange teamHostChange : singleTeamHostChanges) {
+			String teamKey = teamHostChange.getTeamKey();
+			teamHostMapping.put(teamKey, teamHostChange.getNewHostParticipantKey());
+		}
+		return teamHostMapping;
 	}
 
 	/**
