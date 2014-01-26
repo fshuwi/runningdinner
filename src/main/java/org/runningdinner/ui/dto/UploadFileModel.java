@@ -16,7 +16,9 @@ import org.runningdinner.core.converter.config.AddressColumnConfig;
 import org.runningdinner.core.converter.config.AddressColumnConfig.AddressColumnConfigBuilder;
 import org.runningdinner.core.converter.config.AddressColumnConfig.CompositeAddressColumnConfigBuilder;
 import org.runningdinner.core.converter.config.AddressColumnConfig.SingleAddressColumnConfigBuilder;
+import org.runningdinner.core.converter.config.AgeColumnConfig;
 import org.runningdinner.core.converter.config.EmailColumnConfig;
+import org.runningdinner.core.converter.config.GenderColumnConfig;
 import org.runningdinner.core.converter.config.MobileNumberColumnConfig;
 import org.runningdinner.core.converter.config.NameColumnConfig;
 import org.runningdinner.core.converter.config.NumberOfSeatsColumnConfig;
@@ -62,6 +64,12 @@ public class UploadFileModel {
 				continue;
 			}
 			if (checkAbstractColumnConfig(i, parsingConfiguration.getSequenceColumnConfig(), ColumnMappingOption.SEQUENCE_NR)) {
+				continue;
+			}
+			if (checkAbstractColumnConfig(i, parsingConfiguration.getGenderColumnConfig(), ColumnMappingOption.GENDER)) {
+				continue;
+			}
+			if (checkAbstractColumnConfig(i, parsingConfiguration.getGenderColumnConfig(), ColumnMappingOption.AGE)) {
 				continue;
 			}
 
@@ -196,6 +204,8 @@ public class UploadFileModel {
 		NumberOfSeatsColumnConfig numberOfSeatsColumnConfig = NumberOfSeatsColumnConfig.noNumberOfSeatsColumn();
 		EmailColumnConfig emailColumnConfig = EmailColumnConfig.noEmailColumn();
 		MobileNumberColumnConfig mobileColumnConfig = MobileNumberColumnConfig.noMobileNumberColumn();
+		GenderColumnConfig genderColumnConfig = GenderColumnConfig.noGenderColumn();
+		AgeColumnConfig ageColumnConfig = AgeColumnConfig.noAgeColumn();
 
 		Set<String> columnMappingNames = new HashSet<String>(columnMappings.values());
 		DualHashBidiMap bidirectionalColumnMappings = new DualHashBidiMap(columnMappings);
@@ -213,6 +223,15 @@ public class UploadFileModel {
 			mobileColumnConfig = MobileNumberColumnConfig.createMobileNumberColumnConfig(columnIndex);
 		}
 
+		if (columnMappingNames.contains(ColumnMappingOption.GENDER)) {
+			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.GENDER);
+			genderColumnConfig = GenderColumnConfig.createGenderColumn(columnIndex);
+		}
+		if (columnMappingNames.contains(ColumnMappingOption.AGE)) {
+			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.MOBILE);
+			ageColumnConfig = AgeColumnConfig.createAgeColumn(columnIndex);
+		}
+
 		if (columnMappingNames.contains(ColumnMappingOption.CAN_HOST)) {
 			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.CAN_HOST);
 			numberOfSeatsColumnConfig = NumberOfSeatsColumnConfig.newBooleanSeatsColumnConfig(columnIndex);
@@ -225,7 +244,9 @@ public class UploadFileModel {
 		ParsingConfiguration result = new ParsingConfiguration(nameColumnConfig, addressColumnConfig, numberOfSeatsColumnConfig);
 		result.setEmailColumnConfig(emailColumnConfig);
 		result.setMobileNumberColumnConfig(mobileColumnConfig);
-		result.setStartRow(getStartRow() - 1); // Parsing usees zero-indexed rows, whereas user enters it 1-indexed
+		result.setAgeColumnConfig(ageColumnConfig);
+		result.setGenderColumnConfig(genderColumnConfig);
+		result.setStartRow(getStartRow() - 1); // Parsing uses zero-indexed rows, whereas user enters it 1-indexed
 
 		if (columnMappingNames.contains(ColumnMappingOption.SEQUENCE_NR)) {
 			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.SEQUENCE_NR);

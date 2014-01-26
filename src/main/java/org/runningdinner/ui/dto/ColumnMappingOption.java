@@ -25,6 +25,8 @@ public class ColumnMappingOption {
 	public static final String COMPLETE_ADDRESS = "completeAddress";
 	public static final String CITY = "city";
 	public static final String ZIP = "zip";
+	public static final String GENDER = "gender";
+	public static final String AGE = "age";
 	public static final String STREET_NR = "streetNr";
 	public static final String STREET = "street";
 	public static final String ZIP_WITH_CITY = "zipWithCity";
@@ -83,6 +85,8 @@ public class ColumnMappingOption {
 		result.add(new ColumnMappingOption(COMPLETE_ADDRESS, "Komplette Adresse"));
 		result.add(new ColumnMappingOption(NUMBER_OF_SEATS, "Anzahl Plätze (Zahl)"));
 		result.add(new ColumnMappingOption(CAN_HOST, "Genügend Anzahl Plätze vorhanden"));
+		result.add(new ColumnMappingOption(GENDER, "Geschlecht"));
+		result.add(new ColumnMappingOption(AGE, "Alter"));
 		result.add(new ColumnMappingOption(EMAIL, "Email"));
 		result.add(new ColumnMappingOption(MOBILE, "Handy-Nummer"));
 		result.add(new ColumnMappingOption(SEQUENCE_NR, "Nummerierung (Reihenfolge)"));
