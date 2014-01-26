@@ -16,6 +16,7 @@ import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.SingleTeamHostChange.TeamHostChangeList;
+import org.runningdinner.ui.dto.TeamAdministrationModel;
 import org.runningdinner.ui.dto.TeamHostsChangeResponse;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.slf4j.Logger;
@@ -51,7 +52,7 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("runningDinner", foundRunningDinner);
 		model.addAttribute("uuid", foundRunningDinner.getUuid()); // Convenience access
 
-		return getFullViewName("admin-start");
+		return getFullViewName("overview");
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams", method = RequestMethod.GET)
@@ -63,8 +64,7 @@ public class AdminController extends AbstractBaseController {
 		List<Team> regularTeams = null;
 		List<Participant> notAssignedParticipants = null;
 
-		boolean teamArrangementsFinalized = false;
-		boolean teamMailsSent = false;
+		TeamAdministrationModel teamAdminModel = null;
 
 		if (numberOfTeamsForDinner > 0) {
 			// Team/Dinner-plan already persisted, fetch it from DB:
@@ -72,8 +72,7 @@ public class AdminController extends AbstractBaseController {
 			notAssignedParticipants = runningDinnerService.loadNotAssignableParticipantsOfDinner(uuid);
 
 			RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
-			teamArrangementsFinalized = dinner.getActivities().isTeamArrangementsFinalized();
-			teamMailsSent = dinner.getActivities().isTeamArrangementsMailsSent();
+			teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), true);
 		}
 		else {
 			// Team/Dinner-plan not yet persisted, generate new one and persist it to DB:
@@ -87,15 +86,40 @@ public class AdminController extends AbstractBaseController {
 				regularTeams = Collections.emptyList();
 				notAssignedParticipants = runningDinnerService.loadAllParticipantsOfDinner(uuid);
 			}
+
+			teamAdminModel = TeamAdministrationModel.fromFirstTeamGeneration(regularTeams.size() > 0);
 		}
 
 		model.addAttribute("regularTeams", regularTeams);
 		model.addAttribute("notAssignedParticipants", notAssignedParticipants);
 		model.addAttribute("uuid", uuid);
-		model.addAttribute("teamArrangementsFinalized", teamArrangementsFinalized);
-		model.addAttribute("teamMailsSent", teamMailsSent);
+		model.addAttribute("teamAdministration", teamAdminModel);
 
 		return getFullViewName("teams");
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/save", method = RequestMethod.GET)
+	public String showSaveTeamsAndSendMailForm(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+
+		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
+		int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
+
+		TeamAdministrationModel teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), numberOfTeamsForDinner > 0);
+
+		model.addAttribute("uuid", uuid);
+		model.addAttribute("teamAdministration", teamAdminModel);
+
+		return getFullViewName("finalizeTeamsForm");
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/save", method = RequestMethod.POST)
+	public String doFinalizeTeams(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+
+		model.addAttribute("uuid", uuid);
+
+		return getFullViewName("finalizeTeamsForm");
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/participants", method = RequestMethod.GET)
@@ -116,6 +140,13 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("participants");
 	}
 
+	/**
+	 * AJAX request for saving new hosts in passed teams.
+	 * 
+	 * @param uuid
+	 * @param changedHostTeams
+	 * @return
+	 */
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/savehosts", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public TeamHostsChangeResponse saveTeamHosts(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
@@ -126,7 +157,7 @@ public class AdminController extends AbstractBaseController {
 			return TeamHostsChangeResponse.createSuccessResponse();
 		}
 
-		Map<String, String> teamHostMappings = runningDinnerService.generateTeamHostMappings(changedHostTeams);
+		Map<String, String> teamHostMappings = TeamHostChangeList.generateTeamHostsMap(changedHostTeams);
 
 		try {
 			runningDinnerService.updateTeamHosters(uuid, teamHostMappings);

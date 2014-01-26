@@ -225,7 +225,7 @@ public class UploadFileModel {
 		ParsingConfiguration result = new ParsingConfiguration(nameColumnConfig, addressColumnConfig, numberOfSeatsColumnConfig);
 		result.setEmailColumnConfig(emailColumnConfig);
 		result.setMobileNumberColumnConfig(mobileColumnConfig);
-		result.setStartRow(getStartRow()-1); // Parsing usees zero-indexed rows, whereas user enters it 1-indexed
+		result.setStartRow(getStartRow() - 1); // Parsing usees zero-indexed rows, whereas user enters it 1-indexed
 
 		if (columnMappingNames.contains(ColumnMappingOption.SEQUENCE_NR)) {
 			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.SEQUENCE_NR);
@@ -252,10 +252,10 @@ public class UploadFileModel {
 					return compositeBuilder.buildWithZipAndCityColumn(zipAndCityColumnIndex);
 				}
 
-				Integer zipColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.ZIP);
+				Integer zipColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.ZIP);
 				SingleAddressColumnConfigBuilder singleBuilder = compositeBuilder.withZipColumn(zipColumnIndex);
 
-				Integer cityColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.CITY);
+				Integer cityColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.CITY);
 				if (cityColumnIndex != null) {
 					singleBuilder = singleBuilder.andCity(cityColumnIndex);
 				}
@@ -263,10 +263,10 @@ public class UploadFileModel {
 
 			}
 			else {
-				Integer streetColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.STREET);
-				Integer streetNrColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.STREET_NR);
-				Integer zipColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.ZIP);
-				Integer cityColumnIndex = (Integer)bidirectionalColumnMappings.get(ColumnMappingOption.CITY);
+				Integer streetColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.STREET);
+				Integer streetNrColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.STREET_NR);
+				Integer zipColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.ZIP);
+				Integer cityColumnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.CITY);
 
 				SingleAddressColumnConfigBuilder singleBuilder = addressColumnConfigBuilder.withStreet(streetColumnIndex).andStreetNrColumn(
 						streetNrColumnIndex).andZip(zipColumnIndex);

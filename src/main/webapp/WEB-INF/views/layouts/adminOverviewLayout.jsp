@@ -18,6 +18,13 @@
   		
   		<div class="container">
   		
+  		  	<div class="row">
+  				<div clasS="col-xs-12">
+  					<tiles:insertDefinition name="view-admin-menu" />
+  				</div>
+  			</div>
+  		
+  		
   			<div class="jumbotron" style="padding-top:17px;padding-bottom:20px;">
   				<tiles:insertAttribute name="info" ignore="true"/>
 			</div>
@@ -28,11 +35,13 @@
 				</div>
 			</div>
   		
+  			<%--
   			<div class="row">
 				<div class="col-xs-12">
   					<tiles:insertAttribute name="content" />
   				</div>
   			</div>
+  			--%>
   			
   			<tiles:insertAttribute name="footer" />	
   		</div>

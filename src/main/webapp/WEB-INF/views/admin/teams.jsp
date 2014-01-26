@@ -86,13 +86,12 @@
 							<td></td>
 							<td></td>
 							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
-							<td><a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="#" data-placement="bottom" data-toggle="tooltip" data-original-title="Legt die Teams endgueltig fest. Alle Teilnehmer bekommen eine Mail mit der Info ueber Ihren Team-Partner"><span class="glyphicon glyphicon-play"></span> Teameinteilung finalisieren...</a></td>
+							<td><a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="finalizeTeams" data-placement="bottom" data-toggle="tooltip" data-original-title="Legt die Teams endgueltig fest. Alle Teilnehmer bekommen eine Mail mit der Info ueber Ihren Team-Partner"><span class="glyphicon glyphicon-play"></span> Teameinteilung finalisieren...</a></td>
 						</tr>
 					</tbody>
 				</table>
-				
-				<p>TODO: Das muss noch besser werden (eigenes ueber div etc.)</p>
-				<div id="saveTeamHostsResponse" class="alert hidden col-xs-4"></div>
+
+				<div id="saveTeamHostsResponse" class="hidden col-xs-8 col-xs-offset-2"></div>
 				
 			</c:when>
 			<c:otherwise>

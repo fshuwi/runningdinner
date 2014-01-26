@@ -35,23 +35,28 @@
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
 
-<div class="col-md-4">
+<div class="col-xs-4">
 	<h2>Dinner</h2>
 	<a href="${teamsUrl}">Teameinteilung</a><br/>
 	<a href="${timesUrl}">Zeitplaene</a><br/>
 	<a href="${optionsUrl}">Dinner-Optionen</a>
 </div> 
 
-<div class="col-md-4">
+<div class="col-xs-4">
 	<h2>Teilnehmer</h2>
 	<a href="${participantsUrl}">Teilnehmerliste anschauen</a><br/>
 	<a href="${participantsUploadUrl}">Neue / Geaenderte Teilnehmerliste hochladen</a><br/>
 	<a href="${teamsExchangeUrl}">Team austauschen</a><br/>
 </div>
 
-<div class="col-md-4">
+<div class="col-xs-4">
 	<h2>Benachrichtigungen</h2>
 	<a href="${participantsMailUrl}">Rundmail an alle Teilnehmer</a><br/>
 	<a href="${teamsMailUrl}">Teameinteilungen verschicken</a><br />
-	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken</a><br />
+	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken#</a><br />
 </div>
+
+<div class="col-xs-12">
+	<hr style="margin-bottom:15px;"/>
+</div>
+

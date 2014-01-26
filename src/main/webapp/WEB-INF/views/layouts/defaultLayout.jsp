@@ -17,7 +17,14 @@
   		  
   		<tiles:insertAttribute name="menu" />
   			
-  		<div class="container">  				
+  		<div class="container">
+  		 	
+  			<div class="row">
+  				<div clasS="col-xs-12">
+  					<tiles:insertDefinition name="view-admin-menu" />
+  				</div>
+  			</div>
+  					
   			<div class="row">
 				<div class="col-xs-12">		
   					<tiles:insertAttribute name="content" />

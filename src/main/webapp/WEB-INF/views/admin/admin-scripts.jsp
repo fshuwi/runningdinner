@@ -26,6 +26,7 @@
 		}
 		
 		if (jsonRequest.length > 0) {
+			
 			var backendUrl = '${pageContext.request.contextPath}/event/${uuid}/admin/teams/savehosts';
 			
 		    $.ajax({
@@ -39,19 +40,25 @@
    	        	},
    		        success: function(response) {
    		        	responseContainer = $('#saveTeamHostsResponse');
-   		        	$(responseContainer).removeClass("alert-danger alert-success hidden");
+   		        	
+   		        	$(responseContainer).removeClass("hidden");
    		        	$(responseContainer).empty();
+   		        	$(responseContainer).addClass("show");
    		        	
    		        	if (response.success) {
-   		        		$(responseContainer).addClass("alert-success alert-dismissable show");
-   		        		content = "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
-   		        		content = content + "<strong>Success:</strong> All team hosts have been successfully saved!";
-   		        		alert(content);
-   		        		$(content).appendTo($(responseContainer));
+   		        		changedHostingFields = {}; // Reset changed fields
+ 
+   		        		var responseMessage = "<div class='alert alert-success alert-dismissable'>";
+   		        		responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
+   		        		responseMessage += "<strong>Success:</strong> All team hosts have been successfully saved!";
+   		        		responseMessage += "</div>";
+   		        		$(responseMessage).appendTo($(responseContainer));
    		        	}
    		        	else {
-   		        		$(responseContainer).addClass("alert-danger show");
-   		        		$('<strong>Error:</strong> ' + response.errorMessage).appendTo($(responseContainer));
+   		        		var responseMessage = "<div class='alert alert-danger'>";
+   		        		responseMessage += '<strong>Error:</strong> ' + response.errorMessage;
+   		        		responseMessage += "</div>";
+   		        		$(responseMessage).appendTo($(responseContainer));
    		        	}
    		        }
    		    });
