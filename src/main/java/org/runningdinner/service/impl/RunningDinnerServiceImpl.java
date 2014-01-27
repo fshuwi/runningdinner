@@ -2,6 +2,7 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -319,6 +320,77 @@ public class RunningDinnerServiceImpl {
 
 			LOGGER.debug("Changed hoster of team {}", team.getTeamNumber());
 		}
+	}
+
+	@Transactional
+	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
+		List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
+				new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
+		if (parentTeams.size() != 2) {
+			// TODO Error
+			throw new RuntimeException("Retrieved " + parentTeams.size() + " teams, but expected 2 teams");
+		}
+
+		Participant firstParticipant = null;
+		Team teamOfFirstParticipant = null;
+		Participant secondParticipant = null;
+		Team teamOfSecondParticipant = null;
+
+		for (Team parentTeam : parentTeams) {
+			Set<Participant> teamMembers = parentTeam.getTeamMembers();
+			for (Participant teamMember : teamMembers) {
+				if (teamMember.getNaturalKey().equals(firstParticipantKey)) {
+					firstParticipant = teamMember;
+					teamOfFirstParticipant = parentTeam;
+				}
+				else if (teamMember.getNaturalKey().equals(secondParticipantKey)) {
+					secondParticipant = teamMember;
+					teamOfSecondParticipant = parentTeam;
+				}
+			}
+		}
+
+		if (firstParticipant == null || secondParticipant == null) {
+			// TODO Error
+			throw new RuntimeException("At least one participant could not be fetched");
+		}
+
+		if (teamOfFirstParticipant.equals(teamOfSecondParticipant)) {
+			return parentTeams; // Nothing to do
+		}
+
+		teamOfFirstParticipant.getTeamMembers().remove(firstParticipant);
+		teamOfSecondParticipant.getTeamMembers().remove(secondParticipant);
+
+		// Check hosts:
+		// As the host-flag may be changed during the checkHostingForTeam calls, we have to save it before:
+		boolean firstParticipantIsHost = firstParticipant.isHost();
+		boolean secondParticipantIsHost = secondParticipant.isHost();
+		checkHostingForTeam(teamOfFirstParticipant, firstParticipantIsHost, secondParticipant);
+		checkHostingForTeam(teamOfSecondParticipant, secondParticipantIsHost, firstParticipant);
+
+		teamOfFirstParticipant.getTeamMembers().add(secondParticipant);
+		teamOfSecondParticipant.getTeamMembers().add(firstParticipant);
+
+		return parentTeams;
+	}
+
+	/**
+	 * 
+	 * @param team
+	 * @param oldParticipantWasHost Was the old (now switched) participant a host?
+	 * @param newParticipant The new participant that shall now be in the team
+	 */
+	protected void checkHostingForTeam(Team team, boolean oldParticipantWasHost, Participant newParticipant) {
+		// Note: It would be more "intelligent" to search for a new host in the remaining team-members list instead of just switching the
+		// host-flag, but for now this should be sufficient (TODO for future)
+		if (oldParticipantWasHost && !newParticipant.isHost()) {
+			newParticipant.setHost(true);
+		}
+		else if (!oldParticipantWasHost && newParticipant.isHost()) {
+			newParticipant.setHost(false);
+		}
+		// When reaching here, either both have been hosts, or both have not been hosts, so we don't to perform any further action
 	}
 
 	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {

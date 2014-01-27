@@ -287,41 +287,6 @@ public class CreateWizardController extends AbstractBaseController {
 	}
 
 	/**
-	 * Performs calculation whether all patricipants can successfully be assigned to teams with the current running diner configuration.<br>
-	 * The results are put into request context and can then be rendered inside the view.
-	 * 
-	 * @param participants
-	 * @param createWizardModel
-	 * @param request
-	 * @param locale
-	 */
-	private void setParticipantPreviewStatus(List<Participant> participants, CreateWizardModel createWizardModel,
-			HttpServletRequest request, Locale locale) {
-
-		final RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
-
-		List<Participant> notAssignableParticipants = runningDinnerService.calculateNotAssignableParticipants(runningDinnerConfig,
-				participants);
-		request.setAttribute("notAssignableParticipants", notAssignableParticipants);
-
-		if (notAssignableParticipants.size() == 0) {
-			// Every participant can be assigned into a team
-			request.setAttribute("participantStatus", "success");
-			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.success", null, locale));
-		}
-		else if (notAssignableParticipants.size() == participants.size()) {
-			// Too few participants for assigning them into valid team combinations
-			request.setAttribute("participantStatus", "danger");
-			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.error", null, locale));
-		}
-		else {
-			// Not every participant can successfuly be assigned into a team
-			request.setAttribute("participantStatus", "warning");
-			request.setAttribute("participantStatusMessage", messages.getMessage("text.participant.preview.warning", null, locale));
-		}
-	}
-
-	/**
 	 * Used for select-box in first wizard step
 	 * 
 	 * @param locale

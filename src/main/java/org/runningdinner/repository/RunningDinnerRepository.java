@@ -90,6 +90,15 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
+	public List<Team> loadTeamsForParticipants(final String uuid, Set<String> participantKeys) {
+		TypedQuery<Team> query = em.createQuery(
+				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers members WHERE members.naturalKey IN :participantKeys AND r.uuid=:uuid",
+				Team.class);
+		query.setParameter("participantKeys", participantKeys);
+		query.setParameter("uuid", uuid);
+		return query.getResultList();
+	}
+
 	@Transactional
 	public <T extends AbstractEntity> T save(final T entity) {
 		if (entity.isNew()) {

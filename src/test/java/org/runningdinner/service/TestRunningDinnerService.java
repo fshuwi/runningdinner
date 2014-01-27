@@ -30,7 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/app-context.xml" })
+@ContextConfiguration(locations = { "classpath:spring/app-context.xml", "classpath:spring/mail-context.xml" })
 @ActiveProfiles("junit")
 // Clear database after each test method is run... this is quite of an overhead, but sufficient for the samll test cases
 // @Transactional for each test-method sucks
@@ -38,7 +38,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class TestRunningDinnerService {
 
 	private static final String MY_TEST_UUID = "mydinner";
-	private static final int NUM_PARTICIPANTS = 16;
+	private static final int NUM_PARTICIPANTS = 22;
 
 	@Autowired
 	private RunningDinnerServiceImpl runningDinnerService;
@@ -127,7 +127,7 @@ public class TestRunningDinnerService {
 
 		// With 16 participants just 6 regular teams (with 2 members for each team) can be built up (->RunningDinnerCalculator)
 		// 4 participants cannot be assigned to regular teams then
-		assertEquals(6, runningDinnerService.loadNumberOfTeamsForDinner(MY_TEST_UUID));
+		assertEquals(9, runningDinnerService.loadNumberOfTeamsForDinner(MY_TEST_UUID));
 	}
 
 	@Test
@@ -138,7 +138,7 @@ public class TestRunningDinnerService {
 
 		List<Team> teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
 		List<Participant> notAssignedParticipants = runningDinnerService.loadNotAssignableParticipantsOfDinner(MY_TEST_UUID);
-		assertEquals(6, teams.size());
+		assertEquals(9, teams.size());
 		assertEquals(4, notAssignedParticipants.size());
 
 		// Check just order and that associations are resolved:

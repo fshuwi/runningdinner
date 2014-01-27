@@ -26,8 +26,8 @@ public class TestUploadColumnMapping {
 		assertEquals(ColumnMappingOption.NUMBER_OF_SEATS, columnMappings.get(3));
 
 		// Verify some empty mappings:
-		assertEquals(StringUtils.EMPTY, columnMappings.get(5));
-		assertEquals(StringUtils.EMPTY, columnMappings.get(6));
+		assertEquals(StringUtils.EMPTY, columnMappings.get(8));
+		assertEquals(StringUtils.EMPTY, columnMappings.get(9));
 
 		// Verify that 1-index based start row is used (for rendering view)
 		assertEquals(2, uploadFileModel.getStartRow());

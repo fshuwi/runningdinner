@@ -1,5 +1,6 @@
 package org.runningdinner.ui;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
@@ -169,6 +170,21 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		return TeamHostsChangeResponse.createSuccessResponse();
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/switchmembers", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public void switchTeamMembers(@PathVariable(ADMIN_URL_PATTERN) String uuid, @RequestBody String[] teamMembers) {
+		adminValidator.validateUuid(uuid);
+
+		if (teamMembers == null || teamMembers.length != 2) {
+			// TODO: Throw exception!
+		}
+
+		adminValidator.validateNaturalKeys(Arrays.asList(teamMembers));
+
+		List<Team> result = runningDinnerService.switchTeamMembers(uuid, teamMembers[0], teamMembers[1]);
+
 	}
 
 	protected String getFullViewName(final String viewName) {
