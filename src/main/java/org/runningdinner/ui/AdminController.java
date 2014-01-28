@@ -2,6 +2,7 @@ package org.runningdinner.ui;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -14,6 +15,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.runningdinner.core.CoreUtil;
+import org.runningdinner.core.Gender;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
@@ -23,6 +25,7 @@ import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.EditMealTimesModel;
 import org.runningdinner.ui.dto.FinalizeTeamsModel;
+import org.runningdinner.ui.dto.GenderOption;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
 import org.runningdinner.ui.dto.SingleTeamParticipantChange;
 import org.runningdinner.ui.dto.SingleTeamParticipantChange.SwitchTeamMembers;
@@ -271,6 +274,60 @@ public class AdminController extends AbstractBaseController {
 
 		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
 				"Meal-Times successfully edited!"));
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/participant/{key}/edit", method = RequestMethod.GET)
+	public String showEditParticipantForm(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("key") String participantKey,
+			Model model) {
+
+		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
+
+		Participant participant = runningDinnerService.loadParticipant(participantKey);
+
+		model.addAttribute("participant", participant);
+		model.addAttribute("uuid", uuid);
+
+		return getFullViewName("editParticipantForm");
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/participant/{key}/edit", method = RequestMethod.POST)
+	public String editParticipant(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("key") String participantKey,
+			@ModelAttribute("participant") Participant participant, HttpServletRequest request, BindingResult bindingResult, Model model,
+			final RedirectAttributes redirectAttributes) {
+
+		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
+
+		if (request.getParameter("cancel") != null) {
+			return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.INFO_STATUS,
+					"Action cancelled"));
+		}
+
+		commonValidator.validateParticipant(participant, bindingResult);
+
+		if (bindingResult.hasErrors()) {
+			model.addAttribute("participant", participant);
+			model.addAttribute("uuid", uuid);
+			return getFullViewName("editParticipantForm");
+		}
+		runningDinnerService.updateParticipant(participantKey, participant);
+
+		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
+				"Participant successfully edited!"));
+	}
+
+	/**
+	 * Used for select-box when editing participant
+	 * 
+	 * @param locale
+	 * @return
+	 */
+	@ModelAttribute("genders")
+	public List<GenderOption> popuplateGenderAspects(Locale locale) {
+		List<GenderOption> result = new ArrayList<GenderOption>(3);
+		result.add(new GenderOption(Gender.UNDEFINED, "Unbekannt"));
+		result.add(new GenderOption(Gender.MALE, "männlich"));
+		result.add(new GenderOption(Gender.FEMALE, "weiblich"));
+		return result;
 	}
 
 	/**

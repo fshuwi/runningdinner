@@ -442,6 +442,28 @@ public class RunningDinnerServiceImpl {
 		}
 	}
 
+	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
+		Team result = repository.loadSingleTeamWithVisitationPlan(teamKey);
+		if (result == null) {
+			throw new RuntimeException("TODO: Team with key " + teamKey + " not found!");
+		}
+		return result;
+	}
+
+	public Participant loadParticipant(String participantKey) {
+		Participant result = repository.loadParticipant(participantKey);
+		if (result == null) {
+			throw new RuntimeException("TODO: Participant with key " + participantKey + " not found!");
+		}
+		return result;
+	}
+
+	@Transactional
+	public void updateParticipant(String participantKey, Participant participant) {
+		// TODO Auto-generated method stub
+
+	}
+
 	/**
 	 * 
 	 * @param team

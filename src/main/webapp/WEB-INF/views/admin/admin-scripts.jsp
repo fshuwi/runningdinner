@@ -100,7 +100,7 @@
 		
 		setUpDragDrop();
 	
-		$(".counted").charCounter(800,{container: "#counter"});
+		$(".counted").charCounter(3000,{container: "#counter"});
 	});
 	
 	function toggleTeamSelection() {

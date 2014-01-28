@@ -53,9 +53,16 @@
 								<td>
 									<div id="teaminfo_${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
+										
+											<spring:url value="/event/{uuid}/admin/participant/{key}/edit" var="editParticipantUrl" htmlEscape="true">
+												<spring:param name="uuid" value="${uuid}" />
+												<spring:param name="key" value="${teamMember.naturalKey}" />
+											</spring:url>
+											
 											<div class="draggableTeamMember droppableTeamMember" id="participant_${teamMember.naturalKey}">
-												<h5 class="media-heading"><a href="#">${teamMember.name.fullnameFirstnameFirst}</a></h5>
+												<h5 class="media-heading"><a href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a></h5>
 											</div>
+											
 										</c:forEach>
 									</div>
 								</td>

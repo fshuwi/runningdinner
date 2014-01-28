@@ -23,6 +23,8 @@ public class EmailService {
 
 	private MessageSource emailMessageSource;
 
+	private String testEmailRecipient;
+
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
 	public void sendRunningDinnerCreatedMessage(final String recipientEmail, final String administrationUrl) {
@@ -42,7 +44,6 @@ public class EmailService {
 
 		final String subject = finalizeTeamsModel.getSubject();
 
-		int numTeams = 0;
 		for (Team team : teams) {
 
 			Set<Participant> allTeamMembers = team.getTeamMembers();
@@ -56,8 +57,6 @@ public class EmailService {
 					continue;
 				}
 
-				email = "clemensstich@web.de"; // TODO: Remove!!!
-
 				String messageText = formatter.formatTeamMemberMessage(teamMember, team);
 
 				SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
@@ -67,11 +66,12 @@ public class EmailService {
 
 				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
 
-				mailSender.send(mailMessage);
-			}
-
-			if (numTeams++ >= 2) {
-				break; // TODO REmove
+				try {
+					mailSender.send(mailMessage);
+				}
+				catch (Exception ex) {
+					LOGGER.error("Failed to send mail to {}", email, ex);
+				}
 			}
 		}
 	}
@@ -96,4 +96,7 @@ public class EmailService {
 		this.emailMessageSource = emailMessageSource;
 	}
 
+	public void setTestEmailRecipient(String testEmailRecipient) {
+		this.testEmailRecipient = testEmailRecipient;
+	}
 }

@@ -82,6 +82,14 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
+	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
+		TypedQuery<Team> query = em.createQuery(
+				"SELECT DISTINCT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey=:teamKey ",
+				Team.class);
+		query.setParameter("teamKey", teamKey);
+		return getSingleResult(query);
+	}
+
 	public List<Team> loadTeamsById(Set<Long> teamIds) {
 		TypedQuery<Team> query = em.createQuery(
 				"SELECT DISTINCT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass WHERE t.id IN :teamIds",
@@ -99,6 +107,12 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
+	public Participant loadParticipant(String participantKey) {
+		TypedQuery<Participant> query = em.createQuery("SELECT p FROM Participant p WHERE p.naturalKey=:participantKey", Participant.class);
+		query.setParameter("participantKey", participantKey);
+		return getSingleResult(query);
+	}
+
 	@Transactional
 	public <T extends AbstractEntity> T save(final T entity) {
 		if (entity.isNew()) {
@@ -109,5 +123,4 @@ public class RunningDinnerRepository extends AbstractRepository {
 			return em.merge(entity);
 		}
 	}
-
 }

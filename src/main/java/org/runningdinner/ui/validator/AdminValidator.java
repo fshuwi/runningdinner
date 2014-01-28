@@ -31,7 +31,7 @@ public class AdminValidator {
 	public void validateNaturalKeys(Collection<String> naturalKeys) {
 		for (String naturalKey : naturalKeys) {
 			if (!AbstractEntity.validateNaturalKey(naturalKey)) {
-				throw new IllegalArgumentException("Invalud natural key passed!");
+				throw new IllegalArgumentException("Invalid natural key passed!");
 			}
 		}
 	}
