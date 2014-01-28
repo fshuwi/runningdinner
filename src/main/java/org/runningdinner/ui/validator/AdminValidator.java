@@ -5,8 +5,11 @@ import java.util.Collection;
 import org.runningdinner.core.model.AbstractEntity;
 import org.runningdinner.exceptions.InvalidUuidException;
 import org.runningdinner.service.UuidGenerator;
+import org.runningdinner.ui.dto.FinalizeTeamsModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.Errors;
+import org.springframework.validation.ValidationUtils;
 
 @Component
 public class AdminValidator {
@@ -31,5 +34,11 @@ public class AdminValidator {
 				throw new IllegalArgumentException("Invalud natural key passed!");
 			}
 		}
+	}
+
+	public void validateFinalizeTeamsModel(FinalizeTeamsModel finalizeTeamsModel, Errors errors) {
+		// TODO
+		ValidationUtils.rejectIfEmpty(errors, "subject", "TODO", "Subject ist leer");
+		ValidationUtils.rejectIfEmpty(errors, "message", "TODO", "Message ist leer");
 	}
 }

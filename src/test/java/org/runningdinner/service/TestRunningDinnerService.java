@@ -2,10 +2,12 @@ package org.runningdinner.service;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.fail;
 
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.EntityManagerFactory;
 
@@ -168,11 +170,62 @@ public class TestRunningDinnerService {
 			assertEquals(2, team.getVisitationPlan().getGuestTeams().size());
 			assertEquals(2, team.getVisitationPlan().getHostTeams().size());
 		}
+	}
 
+	@Test
+	public void testSwitchTeamMembers() throws NoPossibleRunningDinnerException {
+		testPersistGeneratedTeams();
+
+		entityManagerFactory.getCache().evictAll();
+		List<Team> teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
+		Team firstTeam = teams.get(0);
+		Team secondTeam = teams.get(1);
+
+		Set<Participant> firstTeamMembers = firstTeam.getTeamMembers();
+		Set<Participant> secondTeamMembers = secondTeam.getTeamMembers();
+		assertOnlyOneHost(firstTeam);
+		assertOnlyOneHost(secondTeam);
+
+		Participant first = firstTeamMembers.iterator().next();
+		Participant second = secondTeamMembers.iterator().next();
+
+		runningDinnerService.switchTeamMembers(MY_TEST_UUID, first.getNaturalKey(), second.getNaturalKey());
+
+		entityManagerFactory.getCache().evictAll();
+		teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
+		firstTeam = teams.get(0);
+		secondTeam = teams.get(1);
+		assertEquals(2, firstTeam.getTeamMembers().size());
+		assertEquals(2, secondTeam.getTeamMembers().size());
+		assertParticipantsSwitched(firstTeam, second, first); // First team should now contain participant from second team
+		assertParticipantsSwitched(secondTeam, first, second); // Second team should now contain participant from first team
+		assertOnlyOneHost(firstTeam);
+		assertOnlyOneHost(secondTeam);
+	}
+
+	private void assertParticipantsSwitched(Team team, Participant contained, Participant notContained) {
+		assertEquals("Expected participant " + contained + " to be in team " + team, true, team.getTeamMembers().contains(contained));
+		assertEquals("Expected participant " + notContained + " NOT to be in team " + team, false,
+				team.getTeamMembers().contains(notContained));
+	}
+
+	private void assertOnlyOneHost(Team team) {
+		boolean oneHostFound = false;
+		for (Participant member : team.getTeamMembers()) {
+			if (member.isHost()) {
+				if (oneHostFound) {
+					fail("Team " + team + " has more than one host (last host was " + member);
+				}
+				oneHostFound = true;
+			}
+		}
+		if (!oneHostFound) {
+			fail("Team " + team + " has no single host");
+		}
 	}
 
 	private List<Participant> generateParticipants() {
-		// Generate 20 dummy participants...
+		// Generate 22 dummy participants...
 		List<Participant> generatedParticipants = RunningDinnerCalculatorTest.generateParticipants(NUM_PARTICIPANTS, 0);
 		// ... and add Adresses:
 		for (Participant generatedParticipant : generatedParticipants) {

@@ -16,6 +16,7 @@ import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.UploadFileModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.validation.BindingResult;
 import org.springframework.validation.Errors;
 import org.springframework.validation.ValidationUtils;
 import org.springframework.validation.Validator;
@@ -26,6 +27,8 @@ public class CreateWizardValidator implements Validator {
 
 	private RunningDinnerServiceImpl runningDinnerService;
 
+	private CommonValidator commonValidator;
+
 	@Override
 	public boolean supports(Class<?> clazz) {
 		return CreateWizardModel.class.isAssignableFrom(clazz);
@@ -34,7 +37,8 @@ public class CreateWizardValidator implements Validator {
 	@Override
 	public void validate(Object target, Errors errors) {
 		validateBasicDinnerOptions(target, errors);
-		validateMealTimes(target, errors);
+
+		commonValidator.validateMealTimes(((CreateWizardModel)target).getMeals(), errors);
 
 		// TODO: Add message codes
 		ValidationUtils.rejectIfEmpty(errors, "uploadedFileLocation", "TODO");
@@ -119,6 +123,10 @@ public class CreateWizardValidator implements Validator {
 		// TODO Perform validation of column mapping stuff!
 	}
 
+	public void validateMealTimes(CreateWizardModel createWizardModel, BindingResult bindingResult) {
+		commonValidator.validateMealTimes(createWizardModel.getMeals(), bindingResult);
+	}
+
 	/**
 	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format) and put it to the
 	 * passed BindingResult.
@@ -146,12 +154,14 @@ public class CreateWizardValidator implements Validator {
 		errors.rejectValue(fieldName, errorCode, params, null);
 	}
 
-	public void validateMealTimes(Object target, Errors errors) {
-
-	}
-
 	@Autowired
 	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
+
+	@Autowired
+	public void setCommonValidator(CommonValidator commonValidator) {
+		this.commonValidator = commonValidator;
+	}
+
 }

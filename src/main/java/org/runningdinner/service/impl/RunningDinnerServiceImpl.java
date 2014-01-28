@@ -2,7 +2,7 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -29,6 +29,7 @@ import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
+import org.runningdinner.ui.dto.FinalizeTeamsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -324,8 +325,22 @@ public class RunningDinnerServiceImpl {
 
 	@Transactional
 	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
-		List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
-				new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
+
+		List<Team> parentTeams = new ArrayList<Team>(2);
+
+		// TODO #1: Use query instead
+		List<Team> allTeams = repository.loadRegularTeamsFromDinner(uuid);
+		for (Team team : allTeams) {
+			for (Participant participant : team.getTeamMembers()) {
+				if (participant.getNaturalKey().equals(firstParticipantKey) || participant.getNaturalKey().equals(secondParticipantKey)) {
+					parentTeams.add(team);
+				}
+			}
+		}
+		// TODO #2: Normally I would use this query, but it doesn't work correctly:
+		// List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
+		// new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
+
 		if (parentTeams.size() != 2) {
 			// TODO Error
 			throw new RuntimeException("Retrieved " + parentTeams.size() + " teams, but expected 2 teams");
@@ -373,6 +388,58 @@ public class RunningDinnerServiceImpl {
 		teamOfSecondParticipant.getTeamMembers().add(firstParticipant);
 
 		return parentTeams;
+	}
+
+	// @Transactional
+	public int sendTeamMessages(String uuid, final FinalizeTeamsModel finalizeTeamsModel) {
+
+		// boolean teamsFinalized = false;
+
+		// final RunningDinner dinner = repository.findDinnerByUuid(uuid);
+		// final List<Team> teams = repository.loadRegularTeamsFromDinner(uuid);
+
+		Set<String> teamKeys = new HashSet<String>(finalizeTeamsModel.getSelectedTeams());
+		if (teamKeys.size() != finalizeTeamsModel.getSelectedTeams().size()) {
+			throw new IllegalStateException("Passed team key list contained some duplicates!");
+		}
+
+		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
+		if (CoreUtil.isEmpty(teams)) {
+			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
+		}
+
+		if (teams.size() != teamKeys.size()) {
+			throw new IllegalStateException("Expected " + teamKeys.size() + " teams to be found, but there were " + teams.size());
+		}
+
+		eventPublisher.publishTeamMessages(teams, finalizeTeamsModel);
+		return teams.size();
+	}
+
+	@Transactional
+	public void updateMealTimes(String uuid, Set<MealClass> meals) {
+		RunningDinner dinner = repository.findDinnerByUuid(uuid);
+		Set<MealClass> existingMeals = dinner.getConfiguration().getMealClasses();
+
+		if (existingMeals.size() != meals.size()) {
+			throw new IllegalStateException("Expected " + meals.size() + " meals to be found, but there were  " + existingMeals.size());
+		}
+
+		for (MealClass modifiedMeal : meals) {
+
+			boolean mealFound = false;
+			for (MealClass existingMeal : existingMeals) {
+				if (existingMeal.equals(modifiedMeal)) {
+					existingMeal.setTime(modifiedMeal.getTime());
+					mealFound = true;
+					break;
+				}
+			}
+
+			if (!mealFound) {
+				throw new IllegalStateException("Meal " + modifiedMeal + " was not found for being updated!");
+			}
+		}
 	}
 
 	/**

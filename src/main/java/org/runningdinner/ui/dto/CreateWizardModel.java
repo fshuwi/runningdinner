@@ -5,12 +5,12 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-import org.joda.time.DateTime;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.ui.util.MealClassHelper;
 
 public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 
@@ -64,29 +64,14 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 	 * Set default times to each meal
 	 */
 	public void prepareDefaultTimes() {
-		for (MealClass meal : meals) {
-			if (meal.getTime() == null) {
-				DateTime dinnerTime = new DateTime(getDate().getTime());
-				dinnerTime = dinnerTime.withHourOfDay(19);
-				meal.setTime(dinnerTime.toDate());
-			}
-		}
+		MealClassHelper.prepareDefaultTimes(meals, getDate());
 	}
 
 	/**
 	 * Set day of dinner-date to the times of each meal
 	 */
 	public void applyDateToMealTimes() {
-		for (MealClass meal : meals) {
-			if (meal.getTime() != null) {
-				DateTime dinnerTime = new DateTime(meal.getTime().getTime());
-				DateTime dinnerDate = new DateTime(getDate().getTime());
-				dinnerTime = dinnerTime.withDayOfYear(dinnerDate.getDayOfYear());
-				meal.setTime(dinnerTime.toDate());
-
-				// TODO: Set new day for times > 24 Uhr
-			}
-		}
+		MealClassHelper.applyDateToMealTimes(meals, getDate());
 	}
 
 	/**

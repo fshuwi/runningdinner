@@ -8,7 +8,7 @@
 <spring:url value="/event/{uuid}/admin/teams" var="teamsUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/times" var="timesUrl" htmlEscape="true">
+<spring:url value="/event/{uuid}/admin/mealtimes" var="timesUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
 <spring:url value="/event/{uuid}/admin/options" var="optionsUrl" htmlEscape="true">
@@ -28,7 +28,7 @@
 <spring:url value="/event/{uuid}/admin/participants/mail" var="participantsMailUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/teams/mail" var="teamsMailUrl" htmlEscape="true">
+<spring:url value="/event/{uuid}/admin/teams/mail?fromAdminMenu=true" var="teamsMailUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
 <spring:url value="/event/{uuid}/admin/dinnerroute/mail" var="dinnerRouteMailUrl" htmlEscape="true">
@@ -53,7 +53,7 @@
 	<h2>Benachrichtigungen</h2>
 	<a href="${participantsMailUrl}">Rundmail an alle Teilnehmer</a><br/>
 	<a href="${teamsMailUrl}">Teameinteilungen verschicken</a><br />
-	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken#</a><br />
+	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken</a><br />
 </div>
 
 <div class="col-xs-12">

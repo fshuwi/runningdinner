@@ -7,9 +7,15 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
 
-<c:set var="saveTeamsBtnStatus" value=""/>
-<c:if test="${teamArrangementsFinalized eq true}">
-	<c:set var="saveTeamsBtnStatus" value="disabled" />
+<spring:url value="/event/{uuid}/admin/teams/mail" var="teamsFinalizeUrl" htmlEscape="true">
+	<spring:param name="uuid" value="${uuid}" />
+</spring:url>
+
+
+<spring:message code="tooltip.teams.finalize.button" var="finalizeTooltip"/>
+<c:set var="finalizeLabel" value="Teameinteilung finalisieren..." />
+<c:if test="${teamAdministration.teamsAlreadySaved}">
+	<c:set var="finalizeLabel" value="Teameinteilungen verschicken" />
 </c:if>
 
 <h2>Team-Einteilung</h2>
@@ -45,9 +51,11 @@
 							<tr>
 								<td>${team.teamNumber}</td>
 								<td>
-									<div>
+									<div id="teaminfo_${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
-											<h5 class="media-heading"><a href="#">${teamMember.name.fullnameFirstnameFirst}</a></h5>
+											<div class="draggableTeamMember droppableTeamMember" id="participant_${teamMember.naturalKey}">
+												<h5 class="media-heading"><a href="#">${teamMember.name.fullnameFirstnameFirst}</a></h5>
+											</div>
 										</c:forEach>
 									</div>
 								</td>
@@ -74,8 +82,10 @@
 						 			</select>										
 							   </td>
 							   <td>
-								   <div><a class='btn btn-info btn-sm' href="#"><span class="glyphicon glyphicon-eye-open"></span> Vorschau</a></div>
-								   <div style="margin-top:3px;"><a class='btn btn-info btn-sm' href="#"><span class="glyphicon glyphicon-phone-alt"></span> Email</a></div>
+							   		<spring:url value="/team/{key}/route" var="teamRoutePreviewUrl" htmlEscape="true">
+										<spring:param name="key" value="${team.naturalKey}" />
+									</spring:url>
+								   <div><a class='btn btn-info btn-sm' href="${teamRoutePreviewUrl}"><span class="glyphicon glyphicon-eye-open"></span> Vorschau</a></div>
 							   </td>
 							</tr>
 						</c:forEach>
@@ -86,7 +96,10 @@
 							<td></td>
 							<td></td>
 							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
-							<td><a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="finalizeTeams" data-placement="bottom" data-toggle="tooltip" data-original-title="Legt die Teams endgueltig fest. Alle Teilnehmer bekommen eine Mail mit der Info ueber Ihren Team-Partner"><span class="glyphicon glyphicon-play"></span> Teameinteilung finalisieren...</a></td>
+							<td>
+								<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
+										data-placement="bottom" data-toggle="tooltip" data-original-title="${finalizeTooltip}"><span class="glyphicon glyphicon-play"></span> ${finalizeLabel}</a>
+							</td>
 						</tr>
 					</tbody>
 				</table>

@@ -2,21 +2,21 @@ package org.runningdinner.ui.dto;
 
 import org.apache.commons.lang.StringUtils;
 
-public class TeamHostsChangeResponse {
+public class StandardJsonResponse {
 
-	private boolean success;
+	protected boolean success;
 
-	private String errorMessage;
+	protected String errorMessage;
 
-	public static TeamHostsChangeResponse createSuccessResponse() {
-		TeamHostsChangeResponse result = new TeamHostsChangeResponse();
+	public static StandardJsonResponse createSuccessResponse() {
+		StandardJsonResponse result = new StandardJsonResponse();
 		result.setSuccess(true);
 		result.errorMessage = StringUtils.EMPTY;
 		return result;
 	}
 
-	public static TeamHostsChangeResponse createErrorResponse(final String errorMessage) {
-		TeamHostsChangeResponse result = new TeamHostsChangeResponse();
+	public static StandardJsonResponse createErrorResponse(final String errorMessage) {
+		StandardJsonResponse result = new StandardJsonResponse();
 		result.setSuccess(false);
 		result.errorMessage = errorMessage;
 		return result;

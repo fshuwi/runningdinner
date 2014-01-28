@@ -18,15 +18,26 @@
 	<bean id="emailMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="emailmessages" />
 		
 	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
-    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}" />
+    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}">
+		    <property name="javaMailProperties">
+		        <props>
+		            <!-- Use SMTP-AUTH to authenticate to SMTP server -->
+		            <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+		            <!-- Use TLS to encrypt communication with SMTP server -->
+		            <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+		        </props>
+		    </property>
+   	</bean>
     	 
     <bean id="runningDinnerCreatedMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
-    		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />	 
+    		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />
     		
-    <!-- TODO: Define other templates -->
+     <bean id="baseMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
+    		p:subject="Running Dinner" p:replyTo="${mail.replyto}" /> 
     	 
     <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
-    	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate" p:emailMessageSource-ref="emailMessageSource" />
+    	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate"
+    	p:baseMessageTemplate-ref="baseMessageTemplate" p:emailMessageSource-ref="emailMessageSource" />
     				
     <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:adminUrlGenerator-ref="adminUrlGenerator" p:emailService-ref="emailService"
     />

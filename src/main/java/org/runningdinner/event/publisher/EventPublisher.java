@@ -1,7 +1,12 @@
 package org.runningdinner.event.publisher;
 
+import java.util.List;
+
+import org.runningdinner.core.Team;
 import org.runningdinner.events.NewRunningDinnerEvent;
+import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.ui.dto.FinalizeTeamsModel;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
@@ -18,5 +23,9 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 
 	public void notifyNewRunningDinner(final RunningDinner runningDinner) {
 		applicationEventPublisher.publishEvent(new NewRunningDinnerEvent(this, runningDinner));
+	}
+
+	public void publishTeamMessages(final List<Team> regularTeams, FinalizeTeamsModel finalizeTeamsModel) {
+		applicationEventPublisher.publishEvent(new SendTeamArrangementsEvent(this, regularTeams, finalizeTeamsModel));
 	}
 }

@@ -1,5 +1,6 @@
 package org.runningdinner.service.email;
 
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -9,9 +10,12 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.runningdinner.core.Team;
 import org.runningdinner.events.NewRunningDinnerEvent;
+import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.AdminUrlGenerator;
+import org.runningdinner.ui.dto.FinalizeTeamsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -108,6 +112,10 @@ public class MailQueue {
 				if (event instanceof NewRunningDinnerEvent) {
 					sendNewRunningDinnerEmail((NewRunningDinnerEvent)event);
 				}
+
+				if (event instanceof SendTeamArrangementsEvent) {
+					sendTeamArrangementMail((SendTeamArrangementsEvent)event);
+				}
 			}
 
 			LOGGER.info("Task {} was explicitly stopped from within thread {}", FetchAndSendEmailFromQueueTask.class.getName(),
@@ -130,6 +138,13 @@ public class MailQueue {
 				return false;
 			}
 		}
+
+		private void sendTeamArrangementMail(SendTeamArrangementsEvent event) {
+			List<Team> teams = event.getRegularTeams();
+			FinalizeTeamsModel finalizeTeamsModel = event.getFinalizeTeamsModel();
+			emailService.sendTeamArrangementMessages(teams, finalizeTeamsModel);
+		}
+
 	}
 
 	@Autowired

@@ -238,7 +238,7 @@ public class UploadFileModel {
 		}
 		else if (columnMappingNames.contains(ColumnMappingOption.NUMBER_OF_SEATS)) {
 			Integer columnIndex = (Integer)bidirectionalColumnMappings.getKey(ColumnMappingOption.NUMBER_OF_SEATS);
-			numberOfSeatsColumnConfig = NumberOfSeatsColumnConfig.newBooleanSeatsColumnConfig(columnIndex);
+			numberOfSeatsColumnConfig = NumberOfSeatsColumnConfig.newNumericSeatsColumnConfig(columnIndex);
 		}
 
 		ParsingConfiguration result = new ParsingConfiguration(nameColumnConfig, addressColumnConfig, numberOfSeatsColumnConfig);

@@ -66,4 +66,10 @@ public class TeamAdministrationModel {
 		return result;
 	}
 
+	@Override
+	public String toString() {
+		return "TeamAdministrationModel [teamsAlreadySaved=" + teamsAlreadySaved + ", mailsAlreadySent=" + mailsAlreadySent + ", hasTeams="
+				+ hasTeams + "]";
+	}
+
 }
