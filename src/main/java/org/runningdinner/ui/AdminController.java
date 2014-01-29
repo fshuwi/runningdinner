@@ -205,7 +205,33 @@ public class AdminController extends AbstractBaseController {
 		int numTeams = runningDinnerService.sendTeamMessages(uuid, finalizeTeamsModel);
 		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
 				"Sent emails for " + numTeams + " teams!"));
+	}
 
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/dinnerroute/mail", method = RequestMethod.GET)
+	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+
+		Map<String, String> teamDisplayMap = getTeamsForSelection(uuid);
+
+		// Select all Teams:
+		ArrayList<String> selectedTeams = new ArrayList<String>(teamDisplayMap.keySet());
+		// TODO: Put into model
+
+		model.addAttribute("uuid", uuid);
+		model.addAttribute("sendDinnerRoutesModel", null); // TODO
+
+		return getFullViewName("sendDinnerRoutesForm");
+	}
+
+	@RequestMapping(value = ADMIN_URL_PATTERN + "/dinnerroute/mail", method = RequestMethod.POST)
+	public String doSendDinnerRoutes(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+			@ModelAttribute("sendDinnerRoutesForm") Object sendDinnerRoutesModel, BindingResult bindingResult, Model model,
+			final RedirectAttributes redirectAttributes) {
+		adminValidator.validateUuid(uuid);
+
+		int numTeams = 0;
+		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
+				"Sent emails for " + numTeams + " teams!"));
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/statuspage", method = RequestMethod.GET)

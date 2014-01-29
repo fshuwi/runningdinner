@@ -16,19 +16,7 @@
 	<import resource="app-context.xml" />	
 	
 	<bean id="emailMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="emailmessages" />
-		
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
-    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}">
-		    <property name="javaMailProperties">
-		        <props>
-		            <!-- Use SMTP-AUTH to authenticate to SMTP server -->
-		            <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
-		            <!-- Use TLS to encrypt communication with SMTP server -->
-		            <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
-		        </props>
-		    </property>
-   	</bean>
-    	 
+		    	 
     <bean id="runningDinnerCreatedMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
     		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />
     		
@@ -42,5 +30,23 @@
     				
     <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:adminUrlGenerator-ref="adminUrlGenerator" p:emailService-ref="emailService"
     />
+    
+    
+    <beans profile="server">	
+		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
+	    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}">
+			    <property name="javaMailProperties">
+			        <props>
+			            <!-- Use SMTP-AUTH to authenticate to SMTP server -->
+			            <prop key="mail.smtp.auth">${mail.smtp.auth}</prop>
+			            <!-- Use TLS to encrypt communication with SMTP server -->
+			            <prop key="mail.smtp.starttls.enable">${mail.smtp.starttls.enable}</prop>
+			        </props>
+			    </property>
+	   	</bean>
+   	</beans>
+   	<beans profile="junit">
+   		<bean id="mailSender" class="org.runningdinner.service.email.mock.MailSenderMockInMemory" />
+   	</beans>
     
 </beans>

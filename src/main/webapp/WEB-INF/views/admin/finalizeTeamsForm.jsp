@@ -65,17 +65,6 @@
 		</div>
 		
 		<input type="submit" class="btn btn-primary" value="Teameinteilungen verschicken" name="finalizeWithMail" />
-		<%--
-		<c:choose>
-			<c:when test="${teamAdministration.teamsAlreadySaved}">
-				<input type="submit" class="btn btn-primary" value="Nur E-Mails Schicken" name="finalizeWithMail" />
-			</c:when>
-			<c:otherwise>
-				<input type="submit" class="btn btn-primary" value="Finalisieren &amp; Mailversand!" name="finalizeWithMail" />
-				<input type="submit" class="btn btn-primary" value="Finalisieren ohne Mailversand!" name="finalizeWithoutMail" />
-			</c:otherwise>
-		</c:choose>
-		--%>
 	
 	</form:form>		
 </div>

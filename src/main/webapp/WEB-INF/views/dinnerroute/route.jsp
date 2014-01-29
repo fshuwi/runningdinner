@@ -7,31 +7,36 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
 <h1>Dinner-Plan</h1>
-<h5>${teamMemberNames}</h5>
+<h5>${participantNames}</h5>
 
+<%-- TODO: Berechne spalten-breite anhand von anzahl teams! --%>
 
-<h3 class="media-heading">Vorspeise</h3>
-<address>
-	<strong>Fremder Teilnehmer #1</strong><br>
-	Musterstrasse 15<br>
-	79100 Freiburg<br>
-	<br>
-	<strong>Uhrzeit: 20 Uhr</strong>
-</address>
+<c:forEach items="${teamDinnerRoute}" var="team">
+
+		<c:choose>
+		<c:when test="${team.naturalKey == currentTeamKey}">
+			<div class="col-xs-4 alert alert-success">
+				<h3 class="media-heading">Euer Gang: ${team.mealClass.label}</h3>
+				Gastgeber ist: <strong>ASDF</strong>
+				<br/>
+				<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
+			</div>
+		</c:when>
+		<c:otherwise>
+			<div class="col-xs-4 alert alert-info">
+				<h3 class="media-heading">${team.mealClass.label}</h3>
+				<address>FOO<br/>
+					<%--
+					Nachname: <strong>${participant.name.lastname}</strong><br>
+					${participant.address.streetWithNr}<br>
+					${participant.address.zipWithCity}<br>
+					--%>
+					<br>
+					<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
+				</address>
+			</div> 
+		</c:otherwise>
+	</c:choose>
+</c:forEach>
 
 <hr style="margin-top:15px;">
-
-<hr style="margin-top:15px;">
-<h3>Hauptspeise bei <span class="text-success">Gastgeber Name</span></h3>
-<strong>Uhrzeit: 21:30 Uhr</strong>
-
-<hr style="margin-top:15px;">
-
-<h3 class="media-heading">Dessert</h3>
-<address>
-	<strong>Fremder Teilnehmer #2</strong><br>
-	Auf der Haid 15<br>
-	79100 Freiburg<br>
-	<br>
-	<strong>Uhrzeit: 23 Uhr</strong>
-</address>

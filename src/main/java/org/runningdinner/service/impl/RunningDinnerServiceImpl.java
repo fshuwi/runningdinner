@@ -14,6 +14,8 @@ import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
+import org.runningdinner.core.ParticipantAddress;
+import org.runningdinner.core.ParticipantName;
 import org.runningdinner.core.RunningDinnerCalculator;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
@@ -443,7 +445,7 @@ public class RunningDinnerServiceImpl {
 	}
 
 	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
-		Team result = repository.loadSingleTeamWithVisitationPlan(teamKey);
+		Team result = repository.loadSingleTeamWithVisitationPlan(teamKey, true);
 		if (result == null) {
 			throw new RuntimeException("TODO: Team with key " + teamKey + " not found!");
 		}
@@ -460,7 +462,22 @@ public class RunningDinnerServiceImpl {
 
 	@Transactional
 	public void updateParticipant(String participantKey, Participant participant) {
-		// TODO Auto-generated method stub
+		Participant existingParticipant = repository.loadParticipant(participantKey);
+		if (existingParticipant == null) {
+			throw new RuntimeException("TODO: Participant with key " + participantKey + " not found!");
+		}
+
+		existingParticipant.setGender(participant.getGender());
+		existingParticipant.setEmail(participant.getEmail());
+		existingParticipant.setMobileNumber(participant.getMobileNumber());
+		existingParticipant.setNumSeats(participant.getNumSeats());
+
+		existingParticipant.setName(ParticipantName.newName().withFirstname(participant.getName().getFirstnamePart()).andLastname(
+				participant.getName().getLastname()));
+
+		existingParticipant.setAddress(new ParticipantAddress(participant.getAddress().getStreet(), participant.getAddress().getStreetNr(),
+				participant.getAddress().getZip()));
+		existingParticipant.getAddress().setCityName(participant.getAddress().getCityName());
 
 	}
 

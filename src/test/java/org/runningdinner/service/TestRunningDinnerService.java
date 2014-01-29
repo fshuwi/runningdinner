@@ -127,7 +127,7 @@ public class TestRunningDinnerService {
 
 		entityManagerFactory.getCache().evictAll();
 
-		// With 16 participants just 6 regular teams (with 2 members for each team) can be built up (->RunningDinnerCalculator)
+		// With 16 participants just 9 regular teams (with 2 members for each team) can be built up (->RunningDinnerCalculator)
 		// 4 participants cannot be assigned to regular teams then
 		assertEquals(9, runningDinnerService.loadNumberOfTeamsForDinner(MY_TEST_UUID));
 	}
@@ -203,6 +203,36 @@ public class TestRunningDinnerService {
 		assertOnlyOneHost(secondTeam);
 	}
 
+	@Test
+	public void testSaveTeamHosts() {
+		// TODO
+		// runningDinnerService.updateTeamHosters(MY_TEST_UUID, null);
+	}
+
+	@Test
+	public void testLoadSingleTeamWithVisitationPlan() throws NoPossibleRunningDinnerException {
+		testPersistGeneratedTeams();
+		entityManagerFactory.getCache().evictAll();
+
+		entityManagerFactory.getCache().evictAll();
+		List<Team> teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
+		Team team = teams.get(0);
+		String teamKey = team.getNaturalKey();
+
+		entityManagerFactory.getCache().evictAll();
+
+		Team loadedTeam = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
+		Participant hostingParticipant = loadedTeam.getHostTeamMember();
+		assertEquals(true, hostingParticipant.isHost());
+		
+		Set<Team> hostTeams = loadedTeam.getVisitationPlan().getHostTeams();
+		assertEquals(2,hostTeams.size());
+		for (Team hostTeam : hostTeams) {
+			assertEquals(2,hostTeam.getTeamMembers().size());
+			assertEquals(true, hostTeam.getHostTeamMember().isHost());
+		}
+	}
+
 	private void assertParticipantsSwitched(Team team, Participant contained, Participant notContained) {
 		assertEquals("Expected participant " + contained + " to be in team " + team, true, team.getTeamMembers().contains(contained));
 		assertEquals("Expected participant " + notContained + " NOT to be in team " + team, false,
@@ -224,6 +254,11 @@ public class TestRunningDinnerService {
 		}
 	}
 
+	/**
+	 * Generates NUM_PARTICIPANTS (22) participants
+	 * 
+	 * @return
+	 */
 	private List<Participant> generateParticipants() {
 		// Generate 22 dummy participants...
 		List<Participant> generatedParticipants = RunningDinnerCalculatorTest.generateParticipants(NUM_PARTICIPANTS, 0);

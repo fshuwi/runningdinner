@@ -1,7 +1,10 @@
 package org.runningdinner.service.email;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.runningdinner.service.email.mock.MailSenderMockInMemory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +20,11 @@ public class TestEmailService {
 
 	@Test
 	public void testSendRunningDinnerCreatedMail() {
+		MailSenderMockInMemory mockedMailSender = (MailSenderMockInMemory)emailService.getMailSender();
+		assertEquals(0, mockedMailSender.getMessages().size());
+
 		emailService.sendRunningDinnerCreatedMessage("clemensstich@googlemail.com", "ADMIN URL");
+
+		assertEquals(1, mockedMailSender.getMessages().size());
 	}
 }

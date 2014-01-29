@@ -1,5 +1,6 @@
 package org.runningdinner.repository;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -65,6 +66,10 @@ public class RunningDinnerRepository extends AbstractRepository {
 	}
 
 	public List<Team> loadRegularTeamsWithArrangementsFromDinner(String uuid) {
+		// Important:
+		// It is now possible to access also the team-members of fetched host- and/or guest-teams. But this is only possible because we load
+		// all teams from database.
+		// If we would not load all teams, this would not be possible and would result int LazyInitializationExceptions!
 		TypedQuery<Team> query = em.createQuery(
 				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE r.uuid=:uuid ORDER BY t.teamNumber",
 				Team.class);
@@ -82,12 +87,36 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
-	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
+	@Transactional
+	public Team loadSingleTeamWithVisitationPlan(String teamKey, boolean fetchTeamMembersOfReferencedTeams) {
 		TypedQuery<Team> query = em.createQuery(
-				"SELECT DISTINCT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey=:teamKey ",
+				"SELECT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey=:teamKey ",
 				Team.class);
 		query.setParameter("teamKey", teamKey);
-		return getSingleResult(query);
+		Team result = getSingleResult(query);
+
+		// Load also teamMembers of referenced teams):
+		// Not very nice, but currently this is the easiest way, and should also not slow down performance due to @BatchSize in
+		// Team.teamMembers
+		if (fetchTeamMembersOfReferencedTeams) {
+			Set<Team> hostTeams = result.getVisitationPlan().getHostTeams();
+			Set<Team> guestTeams = result.getVisitationPlan().getGuestTeams();
+			Set<Team> allReferencedTeams = new HashSet<Team>(hostTeams);
+			allReferencedTeams.addAll(guestTeams);
+			for (Team referencedTeam : allReferencedTeams) {
+				referencedTeam.getTeamMembers().size();
+			}
+		}
+
+		return result;
+	}
+
+	public List<Participant> loadTeamMembersOfTeams(Set<Team> allTeams) {
+		Set<Long> teamIds = getEntityIds(allTeams);
+		TypedQuery<Participant> query = em.createQuery("SELECT DISTINCT p FROM Team t JOIN t.teamMembers p WHERE t.id IN :teamIds",
+				Participant.class);
+		query.setParameter("teamIds", teamIds);
+		return query.getResultList();
 	}
 
 	public List<Team> loadTeamsById(Set<Long> teamIds) {

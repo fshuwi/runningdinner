@@ -99,4 +99,9 @@ public class EmailService {
 	public void setTestEmailRecipient(String testEmailRecipient) {
 		this.testEmailRecipient = testEmailRecipient;
 	}
+
+	public MailSender getMailSender() {
+		return mailSender;
+	}
+
 }
