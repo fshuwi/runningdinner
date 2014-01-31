@@ -1,13 +1,16 @@
 package org.runningdinner.service.email;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
+import org.runningdinner.service.TeamRouteBuilder;
 import org.runningdinner.ui.dto.FinalizeTeamsModel;
+import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -76,7 +79,49 @@ public class EmailService {
 		}
 	}
 
-	public void sendMessageToAllParticipants(final Collection<Participant> participants, final String subject, final String message) {
+	public void sendDinnerRouteMessages(List<Team> teams, SendDinnerRoutesModel sendDinnerRoutesModel) {
+
+		DinnerRouteMessageFormatter formatter = new DinnerRouteMessageFormatter(sendDinnerRoutesModel);
+
+		final String subject = sendDinnerRoutesModel.getSubject();
+
+		for (Team team : teams) {
+
+			LOGGER.debug("Process team {} for dinnerroute message", team);
+			List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
+
+			for (Participant teamMember : team.getTeamMembers()) {
+
+				String email = "clemensstich@googlemail.com"; // teamMember.getEmail(); TODO
+				if (StringUtils.isEmpty(email) || !email.contains("@")) {
+					// TODO: Duplicate
+					LOGGER.error("Team-Member {} of team {} has no valid email address", teamMember, team);
+					continue;
+				}
+
+				String messageText = formatter.formatDinnerRouteMessage(teamMember, team, teamDinnerRoute);
+
+				SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
+				mailMessage.setSubject(subject);
+				mailMessage.setTo(email);
+				mailMessage.setText(messageText);
+
+				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
+
+				try {
+					mailSender.send(mailMessage);
+				}
+				catch (Exception ex) {
+					LOGGER.error("Failed to send mail to {}", email, ex);
+				}
+			}
+
+			break; // TODO: Remove
+		}
+
+	}
+
+	public void sendMessageToParticipants(final Collection<Participant> participants, final String subject, final String message) {
 
 	}
 

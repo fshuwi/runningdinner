@@ -65,6 +65,7 @@
  	
  	 <definition name="dinnerroute/*" extends="template-route">
   		<put-attribute name="content" value="/WEB-INF/views/dinnerroute/{1}.jsp" />
+  		<put-attribute name="customScripts" value="/WEB-INF/views/dinnerroute/route-scripts.jsp" />
  	</definition>
  	
  	 <definition name="error/*" extends="template-error">

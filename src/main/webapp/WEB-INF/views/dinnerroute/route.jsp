@@ -13,30 +13,31 @@
 
 <c:forEach items="${teamDinnerRoute}" var="team">
 
-		<c:choose>
+	<c:set var="participant" value="${team.hostTeamMember}" />
+	
+	<c:choose>
 		<c:when test="${team.naturalKey == currentTeamKey}">
-			<div class="col-xs-4 alert alert-success">
+			<div class="col-xs-3 alert alert-success self">
 				<h3 class="media-heading">Euer Gang: ${team.mealClass.label}</h3>
-				Gastgeber ist: <strong>ASDF</strong>
+				Gastgeber ist: <strong>${participant.name.fullnameFirstnameFirst}</strong><br/>
 				<br/>
 				<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
 			</div>
 		</c:when>
 		<c:otherwise>
-			<div class="col-xs-4 alert alert-info">
+			<div class="col-xs-3 alert alert-info hoster">
 				<h3 class="media-heading">${team.mealClass.label}</h3>
-				<address>FOO<br/>
-					<%--
+				<address>
 					Nachname: <strong>${participant.name.lastname}</strong><br>
 					${participant.address.streetWithNr}<br>
 					${participant.address.zipWithCity}<br>
-					--%>
 					<br>
 					<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
 				</address>
 			</div> 
 		</c:otherwise>
 	</c:choose>
+	
 </c:forEach>
 
 <hr style="margin-top:15px;">

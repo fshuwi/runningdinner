@@ -36,7 +36,7 @@
 			
 			<div class="form-group">
 				<label for="message">Nachricht</label>
-				<span class="help-block">Benutze folgende Templates: {name}, {meal}, {mealtime}, {host}, {partner}</span>
+				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
 				<h6 class="pull-right" id="counter">3000 characters remaining</h6>
 				<form:errors path="message"/>

@@ -10,8 +10,8 @@ public class SendTeamArrangementsEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = -3297813701725791593L;
 
-	List<Team> regularTeams;
-	FinalizeTeamsModel finalizeTeamsModel;
+	protected List<Team> regularTeams;
+	protected FinalizeTeamsModel finalizeTeamsModel;
 
 	public SendTeamArrangementsEvent(final Object source, List<Team> regularTeams, FinalizeTeamsModel finalizeTeamsModel) {
 		super(source);

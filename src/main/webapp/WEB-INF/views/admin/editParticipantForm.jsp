@@ -12,7 +12,7 @@
 <form:form class="well" method="post" commandName="participant" htmlEscape="true" role="form">
 
 	<bs:inputField name="name.firstnamePart" label="Firstname" inputColClass="col-xs-6"/>
-	<bs:inputField name="name.lastname" label="Firstname" inputColClass="col-xs-6"/>
+	<bs:inputField name="name.lastname" label="Lastname" inputColClass="col-xs-6"/>
 	<bs:inputField name="email" label="EMail Adresse" type="email" inputColClass="col-xs-6"/>
 	<bs:inputField name="mobileNumber" label="Handy Nummer" inputColClass="col-xs-6"/>
 

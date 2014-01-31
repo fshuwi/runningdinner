@@ -12,10 +12,12 @@ import javax.annotation.PreDestroy;
 
 import org.runningdinner.core.Team;
 import org.runningdinner.events.NewRunningDinnerEvent;
+import org.runningdinner.events.SendDinnerRoutesEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.runningdinner.ui.dto.FinalizeTeamsModel;
+import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -114,7 +116,11 @@ public class MailQueue {
 				}
 
 				if (event instanceof SendTeamArrangementsEvent) {
-					sendTeamArrangementMail((SendTeamArrangementsEvent)event);
+					sendTeamArrangementMails((SendTeamArrangementsEvent)event);
+				}
+
+				if (event instanceof SendDinnerRoutesEvent) {
+					sendDinnerRouteMails((SendDinnerRoutesEvent)event);
 				}
 			}
 
@@ -139,10 +145,16 @@ public class MailQueue {
 			}
 		}
 
-		private void sendTeamArrangementMail(SendTeamArrangementsEvent event) {
+		private void sendTeamArrangementMails(SendTeamArrangementsEvent event) {
 			List<Team> teams = event.getRegularTeams();
 			FinalizeTeamsModel finalizeTeamsModel = event.getFinalizeTeamsModel();
 			emailService.sendTeamArrangementMessages(teams, finalizeTeamsModel);
+		}
+
+		private void sendDinnerRouteMails(SendDinnerRoutesEvent event) {
+			List<Team> teams = event.getTeams();
+			SendDinnerRoutesModel sendDinnerRoutesModel = event.getSendDinnerRoutesModel();
+			emailService.sendDinnerRouteMessages(teams, sendDinnerRoutesModel);
 		}
 
 	}
@@ -156,15 +168,5 @@ public class MailQueue {
 	public void setAdminUrlGenerator(AdminUrlGenerator adminUrlGenerator) {
 		this.adminUrlGenerator = adminUrlGenerator;
 	}
-
-	// static class PoisonPillEvent extends ApplicationEvent {
-	//
-	// private static final long serialVersionUID = -6621060281553947462L;
-	//
-	// public PoisonPillEvent(Object source) {
-	// super(source);
-	// }
-	//
-	// }
 
 }

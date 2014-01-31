@@ -32,6 +32,7 @@ import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.runningdinner.ui.dto.FinalizeTeamsModel;
+import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -415,6 +416,31 @@ public class RunningDinnerServiceImpl {
 		}
 
 		eventPublisher.publishTeamMessages(teams, finalizeTeamsModel);
+		return teams.size();
+	}
+
+	public int sendDinnerRouteMessages(String uuid, SendDinnerRoutesModel sendDinnerRoutesModel) {
+
+		Set<String> teamKeys = new HashSet<String>(sendDinnerRoutesModel.getSelectedTeams());
+		if (teamKeys.size() != sendDinnerRoutesModel.getSelectedTeams().size()) {
+			throw new IllegalStateException("Passed team key list contained some duplicates!");
+		}
+
+		List<Team> teams = new ArrayList<Team>(teamKeys.size());
+		for (String teamKey : teamKeys) {
+			// TODO: Very bad.... use single query instead!!!
+			teams.add(repository.loadSingleTeamWithVisitationPlan(teamKey, true));
+		}
+
+		// TODO These error messages need also refactored!
+		if (CoreUtil.isEmpty(teams)) {
+			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
+		}
+		if (teams.size() != teamKeys.size()) {
+			throw new IllegalStateException("Expected " + teamKeys.size() + " teams to be found, but there were " + teams.size());
+		}
+
+		eventPublisher.publishDinnerRouteMessages(teams, sendDinnerRoutesModel);
 		return teams.size();
 	}
 

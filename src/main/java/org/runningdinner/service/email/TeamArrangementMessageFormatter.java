@@ -38,7 +38,8 @@ public class TeamArrangementMessageFormatter {
 	public String formatTeamMemberMessage(final Participant teamMember, final Team parentTeam) {
 
 		String theMessage = messageTemplate;
-		theMessage = theMessage.replaceAll(FormatterConstants.NAME, teamMember.getName().getFullnameFirstnameFirst());
+		theMessage = theMessage.replaceAll(FormatterConstants.FIRSTNAME, teamMember.getName().getFirstnamePart());
+		theMessage = theMessage.replaceAll(FormatterConstants.LASTNAME, teamMember.getName().getLastname());
 		theMessage = theMessage.replaceAll(FormatterConstants.MEAL, parentTeam.getMealClass().getLabel());
 		theMessage = theMessage.replaceAll(FormatterConstants.MEALTIME, getFormattedTime(parentTeam.getMealClass().getTime()));
 
@@ -79,6 +80,7 @@ public class TeamArrangementMessageFormatter {
 		return theMessage;
 	}
 
+	// TODO: remove and use team's method
 	private Participant getHostMember(final Team parentTeam) {
 		Set<Participant> teamMembers = parentTeam.getTeamMembers();
 		for (Participant teamMember : teamMembers) {

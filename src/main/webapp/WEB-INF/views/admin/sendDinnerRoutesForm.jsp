@@ -20,7 +20,7 @@
 			
 			<div class="form-group">
 				<label for="message">Nachricht</label>
-				<span class="help-block">Benutze folgende Templates: {name}, {meal}, {mealtime}, {host}, {partner}</span>
+				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {route}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
 				<h6 class="pull-right" id="counter">3000 characters remaining</h6>
 				<form:errors path="message"/>
@@ -36,7 +36,7 @@
 		</div>
 		
 		<input type="submit" class="btn btn-primary" value="Dinner-Routen verschicken!" name="sendDinnerRoutes" />
-		<input type="submit" class="btn btn-primary" value="Abbrechen" name="cancel" />
+		<input type="submit" class="btn btn-danger" value="Abbrechen" name="cancel" />
 	
 	</form:form>		
 </div>

@@ -5,13 +5,12 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
+import org.runningdinner.service.email.FormatterConstants;
 
 public class FinalizeTeamsModel {
 
-	public static final String HTML_NEWLINE = "\r\n";
-	public static final String HTML_TWOLINES = HTML_NEWLINE + HTML_NEWLINE;
-
 	protected boolean sendMessages = false;
+
 	protected String subject = StringUtils.EMPTY;
 	protected String message = StringUtils.EMPTY;
 
@@ -26,9 +25,10 @@ public class FinalizeTeamsModel {
 		FinalizeTeamsModel result = new FinalizeTeamsModel();
 
 		StringBuilder tmp = new StringBuilder();
-		tmp.append("Hallo {name},").append(HTML_TWOLINES).append("dein(e) Tempartner ist/sind: ").append(HTML_NEWLINE);
-		tmp.append("{partner}").append(HTML_TWOLINES).append("Ihr seid für folgende Speise verantwortlich: {meal}.");
-		tmp.append("Diese soll um {mealtime} eingenommen werden.").append(HTML_TWOLINES);
+		tmp.append("Hallo {firstname} {lastname},").append(FormatterConstants.TWO_NEWLINES).append("dein(e) Tempartner ist/sind: ").append(
+				FormatterConstants.NEWLINE);
+		tmp.append("{partner}").append(FormatterConstants.TWO_NEWLINES).append("Ihr seid für folgende Speise verantwortlich: {meal}.");
+		tmp.append("Diese soll um {mealtime} eingenommen werden.").append(FormatterConstants.TWO_NEWLINES);
 		tmp.append("{host}");
 		result.message = tmp.toString();
 		result.hostMessagePartTemplate = "Es wird vorgeschlagen, dass du als Gastgeber fungierst. Wenn dies nicht in Ordnung ist, dann sprecht euch bitte ab und gebt uns bis spätestens Donnerstag Rückmeldung wer als neuer Gastgeber fungieren soll.";
