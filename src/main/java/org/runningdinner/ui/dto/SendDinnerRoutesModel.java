@@ -1,61 +1,29 @@
 package org.runningdinner.ui.dto;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 
-import org.apache.commons.lang.StringUtils;
-import org.runningdinner.service.email.FormatterConstants;
+import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.FormatterUtil;
 
-public class SendDinnerRoutesModel {
-
-	protected String subject = StringUtils.EMPTY;
-	protected String message = StringUtils.EMPTY;
-
-	protected List<String> selectedTeams = new ArrayList<String>();
-	protected Map<String, String> teamDisplayMap;
+public class SendDinnerRoutesModel extends BaseSendMailsModel {
 
 	public static SendDinnerRoutesModel createWithDefaultMessageTemplate() {
 		SendDinnerRoutesModel result = new SendDinnerRoutesModel();
 
 		StringBuilder tmp = new StringBuilder();
-		tmp.append("Hallo {firstname},").append(FormatterConstants.TWO_NEWLINES).append("hier ist eure Dinner-Route: ").append(
-				FormatterConstants.TWO_NEWLINES);
-		tmp.append("{route}").append(FormatterConstants.TWO_NEWLINES).append("Bitte versucht euch an die Zeitpläne zu halten!");
+		tmp.append("Hallo {firstname},").append(FormatterUtil.TWO_NEWLINES).append("hier ist eure Dinner-Route: ").append(
+				FormatterUtil.TWO_NEWLINES);
+		tmp.append("{route}").append(FormatterUtil.TWO_NEWLINES).append("Bitte versucht euch an die Zeitpläne zu halten!");
 		result.message = tmp.toString();
 		return result;
 	}
 
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public String getMessage() {
-		return message;
-	}
-
-	public void setMessage(String message) {
-		this.message = message;
-	}
-
-	public List<String> getSelectedTeams() {
-		return selectedTeams;
-	}
-
-	public void setSelectedTeams(List<String> selectedTeams) {
-		this.selectedTeams = selectedTeams;
-	}
-
-	public Map<String, String> getTeamDisplayMap() {
-		return teamDisplayMap;
-	}
-
-	public void setTeamDisplayMap(Map<String, String> teamDisplayMap) {
-		this.teamDisplayMap = teamDisplayMap;
+	public DinnerRouteMessageFormatter getDinnerRouteMessageFormatter(Locale locale) {
+		// MAybe use locale and concrete dateformatter instance!
+		DinnerRouteMessageFormatter result = new DinnerRouteMessageFormatter();
+		result.setMessageTemplate(message);
+		result.setSubject(subject);
+		return result;
 	}
 
 	@Override

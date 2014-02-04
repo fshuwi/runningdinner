@@ -16,8 +16,6 @@ import org.runningdinner.events.SendDinnerRoutesEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.impl.AdminUrlGenerator;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
-import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,14 +60,6 @@ public class MailQueue {
 		LOGGER.info("Received container stop event, shutting down ExecutorService...");
 
 		this.allowMessagesOnQueue = false;
-
-		// try {
-		// putToQueue(new PoisonPillEvent(this));
-		// }
-		// catch (InterruptedException e1) {
-		// // TODO Auto-generated catch block
-		// e1.printStackTrace();
-		// }
 
 		execService.shutdown();
 
@@ -128,33 +118,22 @@ public class MailQueue {
 					Thread.currentThread().getName());
 		}
 
-		private boolean sendNewRunningDinnerEmail(NewRunningDinnerEvent event) {
+		private void sendNewRunningDinnerEmail(NewRunningDinnerEvent event) {
 			RunningDinner newRunningDinner = event.getNewRunningDinner();
 			String administrationUrl = adminUrlGenerator.constructAdministrationUrl(newRunningDinner.getUuid(), null);
-
-			try {
-				emailService.sendRunningDinnerCreatedMessage(newRunningDinner.getEmail(), administrationUrl);
-				LOGGER.info("Sent new running dinner mail for dinner {} to recipient {} successfully", newRunningDinner.getUuid(),
-						newRunningDinner.getEmail());
-				return true;
-			}
-			catch (Exception ex) {
-				LOGGER.error("Could not send new running dinner email for dinner {} to recipient {}", newRunningDinner.getUuid(),
-						newRunningDinner.getEmail(), ex);
-				return false;
-			}
+			emailService.sendRunningDinnerCreatedMessage(newRunningDinner.getEmail(), administrationUrl);
 		}
 
 		private void sendTeamArrangementMails(SendTeamArrangementsEvent event) {
 			List<Team> teams = event.getRegularTeams();
-			FinalizeTeamsModel finalizeTeamsModel = event.getFinalizeTeamsModel();
-			emailService.sendTeamArrangementMessages(teams, finalizeTeamsModel);
+			TeamArrangementMessageFormatter teamArrangementMessageFormatter = event.getTeamArrangementMessageFormatter();
+			emailService.sendTeamArrangementMessages(teams, teamArrangementMessageFormatter);
 		}
 
 		private void sendDinnerRouteMails(SendDinnerRoutesEvent event) {
 			List<Team> teams = event.getTeams();
-			SendDinnerRoutesModel sendDinnerRoutesModel = event.getSendDinnerRoutesModel();
-			emailService.sendDinnerRouteMessages(teams, sendDinnerRoutesModel);
+			DinnerRouteMessageFormatter dinnerRouteMessageFormatter = event.getDinnerRouteMessageFormatter();
+			emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter);
 		}
 
 	}

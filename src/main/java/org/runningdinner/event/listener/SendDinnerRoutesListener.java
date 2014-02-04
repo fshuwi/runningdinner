@@ -9,7 +9,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SendDinnerRoutesListener implements ApplicationListener<SendDinnerRoutesEvent> {
+public class SendDinnerRoutesListener extends MailQueueAwareBaseListener implements ApplicationListener<SendDinnerRoutesEvent> {
 
 	protected static final Logger LOGGER = LoggerFactory.getLogger(SendDinnerRoutesListener.class);
 
@@ -17,23 +17,11 @@ public class SendDinnerRoutesListener implements ApplicationListener<SendDinnerR
 
 	@Override
 	public void onApplicationEvent(SendDinnerRoutesEvent event) {
-		// TODO: Code duplication!
-
-		try {
-			if (mailQueue.putToQueue(event)) {
-				LOGGER.info("Put event successfully to mailqueue");
-			}
-			else {
-				LOGGER.error("Could not put event to mailqueue due to the queue is already closed");
-			}
-		}
-		catch (InterruptedException e) {
-			LOGGER.error("Could not put event to mailqueue because the activity was interrupted", e);
-			Thread.currentThread().interrupt();
-		}
+		putEventToQueue(event);
 	}
 
-	public MailQueue getMailQueue() {
+	@Override
+	protected MailQueue getMailQueue() {
 		return mailQueue;
 	}
 
@@ -42,4 +30,8 @@ public class SendDinnerRoutesListener implements ApplicationListener<SendDinnerR
 		this.mailQueue = mailQueue;
 	}
 
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
+	}
 }

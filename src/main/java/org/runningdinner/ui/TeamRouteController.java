@@ -3,9 +3,9 @@ package org.runningdinner.ui;
 import java.util.Arrays;
 import java.util.List;
 
-import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.service.TeamRouteBuilder;
+import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +29,7 @@ public class TeamRouteController {
 
 		Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
 
-		String participantNames = generateParticipantNames(team);
+		String participantNames = FormatterUtil.generateParticipantNames(team);
 
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
@@ -38,19 +38,6 @@ public class TeamRouteController {
 		model.addAttribute("currentTeamKey", teamKey);
 
 		return getFullViewName("route");
-	}
-
-	protected String generateParticipantNames(Team team) {
-		StringBuilder result = new StringBuilder();
-		int cnt = 0;
-		for (Participant teamMember : team.getTeamMembers()) {
-			if (cnt++ > 0) {
-				result.append(", ");
-			}
-			String fullname = teamMember.getName().getFullnameFirstnameFirst();
-			result.append(fullname);
-		}
-		return result.toString();
 	}
 
 	protected String getFullViewName(final String viewName) {

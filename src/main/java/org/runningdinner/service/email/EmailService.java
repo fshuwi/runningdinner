@@ -9,8 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.service.TeamRouteBuilder;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
-import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -26,26 +24,38 @@ public class EmailService {
 
 	private MessageSource emailMessageSource;
 
+	/**
+	 * Used for sending all mails to the same recipient (useful in test/Dev scenarios when real mail interaction shall be tested)
+	 */
 	private String testEmailRecipient;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(EmailService.class);
 
 	public void sendRunningDinnerCreatedMessage(final String recipientEmail, final String administrationUrl) {
 
+		if (!isEmailValid(recipientEmail)) {
+			return;
+		}
+
+		String email = getMailAddress(recipientEmail);
+
 		SimpleMailMessage message = new SimpleMailMessage(runningDinnerCreatedMessageTemplate);
-		message.setTo(recipientEmail);
+		message.setTo(email);
 		String text = emailMessageSource.getMessage("create.runningdinner.template", new Object[] { administrationUrl }, Locale.GERMAN);
-		LOGGER.info("Send running dinner created mail with size of {} characters to {}", text.length(), recipientEmail);
 		message.setText(text);
 
-		mailSender.send(message); // TODO: Exception Handling
+		LOGGER.info("Send running dinner created mail with size of {} characters to {}", text.length(), email);
+		try {
+			mailSender.send(message);
+		}
+		catch (Exception ex) {
+			LOGGER.error("Could not send new running dinner email to recipient {}", email, ex);
+		}
 	}
 
-	public void sendTeamArrangementMessages(final Collection<Team> teams, final FinalizeTeamsModel finalizeTeamsModel) {
+	public void sendTeamArrangementMessages(final Collection<Team> teams, final TeamArrangementMessageFormatter formatter) {
 
-		TeamArrangementMessageFormatter formatter = new TeamArrangementMessageFormatter(finalizeTeamsModel);
-
-		final String subject = finalizeTeamsModel.getSubject();
+		final String subject = formatter.getSubject();
 
 		for (Team team : teams) {
 
@@ -54,11 +64,12 @@ public class EmailService {
 
 				LOGGER.debug("Process {} of team {}", teamMember.getName().getFullnameFirstnameFirst(), team);
 
-				String email = teamMember.getEmail();
-				if (StringUtils.isEmpty(email) || !email.contains("@")) {
-					LOGGER.error("Team-Member {} of team {} has no valid email address", teamMember, team);
+				final String teamMemberMail = teamMember.getEmail();
+				if (!isEmailValid(teamMemberMail)) {
 					continue;
 				}
+
+				final String email = getMailAddress(teamMemberMail);
 
 				String messageText = formatter.formatTeamMemberMessage(teamMember, team);
 
@@ -79,11 +90,9 @@ public class EmailService {
 		}
 	}
 
-	public void sendDinnerRouteMessages(List<Team> teams, SendDinnerRoutesModel sendDinnerRoutesModel) {
+	public void sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter) {
 
-		DinnerRouteMessageFormatter formatter = new DinnerRouteMessageFormatter(sendDinnerRoutesModel);
-
-		final String subject = sendDinnerRoutesModel.getSubject();
+		final String subject = formatter.getSubject();
 
 		for (Team team : teams) {
 
@@ -92,12 +101,12 @@ public class EmailService {
 
 			for (Participant teamMember : team.getTeamMembers()) {
 
-				String email = "clemensstich@googlemail.com"; // teamMember.getEmail(); TODO
-				if (StringUtils.isEmpty(email) || !email.contains("@")) {
-					// TODO: Duplicate
-					LOGGER.error("Team-Member {} of team {} has no valid email address", teamMember, team);
+				final String teamMemberEmail = teamMember.getEmail();
+				if (!isEmailValid(teamMemberEmail)) {
 					continue;
 				}
+
+				final String email = getMailAddress(teamMemberEmail);
 
 				String messageText = formatter.formatDinnerRouteMessage(teamMember, team, teamDinnerRoute);
 
@@ -115,14 +124,61 @@ public class EmailService {
 					LOGGER.error("Failed to send mail to {}", email, ex);
 				}
 			}
-
-			break; // TODO: Remove
 		}
 
 	}
 
 	public void sendMessageToParticipants(final Collection<Participant> participants, final String subject, final String message) {
 
+		for (Participant participant : participants) {
+
+			LOGGER.debug("Process {}", participant.getName().getFullnameFirstnameFirst());
+
+			final String participantEmail = participant.getEmail();
+			if (!isEmailValid(participantEmail)) {
+				continue;
+			}
+
+			final String email = getMailAddress(participantEmail);
+
+			String messageText = message; // TODO: Use formatter to replace some templates
+
+			SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
+			mailMessage.setSubject(subject);
+			mailMessage.setTo(email);
+			mailMessage.setText(messageText);
+
+			LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
+
+			try {
+				mailSender.send(mailMessage);
+			}
+			catch (Exception ex) {
+				LOGGER.error("Failed to send mail to {}", email, ex);
+			}
+		}
+	}
+
+	protected boolean isEmailValid(final String email) {
+		if (StringUtils.isEmpty(email) || !email.contains("@")) {
+			LOGGER.error("{} is no valid email address", email);
+			return false;
+		}
+		return true;
+	}
+
+	/**
+	 * Convenience method to either get back the passed mailAddress (standard) or get the test-recipient-email-adress which is used to send
+	 * all mails to.
+	 * 
+	 * @param mailAddress
+	 * @return
+	 */
+	protected String getMailAddress(final String mailAddress) {
+		if (StringUtils.isNotEmpty(testEmailRecipient)) {
+			return testEmailRecipient;
+		}
+		return mailAddress;
 	}
 
 	public void setMailSender(MailSender mailSender) {

@@ -3,7 +3,7 @@ package org.runningdinner.events;
 import java.util.List;
 
 import org.runningdinner.core.Team;
-import org.runningdinner.ui.dto.SendDinnerRoutesModel;
+import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.springframework.context.ApplicationEvent;
 
 public class SendDinnerRoutesEvent extends ApplicationEvent {
@@ -11,12 +11,12 @@ public class SendDinnerRoutesEvent extends ApplicationEvent {
 	private static final long serialVersionUID = 3729494458843378610L;
 
 	protected List<Team> teams;
-	protected SendDinnerRoutesModel sendDinnerRoutesModel;
+	protected DinnerRouteMessageFormatter dinnerRouteMessageFormatter;
 
-	public SendDinnerRoutesEvent(final Object source, List<Team> teams, SendDinnerRoutesModel sendDinnerRoutesModel) {
+	public SendDinnerRoutesEvent(final Object source, List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter) {
 		super(source);
 		this.teams = teams;
-		this.sendDinnerRoutesModel = sendDinnerRoutesModel;
+		this.dinnerRouteMessageFormatter = dinnerRouteMessageFormatter;
 	}
 
 	public static long getSerialversionuid() {
@@ -27,8 +27,8 @@ public class SendDinnerRoutesEvent extends ApplicationEvent {
 		return teams;
 	}
 
-	public SendDinnerRoutesModel getSendDinnerRoutesModel() {
-		return sendDinnerRoutesModel;
+	public DinnerRouteMessageFormatter getDinnerRouteMessageFormatter() {
+		return dinnerRouteMessageFormatter;
 	}
 
 }

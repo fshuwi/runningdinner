@@ -30,7 +30,7 @@
 <div>
 	<h2>Mail-Benachrichtigung</h2>
 	
-	<form:form method="POST" commandName="finalizeTeamsModel" htmlEscape="true" role="form">
+	<form:form method="POST" commandName="sendTeamsModel" htmlEscape="true" role="form">
 		<div class="well">
 			<bs:inputField name="subject" label="Subjekt" inputColClass="col-xs-6" placeholder="Titel der Mail"/>
 			
@@ -60,11 +60,11 @@
 			<h4>Team-Auswahl für Mail-Versand</h4>
 			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label>Alle selektieren/deselektieren</label></span>
 			<ul>
-				<form:checkboxes element="li" items="${finalizeTeamsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
+				<form:checkboxes element="li" items="${sendTeamsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
 			</ul>
 		</div>
 		
-		<input type="submit" class="btn btn-primary" value="Teameinteilungen verschicken" name="finalizeWithMail" />
+		<input type="submit" class="btn btn-primary" value="Teameinteilungen verschicken" name="sendTeamMessages" />
 	
 	</form:form>		
 </div>

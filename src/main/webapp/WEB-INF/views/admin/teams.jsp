@@ -12,10 +12,10 @@
 </spring:url>
 
 
-<spring:message code="tooltip.teams.finalize.button" var="finalizeTooltip"/>
-<c:set var="finalizeLabel" value="Teameinteilung finalisieren..." />
+<spring:message code="tooltip.teams.finalize.button" var="sendMessagesTooltip"/>
+<c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
 <c:if test="${teamAdministration.teamsAlreadySaved}">
-	<c:set var="finalizeLabel" value="Teameinteilungen verschicken" />
+	<c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
 </c:if>
 
 <h2>Team-Einteilung</h2>
@@ -49,7 +49,7 @@
 					<tbody>
 						<c:forEach items="${regularTeams}" var="team">
 							<tr>
-								<td>${team.teamNumber}</td>
+								<td><span id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
 								<td>
 									<div id="teaminfo_${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
@@ -70,14 +70,14 @@
 								<td>
 									<div>
 										<c:forEach items="${team.visitationPlan.hostTeams}" var="hostTeam">
-											<h5 class="media-heading"><a href="#">Team ${hostTeam.teamNumber}</a> - <span class="text-success"><strong>${hostTeam.mealClass}</strong></span></h5>
+											<h5 class="media-heading"><a href="#teamNumber_${hostTeam.teamNumber}">Team ${hostTeam.teamNumber}</a> - <span class="text-success"><strong>${hostTeam.mealClass}</strong></span></h5>
 										</c:forEach>
 									</div>
 							   </td>
 							   <td>
 									<div>
 										<c:forEach items="${team.visitationPlan.guestTeams}" var="guestTeam">
-											<h5 class="media-heading"><a href="#">Team ${guestTeam.teamNumber}</a></h5>
+											<h5 class="media-heading"><a href="#teamNumber_${guestTeam.teamNumber}">Team ${guestTeam.teamNumber}</a></h5>
 										</c:forEach>
 									</div>
 							   </td>
@@ -105,7 +105,7 @@
 							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
 							<td>
 								<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
-										data-placement="bottom" data-toggle="tooltip" data-original-title="${finalizeTooltip}"><span class="glyphicon glyphicon-play"></span> ${finalizeLabel}</a>
+										data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}"><span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
 							</td>
 						</tr>
 					</tbody>

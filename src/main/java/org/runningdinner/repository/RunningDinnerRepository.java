@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Set;
 
 import javax.persistence.EntityManager;
+import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
 
@@ -88,12 +89,47 @@ public class RunningDinnerRepository extends AbstractRepository {
 	}
 
 	@Transactional
+	public List<Team> loadTeamsWithVisitationPlan(Set<String> teamKeys, boolean fetchTeamMembersOfReferencedTeams) {
+		TypedQuery<Team> query = em.createQuery(
+				"SELECT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey IN :teamKeys",
+				Team.class);
+		query.setParameter("teamKeys", teamKeys);
+		List<Team> result = query.getResultList();
+
+		// Load also teamMembers of referenced teams):
+		// Not very nice, but currently this is the easiest way, and should also not slow down performance due to @BatchSize in
+		// Team.teamMembers
+		if (fetchTeamMembersOfReferencedTeams) {
+
+			for (Team resultTeam : result) {
+				Set<Team> hostTeams = resultTeam.getVisitationPlan().getHostTeams();
+				Set<Team> guestTeams = resultTeam.getVisitationPlan().getGuestTeams();
+				Set<Team> allReferencedTeams = new HashSet<Team>(hostTeams);
+				allReferencedTeams.addAll(guestTeams);
+				for (Team referencedTeam : allReferencedTeams) {
+					referencedTeam.getTeamMembers().size();
+				}
+			}
+
+		}
+
+		return result;
+	}
+
+	/**
+	 * 
+	 * @param teamKey
+	 * @param fetchTeamMembersOfReferencedTeams
+	 * @return Always a found team or an exception will be thrown
+	 * @throws EntityNotFoundException when no team is found
+	 */
+	@Transactional
 	public Team loadSingleTeamWithVisitationPlan(String teamKey, boolean fetchTeamMembersOfReferencedTeams) {
 		TypedQuery<Team> query = em.createQuery(
 				"SELECT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey=:teamKey ",
 				Team.class);
 		query.setParameter("teamKey", teamKey);
-		Team result = getSingleResult(query);
+		Team result = getSingleResultMandatory(query);
 
 		// Load also teamMembers of referenced teams):
 		// Not very nice, but currently this is the easiest way, and should also not slow down performance due to @BatchSize in
@@ -136,10 +172,16 @@ public class RunningDinnerRepository extends AbstractRepository {
 		return query.getResultList();
 	}
 
+	/**
+	 * 
+	 * @param participantKey
+	 * @throws EntityNotFoundException If the participant is not found
+	 * @return
+	 */
 	public Participant loadParticipant(String participantKey) {
 		TypedQuery<Participant> query = em.createQuery("SELECT p FROM Participant p WHERE p.naturalKey=:participantKey", Participant.class);
 		query.setParameter("participantKey", participantKey);
-		return getSingleResult(query);
+		return getSingleResultMandatory(query);
 	}
 
 	@Transactional

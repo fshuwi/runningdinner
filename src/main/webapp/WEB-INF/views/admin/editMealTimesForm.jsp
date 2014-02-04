@@ -22,6 +22,7 @@
 		<form:hidden path="meals" id="meals"/>
 			
 		<input type="submit" class="btn btn-primary" value="Speichern" name="save" />
-		<input type="submit" class="btn btn-danger" value="Abbrechen" name="cancel" />				  
+		<input type="submit" class="btn btn-danger" value="Abbrechen" name="cancel" />
+				  
 	</form:form>
 </div>

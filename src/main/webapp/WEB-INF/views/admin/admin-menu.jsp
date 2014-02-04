@@ -8,6 +8,9 @@
 <spring:url value="/event/{uuid}/admin/teams" var="teamsUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
+<spring:url value="/event/{uuid}/admin" var="overviewUrl" htmlEscape="true">
+	<spring:param name="uuid" value="${uuid}" />
+</spring:url>
 <spring:url value="/event/{uuid}/admin/mealtimes" var="timesUrl" htmlEscape="true">
 	<spring:param name="uuid" value="${uuid}" />
 </spring:url>
@@ -38,6 +41,7 @@
 <div class="col-xs-4">
 	<h2>Dinner</h2>
 	<a href="${teamsUrl}">Teameinteilung</a><br/>
+	<a href="${overviewUrl}">Überblick</a><br/>
 	<a href="${timesUrl}">Zeitplaene</a><br/>
 	<a href="${optionsUrl}">Dinner-Optionen</a>
 </div> 

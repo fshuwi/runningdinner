@@ -22,18 +22,19 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.EditMealTimesModel;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
 import org.runningdinner.ui.dto.GenderOption;
 import org.runningdinner.ui.dto.SendDinnerRoutesModel;
+import org.runningdinner.ui.dto.SendTeamArrangementsModel;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
-import org.runningdinner.ui.dto.SingleTeamParticipantChange;
-import org.runningdinner.ui.dto.SingleTeamParticipantChange.SwitchTeamMembers;
-import org.runningdinner.ui.dto.SingleTeamParticipantChange.TeamHostChangeList;
-import org.runningdinner.ui.dto.StandardJsonResponse;
-import org.runningdinner.ui.dto.SwitchTeamMembersResponse;
 import org.runningdinner.ui.dto.TeamAdministrationModel;
+import org.runningdinner.ui.json.SingleTeamParticipantChange;
+import org.runningdinner.ui.json.StandardJsonResponse;
+import org.runningdinner.ui.json.SwitchTeamMembers;
+import org.runningdinner.ui.json.SwitchTeamMembersResponse;
+import org.runningdinner.ui.json.TeamHostChangeList;
 import org.runningdinner.ui.util.MealClassHelper;
 import org.runningdinner.ui.util.MealClassPropertyEditor;
 import org.runningdinner.ui.validator.AdminValidator;
@@ -136,27 +137,27 @@ public class AdminController extends AbstractBaseController {
 	// TODO: Alles besser machen
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/mail", method = RequestMethod.GET)
-	public String showSaveTeamsAndSendMailForm(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+	public String showSendTeamArrangementsForm(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
-		FinalizeTeamsModel finalizeTeamsModel = FinalizeTeamsModel.createWithDefaultMessageTemplate();
+		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate();
 
-		Map<String, String> teamDisplayMap = getTeamsForSelection(uuid);
+		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
 
-		finalizeTeamsModel.setTeamDisplayMap(teamDisplayMap);
+		sendTeamsModel.setTeamDisplayMap(teamDisplayMap);
 
 		// Select all Teams:
 		if (request.getParameter("fromAdminMenu") == null) {
-			finalizeTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
+			sendTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
 		}
 
 		model.addAttribute("uuid", uuid);
-		model.addAttribute("finalizeTeamsModel", finalizeTeamsModel);
+		model.addAttribute("sendTeamsModel", sendTeamsModel);
 
-		return getFullViewName("finalizeTeamsForm");
+		return getFullViewName("sendTeamsForm");
 	}
 
-	private Map<String, String> getTeamsForSelection(final String uuid) {
+	private Map<String, String> getTeamsToSelect(final String uuid) {
 		List<Team> regularTeams = runningDinnerService.loadRegularTeamsFromDinner(uuid);
 		if (CoreUtil.isEmpty(regularTeams)) {
 			throw new RuntimeException("Keine Teams für dinner " + uuid);
@@ -164,48 +165,31 @@ public class AdminController extends AbstractBaseController {
 
 		Map<String, String> teamDisplayMap = new LinkedHashMap<String, String>();
 		for (Team team : regularTeams) {
-			teamDisplayMap.put(team.getNaturalKey(), generateTeamLabel(team));
+			teamDisplayMap.put(team.getNaturalKey(), FormatterUtil.generateTeamLabel(team));
 		}
 		return teamDisplayMap;
 	}
 
-	private String generateTeamLabel(Team team) {
-		String result = "Team " + team.getTeamNumber();
-		Set<Participant> teamMembers = team.getTeamMembers();
-		if (CoreUtil.isEmpty(teamMembers)) {
-			return result;
-		}
-		result += " (";
-		int cnt = 0;
-		for (Participant p : team.getTeamMembers()) {
-			if (cnt++ > 0) {
-				result += ", ";
-			}
-			result += p.getName().getFullnameFirstnameFirst();
-		}
-		result += ")";
-		return result;
-	}
-
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/mail", method = RequestMethod.POST)
-	public String doFinalizeTeams(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
-			@ModelAttribute("finalizeTeamsModel") FinalizeTeamsModel finalizeTeamsModel, BindingResult bindingResult, Model model,
+	public String doSendTeamArrangements(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+			@ModelAttribute("sendTeamsModel") SendTeamArrangementsModel sendTeamsModel, BindingResult bindingResult, Model model,
 			final RedirectAttributes redirectAttributes) {
 		adminValidator.validateUuid(uuid);
 
-		adminValidator.validateFinalizeTeamsModel(finalizeTeamsModel, bindingResult);
+		adminValidator.validateSendMessagesModel(sendTeamsModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			finalizeTeamsModel.setTeamDisplayMap(getTeamsForSelection(uuid)); // Reload teams for display
-			model.addAttribute("finalizeTeamsModel", finalizeTeamsModel);
+			sendTeamsModel.setTeamDisplayMap(getTeamsToSelect(uuid)); // Reload teams for display
+			model.addAttribute("sendTeamsModel", sendTeamsModel);
 			model.addAttribute("uuid", uuid);
-			return getFullViewName("finalizeTeamsForm");
+			return getFullViewName("sendTeamsForm");
 		}
 
-		finalizeTeamsModel.setSendMessages(true); // TODO: Remove
+		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedTeams(),
+				sendTeamsModel.getTeamArrangementMessageFormatter(Locale.GERMAN));
 
-		int numTeams = runningDinnerService.sendTeamMessages(uuid, finalizeTeamsModel);
-		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
-				"Sent emails for " + numTeams + " teams!"));
+		String redirectUrl = ADMIN_URL_PATTERN + "/teams/mail";
+		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/dinnerroute/mail", method = RequestMethod.GET)
@@ -214,7 +198,7 @@ public class AdminController extends AbstractBaseController {
 
 		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate();
 
-		Map<String, String> teamDisplayMap = getTeamsForSelection(uuid);
+		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
 
 		// Select all Teams:
 		ArrayList<String> selectedTeams = new ArrayList<String>(teamDisplayMap.keySet());
@@ -235,16 +219,18 @@ public class AdminController extends AbstractBaseController {
 
 		adminValidator.validateSendMessagesModel(sendDinnerRoutesModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			sendDinnerRoutesModel.setTeamDisplayMap(getTeamsForSelection(uuid)); // Reload teams for display
+			sendDinnerRoutesModel.setTeamDisplayMap(getTeamsToSelect(uuid)); // Reload teams for display
 			model.addAttribute("sendDinnerRoutesModel", sendDinnerRoutesModel);
 			model.addAttribute("uuid", uuid);
 			return getFullViewName("sendDinnerRoutesForm");
 		}
 
-		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel);
+		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedTeams(),
+				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(Locale.GERMAN));
 
-		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
-				"Sent emails for " + numTeams + " teams!"));
+		String redirectUrl = ADMIN_URL_PATTERN + "/dinnerroute/mail";
+		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/statuspage", method = RequestMethod.GET)
@@ -294,15 +280,14 @@ public class AdminController extends AbstractBaseController {
 		adminValidator.validateUuid(uuid);
 
 		if (request.getParameter("cancel") != null) {
-			return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.INFO_STATUS,
-					"Action cancelled"));
+			return adminOverview(uuid, model);
 		}
 
 		commonValidator.validateMealTimes(editMealTimesModel.getMeals(), bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("editMealTimesModel", editMealTimesModel);
 			model.addAttribute("uuid", uuid);
-			return getFullViewName("finalizeTeamsForm");
+			return getFullViewName("editMealTimesForm");
 		}
 
 		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
@@ -311,8 +296,9 @@ public class AdminController extends AbstractBaseController {
 
 		runningDinnerService.updateMealTimes(uuid, editMealTimesModel.getMeals());
 
-		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
-				"Meal-Times successfully edited!"));
+		final String redirectUrl = ADMIN_URL_PATTERN + "/mealtimes";
+		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+				SimpleStatusMessage.SUCCESS_STATUS, "Meal-Times successfully edited!"));
 	}
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/participant/{key}/edit", method = RequestMethod.GET)
@@ -336,9 +322,11 @@ public class AdminController extends AbstractBaseController {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
 
+		String redirectUrl = ADMIN_URL_PATTERN + "/participant/{key}/edit";
+		redirectUrl = redirectUrl.replaceFirst("\\{key\\}", participantKey);
 		if (request.getParameter("cancel") != null) {
-			return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.INFO_STATUS,
-					"Action cancelled"));
+			return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+					SimpleStatusMessage.INFO_STATUS, "Action cancelled"));
 		}
 
 		commonValidator.validateParticipant(participant, bindingResult);
@@ -350,8 +338,8 @@ public class AdminController extends AbstractBaseController {
 		}
 		runningDinnerService.updateParticipant(participantKey, participant);
 
-		return generateStatusPageRedirect(uuid, redirectAttributes, new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS,
-				"Participant successfully edited!"));
+		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+				SimpleStatusMessage.SUCCESS_STATUS, "Participant successfully edited!"));
 	}
 
 	/**
@@ -433,11 +421,12 @@ public class AdminController extends AbstractBaseController {
 		return "admin/" + viewName;
 	}
 
-	protected String generateStatusPageRedirect(String uuid, RedirectAttributes redirectAttributes, SimpleStatusMessage simpleStatusMessage) {
+	protected String generateStatusPageRedirect(final String redirectUrl, final String uuid, final RedirectAttributes redirectAttributes,
+			final SimpleStatusMessage simpleStatusMessage) {
 		redirectAttributes.addFlashAttribute("statusMessage", simpleStatusMessage);
-		String redirectUrl = "redirect:/" + ADMIN_URL_PATTERN + "/statuspage";
-		redirectUrl = redirectUrl.replaceFirst("\\{" + ADMIN_URL_UUID_MARKER + "\\}", uuid);
-		return redirectUrl;
+		String theRedirectUrl = "redirect:/" + redirectUrl;
+		theRedirectUrl = theRedirectUrl.replaceFirst("\\{" + ADMIN_URL_UUID_MARKER + "\\}", uuid);
+		return theRedirectUrl;
 	}
 
 	@Autowired

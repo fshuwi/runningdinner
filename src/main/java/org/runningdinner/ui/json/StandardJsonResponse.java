@@ -1,7 +1,14 @@
-package org.runningdinner.ui.dto;
+package org.runningdinner.ui.json;
 
 import org.apache.commons.lang.StringUtils;
 
+/**
+ * Indicates mainly the response status of a (JSON) request, which can be either successful (true) or unsuccessful (false).<br>
+ * In case of an unsuccessful response the errorMessage contain some more detailed information.
+ * 
+ * @author i01002492
+ * 
+ */
 public class StandardJsonResponse {
 
 	protected boolean success;

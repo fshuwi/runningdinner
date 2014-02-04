@@ -15,7 +15,6 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.core.ParticipantName;
 import org.runningdinner.core.Team;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
 
 public class TestTeamMessageFormatter {
 
@@ -33,13 +32,11 @@ public class TestTeamMessageFormatter {
 
 	@Before
 	public void setUp() {
+		formatter = new TeamArrangementMessageFormatter(dateFormat);
+		formatter.setMessageTemplate("{firstname} {lastname}/{meal}/{mealtime}/{host}/{partner}");
+		formatter.setNonHostMessagePartTemplate("{partner}");
+		formatter.setHostMessagePartTemplate("YOU");
 
-		FinalizeTeamsModel tmp = new FinalizeTeamsModel();
-		tmp.setSendMessages(true);
-		tmp.setMessage("{name}/{meal}/{mealtime}/{host}/{partner}");
-		tmp.setNonHostMessagePartTemplate("{partner}");
-		tmp.setHostMessagePartTemplate("YOU");
-		formatter = new TeamArrangementMessageFormatter(tmp, timeFormat);
 	}
 
 	@Test

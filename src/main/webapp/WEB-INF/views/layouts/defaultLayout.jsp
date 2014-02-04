@@ -24,9 +24,10 @@
   					<tiles:insertDefinition name="view-admin-menu" />
   				</div>
   			</div>
-  					
+  				
   			<div class="row">
-				<div class="col-xs-12">		
+				<div class="col-xs-12">
+					<tiles:insertDefinition name="view-status-info" />
   					<tiles:insertAttribute name="content" />
   				</div>
   			</div>

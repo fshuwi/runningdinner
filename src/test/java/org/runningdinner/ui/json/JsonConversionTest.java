@@ -13,8 +13,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
 import org.junit.Before;
 import org.junit.Test;
-import org.runningdinner.ui.dto.SingleTeamParticipantChange;
-import org.runningdinner.ui.dto.SingleTeamParticipantChange.SwitchTeamMembers;
 
 public class JsonConversionTest {
 

@@ -1,7 +1,7 @@
 package org.runningdinner.service.email;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Set;
 
@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
 
 public class TeamArrangementMessageFormatter {
 
@@ -17,31 +16,29 @@ public class TeamArrangementMessageFormatter {
 	private String hostMessagePartTemplate;
 	private String nonHostMessagePartTemplate;
 
-	private SimpleDateFormat timeFormat;
+	private DateFormat timeFormat;
 
-	public TeamArrangementMessageFormatter(FinalizeTeamsModel finalizeTeamsModel) {
-		this(finalizeTeamsModel, null);
+	private String subject;
+
+	public TeamArrangementMessageFormatter() {
+		this(null);
 	}
 
-	public TeamArrangementMessageFormatter(final FinalizeTeamsModel finalizeTeamsModel, final String timeFormat) {
-		messageTemplate = finalizeTeamsModel.getMessage();
-		hostMessagePartTemplate = finalizeTeamsModel.getHostMessagePartTemplate();
-		nonHostMessagePartTemplate = finalizeTeamsModel.getNonHostMessagePartTemplate();
-
-		String theTimeFormat = timeFormat;
-		if (StringUtils.isEmpty(theTimeFormat)) {
-			theTimeFormat = FormatterConstants.DEFAULT_TIME_FORMAT;
+	public TeamArrangementMessageFormatter(final DateFormat timeFormat) {
+		this.timeFormat = timeFormat;
+		if (timeFormat == null) {
+			this.timeFormat = new SimpleDateFormat(FormatterUtil.DEFAULT_TIME_FORMAT, Locale.GERMAN); // Fallback
 		}
-		this.timeFormat = new SimpleDateFormat(theTimeFormat, Locale.GERMAN); // TODO: Hardcoded locale
 	}
 
 	public String formatTeamMemberMessage(final Participant teamMember, final Team parentTeam) {
 
 		String theMessage = messageTemplate;
-		theMessage = theMessage.replaceAll(FormatterConstants.FIRSTNAME, teamMember.getName().getFirstnamePart());
-		theMessage = theMessage.replaceAll(FormatterConstants.LASTNAME, teamMember.getName().getLastname());
-		theMessage = theMessage.replaceAll(FormatterConstants.MEAL, parentTeam.getMealClass().getLabel());
-		theMessage = theMessage.replaceAll(FormatterConstants.MEALTIME, getFormattedTime(parentTeam.getMealClass().getTime()));
+		theMessage = theMessage.replaceAll(FormatterUtil.FIRSTNAME, teamMember.getName().getFirstnamePart());
+		theMessage = theMessage.replaceAll(FormatterUtil.LASTNAME, teamMember.getName().getLastname());
+		theMessage = theMessage.replaceAll(FormatterUtil.MEAL, parentTeam.getMealClass().getLabel());
+		theMessage = theMessage.replaceAll(FormatterUtil.MEALTIME,
+				CoreUtil.getFormattedTime(parentTeam.getMealClass().getTime(), timeFormat, "Unbekannte Uhrzeit"));
 
 		Set<Participant> partners = CoreUtil.excludeFromSet(teamMember, parentTeam.getTeamMembers());
 
@@ -50,7 +47,7 @@ public class TeamArrangementMessageFormatter {
 		for (Participant partner : partners) {
 
 			if (cnt++ > 0) {
-				partnerInfo.append(FormatterConstants.TWO_NEWLINES).append(FormatterConstants.NEWLINE);
+				partnerInfo.append(FormatterUtil.TWO_NEWLINES).append(FormatterUtil.NEWLINE);
 			}
 
 			String partnerName = partner.getName().getFullnameFirstnameFirst();
@@ -59,13 +56,13 @@ public class TeamArrangementMessageFormatter {
 			String partnerMail = "EMail: " + StringUtils.defaultIfEmpty(partner.getEmail(), "Keine EMail");
 			String partnerMobile = "Handy-Nr: " + StringUtils.defaultIfEmpty(partner.getMobileNumber(), "Keine Handy-Nr");
 
-			partnerInfo.append(partnerName).append(FormatterConstants.NEWLINE).append(streetWithNr).append(FormatterConstants.NEWLINE).append(
-					zipWithCity).append(FormatterConstants.NEWLINE).append(partnerMail).append(FormatterConstants.NEWLINE).append(
+			partnerInfo.append(partnerName).append(FormatterUtil.NEWLINE).append(streetWithNr).append(FormatterUtil.NEWLINE).append(
+					zipWithCity).append(FormatterUtil.NEWLINE).append(partnerMail).append(FormatterUtil.NEWLINE).append(
 					partnerMobile);
 		}
-		theMessage = theMessage.replaceFirst(FormatterConstants.PARTNER, partnerInfo.toString());
+		theMessage = theMessage.replaceFirst(FormatterUtil.PARTNER, partnerInfo.toString());
 
-		Participant hostMember = getHostMember(parentTeam);
+		Participant hostMember = parentTeam.getHostTeamMember();
 		String hostReplacement = StringUtils.EMPTY;
 		if (teamMember.equals(hostMember)) {
 			hostReplacement = hostMessagePartTemplate;
@@ -74,27 +71,34 @@ public class TeamArrangementMessageFormatter {
 			hostReplacement = nonHostMessagePartTemplate;
 		}
 
-		hostReplacement = hostReplacement.replaceAll(FormatterConstants.PARTNER, hostMember.getName().getFullnameFirstnameFirst());
-		theMessage = theMessage.replaceAll(FormatterConstants.HOST, hostReplacement);
+		hostReplacement = hostReplacement.replaceAll(FormatterUtil.PARTNER, hostMember.getName().getFullnameFirstnameFirst());
+		theMessage = theMessage.replaceAll(FormatterUtil.HOST, hostReplacement);
 
 		return theMessage;
 	}
 
-	// TODO: remove and use team's method
-	private Participant getHostMember(final Team parentTeam) {
-		Set<Participant> teamMembers = parentTeam.getTeamMembers();
-		for (Participant teamMember : teamMembers) {
-			if (teamMember.isHost()) {
-				return teamMember;
-			}
-		}
-		throw new IllegalStateException("No host found within team " + parentTeam);
+	public void setMessageTemplate(String messageTemplate) {
+		this.messageTemplate = messageTemplate;
 	}
 
-	protected String getFormattedTime(Date time) {
-		if (time == null) {
-			return "Unbekannte Uhrzeit";
-		}
-		return timeFormat.format(time);
+	public void setHostMessagePartTemplate(String hostMessagePartTemplate) {
+		this.hostMessagePartTemplate = hostMessagePartTemplate;
 	}
+
+	public void setNonHostMessagePartTemplate(String nonHostMessagePartTemplate) {
+		this.nonHostMessagePartTemplate = nonHostMessagePartTemplate;
+	}
+
+	public void setTimeFormat(DateFormat timeFormat) {
+		this.timeFormat = timeFormat;
+	}
+
+	public String getSubject() {
+		return subject;
+	}
+
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
+
 }

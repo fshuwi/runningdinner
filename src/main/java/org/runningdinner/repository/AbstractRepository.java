@@ -28,9 +28,8 @@ public class AbstractRepository {
 
 	protected <T> T getSingleResultMandatory(final TypedQuery<T> query) {
 		T result = getSingleResult(query);
-		if (result == null) { // TODO: Use Spring's exception?
-			throw new EntityNotFoundException("ASDf");
-			// TODO: throw excpetion
+		if (result == null) {
+			throw new EntityNotFoundException("Could not find entity");
 		}
 		return result;
 	}

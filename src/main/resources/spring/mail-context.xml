@@ -32,7 +32,7 @@
     />
     
     
-    <beans profile="server">	
+    <beans profile="production">	
 		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
 	    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}">
 			    <property name="javaMailProperties">
@@ -45,7 +45,9 @@
 			    </property>
 	   	</bean>
    	</beans>
-   	<beans profile="junit">
+   	
+   	
+   	<beans profile="junit, server">
    		<bean id="mailSender" class="org.runningdinner.service.email.mock.MailSenderMockInMemory" />
    	</beans>
     

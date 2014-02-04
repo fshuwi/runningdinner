@@ -31,8 +31,8 @@ import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.repository.RunningDinnerRepository;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
-import org.runningdinner.ui.dto.FinalizeTeamsModel;
-import org.runningdinner.ui.dto.SendDinnerRoutesModel;
+import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -201,7 +201,7 @@ public class RunningDinnerServiceImpl {
 
 	public List<Team> loadRegularTeamsWithVisitationPlanFromDinner(final String uuid) {
 		return repository.loadRegularTeamsWithArrangementsFromDinner(uuid);
-		// TODO: Implement paging
+		// Consider paging for future
 	}
 
 	/**
@@ -393,54 +393,28 @@ public class RunningDinnerServiceImpl {
 		return parentTeams;
 	}
 
-	// @Transactional
-	public int sendTeamMessages(String uuid, final FinalizeTeamsModel finalizeTeamsModel) {
+	public int sendTeamMessages(String uuid, final List<String> selectedTeamKeys, final TeamArrangementMessageFormatter messageFormatter) {
 
-		// boolean teamsFinalized = false;
+		Set<String> teamKeysAsSet = convertTeamKeysToSet(selectedTeamKeys);
 
-		// final RunningDinner dinner = repository.findDinnerByUuid(uuid);
-		// final List<Team> teams = repository.loadRegularTeamsFromDinner(uuid);
+		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
 
-		Set<String> teamKeys = new HashSet<String>(finalizeTeamsModel.getSelectedTeams());
-		if (teamKeys.size() != finalizeTeamsModel.getSelectedTeams().size()) {
-			throw new IllegalStateException("Passed team key list contained some duplicates!");
-		}
+		checkLoadedTeamSize(teams, teamKeysAsSet.size());
 
-		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
-		if (CoreUtil.isEmpty(teams)) {
-			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
-		}
-
-		if (teams.size() != teamKeys.size()) {
-			throw new IllegalStateException("Expected " + teamKeys.size() + " teams to be found, but there were " + teams.size());
-		}
-
-		eventPublisher.publishTeamMessages(teams, finalizeTeamsModel);
+		eventPublisher.publishTeamMessages(teams, messageFormatter);
 		return teams.size();
 	}
 
-	public int sendDinnerRouteMessages(String uuid, SendDinnerRoutesModel sendDinnerRoutesModel) {
+	public int sendDinnerRouteMessages(final String uuid, final List<String> selectedTeamKeys,
+			final DinnerRouteMessageFormatter dinnerRouteFormatter) {
 
-		Set<String> teamKeys = new HashSet<String>(sendDinnerRoutesModel.getSelectedTeams());
-		if (teamKeys.size() != sendDinnerRoutesModel.getSelectedTeams().size()) {
-			throw new IllegalStateException("Passed team key list contained some duplicates!");
-		}
+		Set<String> teamKeys = convertTeamKeysToSet(selectedTeamKeys);
 
-		List<Team> teams = new ArrayList<Team>(teamKeys.size());
-		for (String teamKey : teamKeys) {
-			// TODO: Very bad.... use single query instead!!!
-			teams.add(repository.loadSingleTeamWithVisitationPlan(teamKey, true));
-		}
+		List<Team> teams = repository.loadTeamsWithVisitationPlan(teamKeys, true);
 
-		// TODO These error messages need also refactored!
-		if (CoreUtil.isEmpty(teams)) {
-			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
-		}
-		if (teams.size() != teamKeys.size()) {
-			throw new IllegalStateException("Expected " + teamKeys.size() + " teams to be found, but there were " + teams.size());
-		}
+		checkLoadedTeamSize(teams, teamKeys.size());
 
-		eventPublisher.publishDinnerRouteMessages(teams, sendDinnerRoutesModel);
+		eventPublisher.publishDinnerRouteMessages(teams, dinnerRouteFormatter);
 		return teams.size();
 	}
 
@@ -471,27 +445,16 @@ public class RunningDinnerServiceImpl {
 	}
 
 	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
-		Team result = repository.loadSingleTeamWithVisitationPlan(teamKey, true);
-		if (result == null) {
-			throw new RuntimeException("TODO: Team with key " + teamKey + " not found!");
-		}
-		return result;
+		return repository.loadSingleTeamWithVisitationPlan(teamKey, true);
 	}
 
 	public Participant loadParticipant(String participantKey) {
-		Participant result = repository.loadParticipant(participantKey);
-		if (result == null) {
-			throw new RuntimeException("TODO: Participant with key " + participantKey + " not found!");
-		}
-		return result;
+		return repository.loadParticipant(participantKey);
 	}
 
 	@Transactional
 	public void updateParticipant(String participantKey, Participant participant) {
 		Participant existingParticipant = repository.loadParticipant(participantKey);
-		if (existingParticipant == null) {
-			throw new RuntimeException("TODO: Participant with key " + participantKey + " not found!");
-		}
 
 		existingParticipant.setGender(participant.getGender());
 		existingParticipant.setEmail(participant.getEmail());
@@ -505,6 +468,23 @@ public class RunningDinnerServiceImpl {
 				participant.getAddress().getZip()));
 		existingParticipant.getAddress().setCityName(participant.getAddress().getCityName());
 
+	}
+
+	protected Set<String> convertTeamKeysToSet(final List<String> teamKeysList) {
+		Set<String> teamKeys = new HashSet<String>(teamKeysList);
+		if (teamKeys.size() != teamKeysList.size()) {
+			throw new IllegalStateException("Passed team key list contained some duplicates!");
+		}
+		return teamKeys;
+	}
+
+	protected void checkLoadedTeamSize(final List<Team> loadedTeams, final int expectedSize) {
+		if (CoreUtil.isEmpty(loadedTeams)) {
+			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
+		}
+		if (loadedTeams.size() != expectedSize) {
+			throw new IllegalStateException("Expected " + expectedSize + " teams to be found, but there were " + loadedTeams.size());
+		}
 	}
 
 	/**

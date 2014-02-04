@@ -12,6 +12,8 @@ public class GlobalExceptionHandler extends SimpleMappingExceptionResolver {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
+	private boolean printStacktraces;
+
 	public GlobalExceptionHandler() {
 		// Enable logging by providing the name of the logger to use
 		setWarnLogCategory(GlobalExceptionHandler.class.getName());
@@ -37,4 +39,13 @@ public class GlobalExceptionHandler extends SimpleMappingExceptionResolver {
 		// mav.addObject("url", request.getRequestURL());
 		return mav;
 	}
+
+	public boolean isPrintStacktraces() {
+		return printStacktraces;
+	}
+
+	public void setPrintStacktraces(boolean printStacktraces) {
+		this.printStacktraces = printStacktraces;
+	}
+
 }
