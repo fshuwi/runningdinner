@@ -160,8 +160,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 		try {
 			final ParsingConfiguration parsingConfiguration = createWizardModel.getParsingConfiguration();
-			List<Participant> participants = runningDinnerService.getParticipantsFromTempLocation(
-					createWizardModel.getUploadedFileLocation(), parsingConfiguration);
+			List<Participant> participants = runningDinnerService.getParticipantsFromTempLocation(createWizardModel.getUploadedFileLocation());
 
 			RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
 
@@ -274,7 +273,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 		// #2 Copy file from tmp-directory to personal tmp-directory
 		// Save this absolute filepath into session-model
-		String location = runningDinnerService.copyParticipantFileToTempLocation(file, session.getId());
+		String location = runningDinnerService.copyParticipantFileToTempLocation(participants, session.getId());
 		createWizardModel.setUploadedFileLocation(location);
 
 		// #3 Prepare participant table preview:

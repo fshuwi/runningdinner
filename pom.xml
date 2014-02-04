@@ -30,6 +30,12 @@
 			<version>2.3</version>
 		</dependency>
 		
+		<dependency>
+        	<groupId>com.esotericsoftware.kryo</groupId>
+        	<artifactId>kryo</artifactId>
+        	<version>2.22</version>
+    	</dependency>
+		
 		<dependency>  
 			<groupId>commons-fileupload</groupId>  
 			<artifactId>commons-fileupload</artifactId>  

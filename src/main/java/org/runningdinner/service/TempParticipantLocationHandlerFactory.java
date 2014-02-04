@@ -1,7 +1,7 @@
 package org.runningdinner.service;
 
 import org.apache.commons.lang3.StringUtils;
-import org.runningdinner.service.impl.DirectoryBasedParticipantLocationHandler;
+import org.runningdinner.service.impl.SerializeToDirectoryHandler;
 import org.springframework.beans.factory.annotation.Value;
 
 public class TempParticipantLocationHandlerFactory {
@@ -11,12 +11,12 @@ public class TempParticipantLocationHandlerFactory {
 
 	public TempParticipantLocationHandler create() {
 		if (StringUtils.isNotEmpty(tmpUploadDirectory)) {
-			DirectoryBasedParticipantLocationHandler result = new DirectoryBasedParticipantLocationHandler();
+			SerializeToDirectoryHandler result = new SerializeToDirectoryHandler();
 			result.setTmpUploadDirectory(tmpUploadDirectory);
 			return result;
 		}
 		else {
-			throw new IllegalStateException("Currently there is only DirectoryBasedParticipantLocationHandler supported as implementation");
+			throw new IllegalStateException("Currently there is only SerializeToDirectoryHandler supported as implementation");
 		}
 	}
 

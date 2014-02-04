@@ -233,12 +233,12 @@ public class AdminController extends AbstractBaseController {
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/statuspage", method = RequestMethod.GET)
-	public String showStatusPage(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
-			@ModelAttribute("statusMessage") SimpleStatusMessage simpleStatusMessage, Model model) {
-		model.addAttribute("uuid", uuid);
-		return getFullViewName("statuspage");
-	}
+	// @RequestMapping(value = ADMIN_URL_PATTERN + "/statuspage", method = RequestMethod.GET)
+	// public String showStatusPage(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+	// @ModelAttribute("statusMessage") SimpleStatusMessage simpleStatusMessage, Model model) {
+	// model.addAttribute("uuid", uuid);
+	// return getFullViewName("statuspage");
+	// }
 
 	@RequestMapping(value = ADMIN_URL_PATTERN + "/participants", method = RequestMethod.GET)
 	public String showParticipantsList(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Locale locale, HttpServletRequest request,

@@ -505,13 +505,13 @@ public class RunningDinnerServiceImpl {
 		// When reaching here, either both have been hosts, or both have not been hosts, so we don't to perform any further action
 	}
 
-	public String copyParticipantFileToTempLocation(final MultipartFile file, final String uniqueIdentifier) throws IOException {
-		return tempParticipantLocationHandler.pushToTempLocation(file, uniqueIdentifier);
+	public String copyParticipantFileToTempLocation(List<Participant> participants, final String uniqueLocationIdentifier)
+			throws IOException {
+		return tempParticipantLocationHandler.pushToTempLocation(participants, uniqueLocationIdentifier);
 	}
 
-	public List<Participant> getParticipantsFromTempLocation(final String location, final ParsingConfiguration parsingConfiguration)
-			throws IOException, ConversionException {
-		return tempParticipantLocationHandler.popFromTempLocation(location, parsingConfiguration);
+	public List<Participant> getParticipantsFromTempLocation(final String location) throws IOException, ConversionException {
+		return tempParticipantLocationHandler.popFromTempLocation(location);
 	}
 
 	/**
