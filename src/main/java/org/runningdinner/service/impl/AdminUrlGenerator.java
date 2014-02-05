@@ -3,7 +3,7 @@ package org.runningdinner.service.impl;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.runningdinner.ui.AdminController;
+import org.runningdinner.ui.RequestMappings;
 import org.springframework.beans.factory.annotation.Value;
 
 public class AdminUrlGenerator {
@@ -34,7 +34,7 @@ public class AdminUrlGenerator {
 			hostUrlContextToUse = StringUtils.chop(hostUrlContextToUse);
 		}
 
-		String adminUrlPart = AdminController.ADMIN_URL_PATTERN.replaceFirst("\\{" + AdminController.ADMIN_URL_UUID_MARKER + "\\}", uuid);
+		String adminUrlPart = RequestMappings.ADMIN_URL_PATTERN.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
 		return hostUrlContextToUse + adminUrlPart;
 	}
 

@@ -21,13 +21,13 @@
 <h2>Team-Einteilung</h2>
 
 <ul class="nav nav-tabs">
-	<li><a href="#regular" data-toggle="tab">Reguläre Teams</a></li>
-	<li><a href="#remainder" data-toggle="tab">Übrig gebliebene Teilnehmer</a></li>
+	<li class="active"><a href="#regular" data-toggle="tab">Regulaere Teams</a></li>
+	<li><a href="#remainder" data-toggle="tab">Uebrig gebliebene Teilnehmer</a></li>
 </ul>
 
 <div class="tab-content" id="teamTabs">
 
-	<div class="tab-pane active" id="regular">
+	<div class="tab-pane fade in active" id="regular">
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
 				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
@@ -120,7 +120,7 @@
 		</c:choose>	
 	</div><%-- End regular teams pane --%>
 	
-	<div class="tab-pane" id="remainder">
+	<div class="tab-pane fade in" id="remainder">
 		<p>Noch nicht implementiert...
 	</div>
 	

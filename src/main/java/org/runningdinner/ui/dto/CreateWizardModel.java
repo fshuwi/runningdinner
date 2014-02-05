@@ -176,15 +176,15 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 		this.administrationUrl = administrationUrl;
 	}
 
-	public ParsingConfiguration getParsingConfiguration() {
-		if (parsingConfiguration == null) {
-			return ParsingConfiguration.newDefaultConfiguration();
-		}
-		return parsingConfiguration;
-	}
-
-	public void setParsingConfiguration(ParsingConfiguration parsingConfiguration) {
-		this.parsingConfiguration = parsingConfiguration;
-	}
+	// public ParsingConfiguration getParsingConfiguration() {
+	// if (parsingConfiguration == null) {
+	// return ParsingConfiguration.newDefaultConfiguration();
+	// }
+	// return parsingConfiguration;
+	// }
+	//
+	// public void setParsingConfiguration(ParsingConfiguration parsingConfiguration) {
+	// this.parsingConfiguration = parsingConfiguration;
+	// }
 
 }

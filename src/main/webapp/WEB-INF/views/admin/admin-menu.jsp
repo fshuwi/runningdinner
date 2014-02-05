@@ -3,39 +3,39 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="org.runningdinner.ui.RequestMappings" %>
 
-
-<spring:url value="/event/{uuid}/admin/teams" var="teamsUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SHOW_TEAMS%>" var="teamsUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin" var="overviewUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%= RequestMappings.ADMIN_OVERVIEW %>" var="overviewUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/mealtimes" var="timesUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%= RequestMappings.EDIT_MEALTIMES %>" var="timesUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 <spring:url value="/event/{uuid}/admin/options" var="optionsUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
-<spring:url value="/event/{uuid}/admin/participants" var="participantsUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SHOW_PARTICIPANTS%>" var="participantsUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 <spring:url value="/event/{uuid}/admin/participants/upload" var="participantsUploadUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 <spring:url value="/event/{uuid}/admin/teams/exchange" var="teamsExchangeUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
-<spring:url value="/event/{uuid}/admin/participants/mail" var="participantsMailUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SEND_PARTICIPANT_MAILS%>" var="participantsMailUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/teams/mail?fromAdminMenu=true" var="teamsMailUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="teamsMailUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/dinnerroute/mail" var="dinnerRouteMailUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SEND_DINNERROUTES_MAIL%>" var="dinnerRouteMailUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
 <div class="col-xs-4">
@@ -56,7 +56,7 @@
 <div class="col-xs-4">
 	<h2>Benachrichtigungen</h2>
 	<a href="${participantsMailUrl}">Rundmail an alle Teilnehmer</a><br/>
-	<a href="${teamsMailUrl}">Teameinteilungen verschicken</a><br />
+	<a href="${teamsMailUrl}?selectAll=true">Teameinteilungen verschicken</a><br />
 	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken</a><br />
 </div>
 

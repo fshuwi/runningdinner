@@ -40,7 +40,11 @@
  	
  	<!-- for displaying error info in whole browser window -->
  	 <definition name="template-error" template="/WEB-INF/views/layouts/errorLayout.jsp">
- 	 	<put-attribute name="pageTitle" value="Run Your Dinner- Error" />
+		<put-attribute name="pageTitle" value="Run Your Dinner - Error" />
+		<put-attribute name="htmlHeader" value="/WEB-INF/views/defaultHtmlHeader.jsp"/>
+		<put-attribute name="content" value="" />
+		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>
+		<put-attribute name="customScripts" value=""/>  		
  	</definition>
  	
  	<!-- Single views(tiles) definitions -->

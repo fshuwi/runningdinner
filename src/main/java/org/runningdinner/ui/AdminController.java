@@ -61,14 +61,16 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AdminController extends AbstractBaseController {
 
-	public static final String ADMIN_URL_UUID_MARKER = "uuid";
-	public static final String ADMIN_URL_PATTERN = "/event/{" + ADMIN_URL_UUID_MARKER + "}/admin";
+	// public static final String ADMIN_URL_UUID_MARKER = "uuid";
+	// public static final String ADMIN_URL_PATTERN = "/event/{" + ADMIN_URL_UUID_MARKER + "}/admin";
 
 	private MessageSource messages;
 	private RunningDinnerServiceImpl runningDinnerService;
 
 	private AdminValidator adminValidator;
 	private CommonValidator commonValidator;
+
+	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";
 
 	private static Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
@@ -80,8 +82,8 @@ public class AdminController extends AbstractBaseController {
 		binder.registerCustomEditor(Set.class, "meals", new MealClassPropertyEditor());
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN, method = RequestMethod.GET)
-	public String adminOverview(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+	@RequestMapping(value = RequestMappings.ADMIN_OVERVIEW, method = RequestMethod.GET)
+	public String adminOverview(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
 		RunningDinner foundRunningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
@@ -91,8 +93,8 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("overview");
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams", method = RequestMethod.GET)
-	public String showTeamArrangement(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+	@RequestMapping(value = RequestMappings.SHOW_TEAMS, method = RequestMethod.GET)
+	public String showTeamArrangement(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
 		int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
@@ -136,8 +138,9 @@ public class AdminController extends AbstractBaseController {
 
 	// TODO: Alles besser machen
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/mail", method = RequestMethod.GET)
-	public String showSendTeamArrangementsForm(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
+	public String showSendTeamArrangementsForm(HttpServletRequest request,
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
 		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate();
@@ -147,7 +150,7 @@ public class AdminController extends AbstractBaseController {
 		sendTeamsModel.setTeamDisplayMap(teamDisplayMap);
 
 		// Select all Teams:
-		if (request.getParameter("fromAdminMenu") == null) {
+		if (request.getParameter(SELECT_ALL_TEAMS_PARAMETER) != null) {
 			sendTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
 		}
 
@@ -170,8 +173,8 @@ public class AdminController extends AbstractBaseController {
 		return teamDisplayMap;
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/mail", method = RequestMethod.POST)
-	public String doSendTeamArrangements(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.POST)
+	public String doSendTeamArrangements(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("sendTeamsModel") SendTeamArrangementsModel sendTeamsModel, BindingResult bindingResult, Model model,
 			final RedirectAttributes redirectAttributes) {
 		adminValidator.validateUuid(uuid);
@@ -187,13 +190,13 @@ public class AdminController extends AbstractBaseController {
 		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedTeams(),
 				sendTeamsModel.getTeamArrangementMessageFormatter(Locale.GERMAN));
 
-		String redirectUrl = ADMIN_URL_PATTERN + "/teams/mail";
-		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/dinnerroute/mail", method = RequestMethod.GET)
-	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.GET)
+	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			Model model) {
 		adminValidator.validateUuid(uuid);
 
 		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate();
@@ -211,11 +214,15 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("sendDinnerRoutesForm");
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/dinnerroute/mail", method = RequestMethod.POST)
-	public String doSendDinnerRoutes(HttpServletRequest request, @PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.POST)
+	public String doSendDinnerRoutes(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("sendDinnerRoutesModel") SendDinnerRoutesModel sendDinnerRoutesModel, BindingResult bindingResult, Model model,
 			final RedirectAttributes redirectAttributes) {
 		adminValidator.validateUuid(uuid);
+
+		if (request.getParameter("cancel") != null) {
+			return adminOverview(uuid, model);
+		}
 
 		adminValidator.validateSendMessagesModel(sendDinnerRoutesModel, bindingResult);
 		if (bindingResult.hasErrors()) {
@@ -228,8 +235,7 @@ public class AdminController extends AbstractBaseController {
 		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedTeams(),
 				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(Locale.GERMAN));
 
-		String redirectUrl = ADMIN_URL_PATTERN + "/dinnerroute/mail";
-		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+		return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
@@ -240,9 +246,9 @@ public class AdminController extends AbstractBaseController {
 	// return getFullViewName("statuspage");
 	// }
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/participants", method = RequestMethod.GET)
-	public String showParticipantsList(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, Locale locale, HttpServletRequest request,
-			Model model) {
+	@RequestMapping(value = RequestMappings.SHOW_PARTICIPANTS, method = RequestMethod.GET)
+	public String showParticipantsList(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Locale locale,
+			HttpServletRequest request, Model model) {
 		adminValidator.validateUuid(uuid);
 
 		RunningDinner dinner = runningDinnerService.loadDinnerWithParticipants(uuid);
@@ -258,8 +264,9 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("participants");
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/mealtimes", method = RequestMethod.GET)
-	public String showMealTimesForm(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, HttpServletRequest request, Model model) {
+	@RequestMapping(value = RequestMappings.EDIT_MEALTIMES, method = RequestMethod.GET)
+	public String showMealTimesForm(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, HttpServletRequest request,
+			Model model) {
 		adminValidator.validateUuid(uuid);
 		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
@@ -272,8 +279,8 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("editMealTimesForm");
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/mealtimes", method = RequestMethod.POST)
-	public String editMealTimes(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+	@RequestMapping(value = RequestMappings.EDIT_MEALTIMES, method = RequestMethod.POST)
+	public String editMealTimes(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("editMealTimesModel") EditMealTimesModel editMealTimesModel, HttpServletRequest request,
 			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes) {
 
@@ -296,14 +303,13 @@ public class AdminController extends AbstractBaseController {
 
 		runningDinnerService.updateMealTimes(uuid, editMealTimesModel.getMeals());
 
-		final String redirectUrl = ADMIN_URL_PATTERN + "/mealtimes";
-		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
+		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Meal-Times successfully edited!"));
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/participant/{key}/edit", method = RequestMethod.GET)
-	public String showEditParticipantForm(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("key") String participantKey,
-			Model model) {
+	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.GET)
+	public String showEditParticipantForm(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@PathVariable("key") String participantKey, Model model) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
 
@@ -315,14 +321,14 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("editParticipantForm");
 	}
 
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/participant/{key}/edit", method = RequestMethod.POST)
-	public String editParticipant(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("key") String participantKey,
-			@ModelAttribute("participant") Participant participant, HttpServletRequest request, BindingResult bindingResult, Model model,
-			final RedirectAttributes redirectAttributes) {
+	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.POST)
+	public String editParticipant(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@PathVariable("key") String participantKey, @ModelAttribute("participant") Participant participant, HttpServletRequest request,
+			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
 
-		String redirectUrl = ADMIN_URL_PATTERN + "/participant/{key}/edit";
+		String redirectUrl = RequestMappings.EDIT_PARTICIPANT;
 		redirectUrl = redirectUrl.replaceFirst("\\{key\\}", participantKey);
 		if (request.getParameter("cancel") != null) {
 			return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -364,9 +370,9 @@ public class AdminController extends AbstractBaseController {
 	 * @param changedHostTeams
 	 * @return
 	 */
-	@RequestMapping(value = ADMIN_URL_PATTERN + "/teams/savehosts", method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = RequestMappings.AJAX_SAVE_HOSTS, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StandardJsonResponse saveTeamHosts(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
+	public StandardJsonResponse saveTeamHosts(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@RequestBody TeamHostChangeList changedHostTeams) {
 		adminValidator.validateUuid(uuid);
 
@@ -388,7 +394,7 @@ public class AdminController extends AbstractBaseController {
 		return StandardJsonResponse.createSuccessResponse();
 	}
 
-	@RequestMapping(value = "/event/{uuid}/admin/teams/switchmembers", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value = RequestMappings.AJAX_SWITCH_TEAMMEMBERS, method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public SwitchTeamMembersResponse switchTeamMembers(@PathVariable("uuid") String uuid, @RequestBody SwitchTeamMembers switchTeamMembers) {
 		adminValidator.validateUuid(uuid);
@@ -425,7 +431,7 @@ public class AdminController extends AbstractBaseController {
 			final SimpleStatusMessage simpleStatusMessage) {
 		redirectAttributes.addFlashAttribute("statusMessage", simpleStatusMessage);
 		String theRedirectUrl = "redirect:/" + redirectUrl;
-		theRedirectUrl = theRedirectUrl.replaceFirst("\\{" + ADMIN_URL_UUID_MARKER + "\\}", uuid);
+		theRedirectUrl = theRedirectUrl.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
 		return theRedirectUrl;
 	}
 

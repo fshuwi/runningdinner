@@ -5,6 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 
@@ -12,7 +13,7 @@ public class GlobalExceptionHandler extends SimpleMappingExceptionResolver {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-	private boolean printStacktraces;
+	protected ErrorViewHelper errorViewHelper;
 
 	public GlobalExceptionHandler() {
 		// Enable logging by providing the name of the logger to use
@@ -21,7 +22,7 @@ public class GlobalExceptionHandler extends SimpleMappingExceptionResolver {
 
 	@Override
 	public String buildLogMessage(Exception e, HttpServletRequest req) {
-		return "MVC exception: " + e.getLocalizedMessage();
+		return "Fatal Error: " + e.getLocalizedMessage();
 	}
 
 	@Override
@@ -33,19 +34,13 @@ public class GlobalExceptionHandler extends SimpleMappingExceptionResolver {
 	protected ModelAndView doResolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception exception) {
 		// Call super method to get the ModelAndView
 		ModelAndView mav = super.doResolveException(request, response, handler, exception);
-
-		// Make the full URL available to the view - note ModelAndView uses addObject()
-		// but Model uses addAttribute(). They work the same.
-		// mav.addObject("url", request.getRequestURL());
+		errorViewHelper.enrichModelAndView(mav);
 		return mav;
 	}
 
-	public boolean isPrintStacktraces() {
-		return printStacktraces;
-	}
-
-	public void setPrintStacktraces(boolean printStacktraces) {
-		this.printStacktraces = printStacktraces;
+	@Autowired
+	public void setErrorViewHelper(ErrorViewHelper errorViewHelper) {
+		this.errorViewHelper = errorViewHelper;
 	}
 
 }

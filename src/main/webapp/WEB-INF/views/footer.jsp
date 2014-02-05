@@ -35,10 +35,10 @@
 	      <div class="col-md-3">
 	        <ul class="list-unstyled">
 	          <li>Documentation<li>
-	          <li><a href="#">Product Help</a></li>
-	          <li><a href="#">Developer API</a></li>
-	          <li><a href="#">Product Markdown</a></li>
-	          <li><a href="#">Product Pages</a></li>              
+	          <li><a href="http://bootsnipp.com/snippets/featured/colourful-tabbed-slider-carousel">BS Caruousel Slider</a></li>
+	          <li><a href="http://bootsnipp.com/snippets/featured/group-buttons">BS Group Buttons (Gender)</a></li>
+	          <li><a href="http://bootsnipp.com/snippets/featured/gmail-inbox">BS GMail Tabs</a></li>
+	          <li><a href="http://stackoverflow.com/questions/11961438/how-to-implement-a-loading-indicator-for-a-bootstrap-modal-waiting-for-ajax-to-f">AJAX Load Image</a></li>              
 	        </ul>
 	      </div>  
 	    </div>

@@ -74,14 +74,14 @@ public class CreateWizardController extends AbstractBaseController {
 		binder.setDisallowedFields("uploadedFileLocation", "newUuid", "administrationUrl");
 	}
 
-	@RequestMapping(value = "/wizard", method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappings.WIZARD_STEP, method = RequestMethod.GET)
 	public String startWizard(Model model, SessionStatus sessionStatus) {
 		CreateWizardModel wizardModel = CreateWizardModel.newModelWithDefaults();
 		model.addAttribute("createWizardModel", wizardModel);
 		return getFullViewName("wizard-start");
 	}
 
-	@RequestMapping(value = "/finish", method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappings.WIZARD_FINISH, method = RequestMethod.GET)
 	public String finishWizard(@ModelAttribute("createWizardModel") CreateWizardModel createWizardModel, Model model) {
 		model.addAttribute("createWizardMOdel", createWizardModel);
 		return getFullViewName("finish");
@@ -92,7 +92,7 @@ public class CreateWizardController extends AbstractBaseController {
 		return "redirect:/wizard";
 	}
 
-	@RequestMapping(value = "/wizard", method = RequestMethod.POST)
+	@RequestMapping(value = RequestMappings.WIZARD_STEP, method = RequestMethod.POST)
 	public String doWizardStep(HttpServletRequest request, @ModelAttribute("createWizardModel") CreateWizardModel createWizardModel,
 			BindingResult bindingResult, Model model, SessionStatus sessionStatus, Locale locale,
 			final RedirectAttributes redirectAttributes, @RequestParam("_page") int currentWizardView) {
@@ -152,14 +152,14 @@ public class CreateWizardController extends AbstractBaseController {
 
 	protected void prepareUploadView(Model model, CreateWizardModel createWizardModel) {
 		// Prepare upload form with default parsing config:
-		ParsingConfiguration parsingConfig = createWizardModel.getParsingConfiguration();
+		ParsingConfiguration parsingConfig = ParsingConfiguration.newDefaultConfiguration();// createWizardModel.getParsingConfiguration();
 		model.addAttribute("uploadFileModel", UploadFileModel.newFromParsingConfiguration(parsingConfig));
 	}
 
 	private void createNewRunningDinner(CreateWizardModel createWizardModel) {
 
 		try {
-			final ParsingConfiguration parsingConfiguration = createWizardModel.getParsingConfiguration();
+			// final ParsingConfiguration parsingConfiguration = createWizardModel.getParsingConfiguration();
 			List<Participant> participants = runningDinnerService.getParticipantsFromTempLocation(createWizardModel.getUploadedFileLocation());
 
 			RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
@@ -187,7 +187,7 @@ public class CreateWizardController extends AbstractBaseController {
 	 * @param currentWizardView
 	 * @return
 	 */
-	@RequestMapping(value = "/wizard-upload", method = RequestMethod.POST)
+	@RequestMapping(value = RequestMappings.WIZARD_UPLOAD, method = RequestMethod.POST)
 	public String doWizardFileUpload(Locale locale, HttpServletRequest request,
 			@ModelAttribute("uploadFileModel") UploadFileModel uploadFileModel, Model model, BindingResult bindingResult,
 			SessionStatus sessionStatus, @RequestParam("_page") int currentWizardView) {
@@ -219,7 +219,7 @@ public class CreateWizardController extends AbstractBaseController {
 		}
 	}
 
-	@RequestMapping(value = "/wizard-upload", method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappings.WIZARD_UPLOAD, method = RequestMethod.GET)
 	public String wizardFileUploadGETHandler(@ModelAttribute("createWizardModel") CreateWizardModel createWizardModel, Model model) {
 		// Prevent HTTP error when user tries to load upload view directly from browser
 		prepareUploadView(model, createWizardModel);
@@ -263,7 +263,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 		// #1 a) Construct ParsingConfiguration
 		ParsingConfiguration parsingConfiguration = uploadFileModel.createParsingConfiguration();
-		createWizardModel.setParsingConfiguration(parsingConfiguration);
+		// createWizardModel.setParsingConfiguration(parsingConfiguration);
 
 		// #1 b) Try to parse temporary uploaded file with ExcelConverter and Parsing Configuration
 		// If fail => show same view with error info (exceptions are thrown

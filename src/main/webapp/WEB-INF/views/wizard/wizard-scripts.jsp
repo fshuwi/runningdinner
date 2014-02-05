@@ -3,8 +3,7 @@
 
 <script>
 	$(document).ready(function() {
-		$('.doTooltip').tooltip();		
-		// highlightErrors(['title','date','teamSize', 'meals', 'file']);
+		$('.doTooltip').tooltip();
 	});
 	
 	function addMeal() {
