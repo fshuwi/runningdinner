@@ -6,6 +6,12 @@ import org.runningdinner.core.Team;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.context.ApplicationEvent;
 
+/**
+ * This event is published whenever a user wants to send team-arrangement messages
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class SendTeamArrangementsEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = -3297813701725791593L;

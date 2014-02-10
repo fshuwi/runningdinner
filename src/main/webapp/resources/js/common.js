@@ -10,6 +10,18 @@ function toggleErrorView(errorTextId, showText, hideText) {
 	}
 }
 
+// Used when creating and editing meals (create wizard and admin area)
+function saveMealTimesToModel() {
+	var meals = [];
+	
+	$('.meal-label').each(function() {
+		var label = $(this).text();
+		var time = $(this).next().val();
+		meals.push({"label":label, "time":time});
+	});
+	
+	$('#meals').val(JSON.stringify(meals));
+}
 
 
 (function($) {

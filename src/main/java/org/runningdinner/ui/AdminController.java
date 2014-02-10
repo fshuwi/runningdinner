@@ -22,8 +22,8 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.EditMealTimesModel;
 import org.runningdinner.ui.dto.GenderOption;
 import org.runningdinner.ui.dto.SendDinnerRoutesModel;
@@ -38,7 +38,6 @@ import org.runningdinner.ui.json.TeamHostChangeList;
 import org.runningdinner.ui.util.MealClassHelper;
 import org.runningdinner.ui.util.MealClassPropertyEditor;
 import org.runningdinner.ui.validator.AdminValidator;
-import org.runningdinner.ui.validator.CommonValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,14 +60,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 @Controller
 public class AdminController extends AbstractBaseController {
 
-	// public static final String ADMIN_URL_UUID_MARKER = "uuid";
-	// public static final String ADMIN_URL_PATTERN = "/event/{" + ADMIN_URL_UUID_MARKER + "}/admin";
-
 	private MessageSource messages;
-	private RunningDinnerServiceImpl runningDinnerService;
+	private RunningDinnerService runningDinnerService;
 
 	private AdminValidator adminValidator;
-	private CommonValidator commonValidator;
 
 	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";
 
@@ -97,19 +92,21 @@ public class AdminController extends AbstractBaseController {
 	public String showTeamArrangement(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
+		// TODO: Method should be revised!
+
 		int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
 
 		List<Team> regularTeams = null;
 		List<Participant> notAssignedParticipants = null;
 
 		TeamAdministrationModel teamAdminModel = null;
+		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		if (numberOfTeamsForDinner > 0) {
 			// Team/Dinner-plan already persisted, fetch it from DB:
 			regularTeams = runningDinnerService.loadRegularTeamsWithVisitationPlanFromDinner(uuid);
 			notAssignedParticipants = runningDinnerService.loadNotAssignableParticipantsOfDinner(uuid);
 
-			RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 			teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), true);
 		}
 		else {
@@ -135,8 +132,6 @@ public class AdminController extends AbstractBaseController {
 
 		return getFullViewName("teams");
 	}
-
-	// TODO: Alles besser machen
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
 	public String showSendTeamArrangementsForm(HttpServletRequest request,
@@ -239,13 +234,6 @@ public class AdminController extends AbstractBaseController {
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
 	}
 
-	// @RequestMapping(value = ADMIN_URL_PATTERN + "/statuspage", method = RequestMethod.GET)
-	// public String showStatusPage(@PathVariable(ADMIN_URL_UUID_MARKER) String uuid,
-	// @ModelAttribute("statusMessage") SimpleStatusMessage simpleStatusMessage, Model model) {
-	// model.addAttribute("uuid", uuid);
-	// return getFullViewName("statuspage");
-	// }
-
 	@RequestMapping(value = RequestMappings.SHOW_PARTICIPANTS, method = RequestMethod.GET)
 	public String showParticipantsList(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Locale locale,
 			HttpServletRequest request, Model model) {
@@ -290,7 +278,7 @@ public class AdminController extends AbstractBaseController {
 			return adminOverview(uuid, model);
 		}
 
-		commonValidator.validateMealTimes(editMealTimesModel.getMeals(), bindingResult);
+		adminValidator.validateMealTimes(editMealTimesModel.getMeals(), bindingResult);
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("editMealTimesModel", editMealTimesModel);
 			model.addAttribute("uuid", uuid);
@@ -335,7 +323,7 @@ public class AdminController extends AbstractBaseController {
 					SimpleStatusMessage.INFO_STATUS, "Action cancelled"));
 		}
 
-		commonValidator.validateParticipant(participant, bindingResult);
+		adminValidator.validateParticipant(participant, bindingResult);
 
 		if (bindingResult.hasErrors()) {
 			model.addAttribute("participant", participant);
@@ -394,6 +382,13 @@ public class AdminController extends AbstractBaseController {
 		return StandardJsonResponse.createSuccessResponse();
 	}
 
+	/**
+	 * AJAX request for switching one member of a team with another member of another team
+	 * 
+	 * @param uuid
+	 * @param switchTeamMembers
+	 * @return
+	 */
 	@RequestMapping(value = RequestMappings.AJAX_SWITCH_TEAMMEMBERS, method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
 	public SwitchTeamMembersResponse switchTeamMembers(@PathVariable("uuid") String uuid, @RequestBody SwitchTeamMembers switchTeamMembers) {
@@ -441,7 +436,7 @@ public class AdminController extends AbstractBaseController {
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
+	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
 
@@ -450,18 +445,13 @@ public class AdminController extends AbstractBaseController {
 		this.adminValidator = adminValidator;
 	}
 
-	@Autowired
-	public void setCommonValidator(CommonValidator commonValidator) {
-		this.commonValidator = commonValidator;
-	}
-
 	@Override
 	protected MessageSource getMessageSource() {
 		return this.messages;
 	}
 
 	@Override
-	public RunningDinnerServiceImpl getRunningDinnerService() {
+	public RunningDinnerService getRunningDinnerService() {
 		return runningDinnerService;
 	}
 

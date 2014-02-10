@@ -26,10 +26,19 @@ import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.core.converter.config.SequenceColumnConfig;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Used in create running dinner wizard for uploading files
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class UploadFileModel {
 
 	private MultipartFile file;
 
+	/**
+	 * Stores the
+	 */
 	private Map<Integer, String> columnMappings;
 
 	private int startRow;

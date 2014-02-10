@@ -3,6 +3,7 @@ package org.runningdinner.ui.dto;
 import org.runningdinner.core.Gender;
 
 public class GenderOption {
+
 	private String label;
 	private String value;
 

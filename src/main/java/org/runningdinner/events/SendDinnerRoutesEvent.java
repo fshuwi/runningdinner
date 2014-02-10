@@ -6,6 +6,12 @@ import org.runningdinner.core.Team;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.springframework.context.ApplicationEvent;
 
+/**
+ * This event is published whenever a user wants to send dinner route messages
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class SendDinnerRoutesEvent extends ApplicationEvent {
 
 	private static final long serialVersionUID = 3729494458843378610L;

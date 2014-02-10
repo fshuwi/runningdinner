@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
 
-  <appender name="STDOUT"
-    class="ch.qos.logback.core.ConsoleAppender">
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
     <encoder>
       <pattern>
         %d{HH:mm:ss.SSS} [%thread] %-5level %logger{10} - %msg%n
@@ -11,30 +10,54 @@
   </appender>
   
   
-    <appender name="EMAIL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${TCLOGDIR}/rd_email.log</file>
+   <appender name="EMAIL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${TCLOGDIR}/email.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${TCLOGDIR}/rd_email.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${TCLOGDIR}/email.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>5</maxHistory>
+    </rollingPolicy>
+    <encoder>
+		<pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+   <appender name="TRACKING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${TCLOGDIR}/tracking.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${TCLOGDIR}/tracking.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <maxHistory>5</maxHistory>
+    </rollingPolicy>
+    <encoder>
+		<pattern>%date - %msg%n</pattern>
+    </encoder>
+  </appender>
+  
+  <appender name="MAIN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>${TCLOGDIR}/rd.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>${TCLOGDIR}/rd.%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>5</maxHistory>
     </rollingPolicy>
     <encoder>
 		<pattern>%date %level [%thread] %logger{10} - %msg%n</pattern>
     </encoder>
   </appender> 
+    
   
- 
-	<logger name="org.runningdinner" level="INFO" additivity="false">
-		<appender-ref ref="STDOUT" />
-	</logger>
-	
-	<logger name="org.runningdinner.service.email.EmailService" level="INFO" additivity="false">
+  	<logger name="org.runningdinner.service.email.EmailService" level="INFO" additivity="false">
 		<appender-ref ref="EMAIL_FILE" />
 	</logger>
 	
-	
-	
-	<root level="INFO">
-	  <appender-ref ref="STDOUT" />
+	<logger name="org.runningdinner.event.listener.TrackRunningDinnerListener" level="DEBUG" additivity="false">
+		<appender-ref ref="TRACKING_FILE" />
+	</logger>
+ 
+	<logger name="org.runningdinner" level="INFO" additivity="false">
+		<appender-ref ref="MAIN_FILE" />
+	</logger>
+		
+	<root level="WARN">
+	  <appender-ref ref="MAIN_FILE" />
 	</root>
 
 </configuration>

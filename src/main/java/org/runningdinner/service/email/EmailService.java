@@ -15,6 +15,12 @@ import org.springframework.context.MessageSource;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 
+/**
+ * Encapsulates the logic for sending emails
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class EmailService {
 
 	private MailSender mailSender;

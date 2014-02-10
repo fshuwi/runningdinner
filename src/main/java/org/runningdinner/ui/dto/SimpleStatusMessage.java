@@ -1,5 +1,11 @@
 package org.runningdinner.ui.dto;
 
+/**
+ * Used for displaying the result of a request (e.g. in page header)
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class SimpleStatusMessage {
 
 	protected String status;
@@ -17,6 +23,11 @@ public class SimpleStatusMessage {
 		this.message = message;
 	}
 
+	/**
+	 * The status as string constant (used for display)
+	 * 
+	 * @return
+	 */
 	public String getStatus() {
 		return status;
 	}
@@ -25,6 +36,11 @@ public class SimpleStatusMessage {
 		this.status = status;
 	}
 
+	/**
+	 * The message to display
+	 * 
+	 * @return
+	 */
 	public String getMessage() {
 		return message;
 	}

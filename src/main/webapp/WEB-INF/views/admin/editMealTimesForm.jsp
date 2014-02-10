@@ -7,7 +7,7 @@
 <h2>Edit Meal Times</h2>
 
 <div class="well">
-	<form:form method="post" id="editMealTimesForm" commandName="editMealTimesModel" htmlEscape="true" onsubmit="saveEditedMealTimesToModel()" role="form">
+	<form:form method="post" id="editMealTimesForm" commandName="editMealTimesModel" htmlEscape="true" onsubmit="saveMealTimesToModel()" role="form">
 		<c:forEach items="${editMealTimesModel.meals}" var="meal" varStatus="loopCounter">
 			<div class="form-group">
 				<div class="row">

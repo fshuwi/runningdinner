@@ -23,11 +23,9 @@ import org.springframework.validation.Validator;
 import org.springframework.web.multipart.MultipartFile;
 
 @Component
-public class CreateWizardValidator implements Validator {
+public class CreateWizardValidator extends CommonBaseValidator implements Validator {
 
 	private RunningDinnerServiceImpl runningDinnerService;
-
-	private CommonValidator commonValidator;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -38,7 +36,7 @@ public class CreateWizardValidator implements Validator {
 	public void validate(Object target, Errors errors) {
 		validateBasicDinnerOptions(target, errors);
 
-		commonValidator.validateMealTimes(((CreateWizardModel)target).getMeals(), errors);
+		super.validateMealTimes(((CreateWizardModel)target).getMeals(), errors);
 
 		// TODO: Add message codes
 		ValidationUtils.rejectIfEmpty(errors, "uploadedFileLocation", "TODO");
@@ -124,7 +122,7 @@ public class CreateWizardValidator implements Validator {
 	}
 
 	public void validateMealTimes(CreateWizardModel createWizardModel, BindingResult bindingResult) {
-		commonValidator.validateMealTimes(createWizardModel.getMeals(), bindingResult);
+		super.validateMealTimes(createWizardModel.getMeals(), bindingResult);
 	}
 
 	/**
@@ -157,11 +155,6 @@ public class CreateWizardValidator implements Validator {
 	@Autowired
 	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
-	}
-
-	@Autowired
-	public void setCommonValidator(CommonValidator commonValidator) {
-		this.commonValidator = commonValidator;
 	}
 
 }

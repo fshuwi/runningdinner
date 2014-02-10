@@ -7,11 +7,11 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
+import org.runningdinner.service.RunningDinnerService;
 import org.springframework.context.MessageSource;
 
 /**
- * Contains some helper methods that are common for all controller classes
+ * Contains some helper methods that are common for some controller classes
  * 
  * @author i01002492
  * 
@@ -22,7 +22,7 @@ public abstract class AbstractBaseController {
 	 * Put passed participants into request-attribute, don't use session as this list might be quite long.<br>
 	 * Furthermore all not assignable participants (based upon the passed dinner-configuration) are calculated and according status
 	 * attributes are set.<br>
-	 * TODO: Use paging in future
+	 * Note: Maybe Use paging in future
 	 * 
 	 * @param request
 	 * @param participants
@@ -62,5 +62,5 @@ public abstract class AbstractBaseController {
 
 	protected abstract MessageSource getMessageSource();
 
-	protected abstract RunningDinnerServiceImpl getRunningDinnerService();
+	protected abstract RunningDinnerService getRunningDinnerService();
 }

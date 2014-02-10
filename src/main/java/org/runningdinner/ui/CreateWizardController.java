@@ -18,8 +18,8 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.impl.AdminUrlGenerator;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.GenderAspectOption;
@@ -52,7 +52,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 	private MessageSource messages;
 	private CreateWizardValidator validator;
-	private RunningDinnerServiceImpl runningDinnerService;
+	private RunningDinnerService runningDinnerService;
 	private AdminUrlGenerator adminUrlGenerator;
 
 	private static Map<Integer, String> wizardViews = new HashMap<Integer, String>(4);
@@ -160,7 +160,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 		try {
 			// final ParsingConfiguration parsingConfiguration = createWizardModel.getParsingConfiguration();
-			List<Participant> participants = runningDinnerService.getParticipantsFromTempLocation(createWizardModel.getUploadedFileLocation());
+			List<Participant> participants = runningDinnerService.getParticipantListFromTempLocation(createWizardModel.getUploadedFileLocation());
 
 			RunningDinnerConfig runningDinnerConfig = createWizardModel.createRunningDinnerConfiguration();
 
@@ -169,10 +169,6 @@ public class CreateWizardController extends AbstractBaseController {
 		catch (IOException ex) {
 			throw new IllegalStateException("Could not get participants list from location " + createWizardModel.getUploadedFileLocation(),
 					ex);
-		}
-		catch (ConversionException ex) {
-			throw new IllegalStateException("Conversion/Parsing error while  getting participants list from location "
-					+ createWizardModel.getUploadedFileLocation(), ex);
 		}
 	}
 
@@ -273,7 +269,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 		// #2 Copy file from tmp-directory to personal tmp-directory
 		// Save this absolute filepath into session-model
-		String location = runningDinnerService.copyParticipantFileToTempLocation(participants, session.getId());
+		String location = runningDinnerService.copyParticipantListToTempLocation(participants, session.getId());
 		createWizardModel.setUploadedFileLocation(location);
 
 		// #3 Prepare participant table preview:
@@ -341,12 +337,12 @@ public class CreateWizardController extends AbstractBaseController {
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
+	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
 
 	@Override
-	public RunningDinnerServiceImpl getRunningDinnerService() {
+	public RunningDinnerService getRunningDinnerService() {
 		return runningDinnerService;
 	}
 

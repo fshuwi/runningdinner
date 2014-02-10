@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@ page import="org.runningdinner.ui.RequestMappings" %>
 
 
 <spring:url value="/event/{uuid}/admin/teams/mail" var="teamsFinalizeUrl" htmlEscape="true">
@@ -44,29 +45,43 @@
 							<th>Empfängt</th>
 							<th>Gastgeber</th>
 							<th>&nbsp;</th>
+							<th>&nbsp;</th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${regularTeams}" var="team">
 							<tr>
 								<td><span id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
+								
 								<td>
 									<div id="teaminfo_${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
 										
-											<spring:url value="/event/{uuid}/admin/participant/{key}/edit" var="editParticipantUrl" htmlEscape="true">
-												<spring:param name="uuid" value="${uuid}" />
+											<spring:url value="<%=RequestMappings.EDIT_PARTICIPANT%>" var="editParticipantUrl" htmlEscape="true">
+												<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 												<spring:param name="key" value="${teamMember.naturalKey}" />
 											</spring:url>
 											
 											<div class="draggableTeamMember droppableTeamMember" id="participant_${teamMember.naturalKey}">
-												<h5 class="media-heading"><a href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a></h5>
+												<h5 class="media-heading">
+													<a href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a>
+												</h5>
 											</div>
 											
 										</c:forEach>
 									</div>
 								</td>
+								
 								<td><span class="text-success"><strong>${team.mealClass}</strong></span></td>
+								
+								<td>
+									<div>
+										<c:forEach items="${team.visitationPlan.guestTeams}" var="guestTeam">
+											<h5 class="media-heading"><a href="#teamNumber_${guestTeam.teamNumber}">Team ${guestTeam.teamNumber}</a></h5>
+										</c:forEach>
+									</div>
+							   </td>
+								
 								<td>
 									<div>
 										<c:forEach items="${team.visitationPlan.hostTeams}" var="hostTeam">
@@ -74,20 +89,24 @@
 										</c:forEach>
 									</div>
 							   </td>
-							   <td>
-									<div>
-										<c:forEach items="${team.visitationPlan.guestTeams}" var="guestTeam">
-											<h5 class="media-heading"><a href="#teamNumber_${guestTeam.teamNumber}">Team ${guestTeam.teamNumber}</a></h5>
-										</c:forEach>
-									</div>
-							   </td>
+							   
 							   <td class="col-xs-2" style="text-align:center;">	
 							   		<select class="form-control teamHoster" id="${team.naturalKey}" onchange="onTeamHosterChanged('${team.naturalKey}')">
 							   			<c:forEach items="${team.teamMembers}" var="teamMember">
 							   				<option value="${teamMember.naturalKey}" <c:if test="${teamMember.host eq true}">selected</c:if>>${teamMember.name.fullnameFirstnameFirst}</option>
 							   			</c:forEach>
-						 			</select>										
+						 			</select>					
 							   </td>
+							   
+
+							   <td valign="middle">
+							   		<a href="#" class="btn btn-success btn-sm" style="cursor:default;"><span class="glyphicon glyphicon-ok"></span></a>		
+							   </td>
+							   
+							   <td>
+							   		<span class="label label-primary">${team.hostTeamMember.address.zip}</span>
+							   </td>
+							   
 							   <td>
 							   		<spring:url value="/team/{key}/route" var="teamRoutePreviewUrl" htmlEscape="true">
 										<spring:param name="key" value="${team.naturalKey}" />
@@ -103,13 +122,16 @@
 							<td></td>
 							<td></td>
 							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
-							<td>
-								<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
-										data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}"><span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
-							</td>
+							<td></td>
+							<td></td>
 						</tr>
 					</tbody>
 				</table>
+				
+				<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
+				data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}">
+					<span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
+				
 
 				<div id="saveTeamHostsResponse" class="hidden col-xs-8 col-xs-offset-2"></div>
 				

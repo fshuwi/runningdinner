@@ -34,9 +34,9 @@ import org.runningdinner.core.model.AbstractEntity;
  * User can create RunnignDinner instances and administrate them later.<br>
  * RunningDinner instance contains basic info details, the configuration options of the dinner and a very simple "workflow"-state about
  * administration activities.<br>
- * Furthermore it contains all participants and the team-arrangments of the participants including the visitation-plans (dinner-routes) for
- * each arranged team.<br>
- * A dinner instance is identified by an on creation generated UUID.
+ * Furthermore it contains all participants and the team-arrangements of the participants including the visitation-plans (dinner-routes) for
+ * each regular team.<br>
+ * A dinner instance is identified by an (on creation) generated UUID.
  * 
  * @author i01002492
  * 
@@ -76,7 +76,6 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	@JoinColumn(name = "dinner_id")
 	@OrderBy(value = "teamNumber")
 	private Set<Team> teams;
-	// private Set<VisitationPlan> visitationPlans;
 
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	@JoinTable(name = "NotAssignedParticipant", joinColumns = @JoinColumn(name = "dinner_id"), inverseJoinColumns = @JoinColumn(name = "participant_id"))
@@ -144,6 +143,11 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.configuration = configuration;
 	}
 
+	/**
+	 * Retrieves all participants of this running dinner
+	 * 
+	 * @return
+	 */
 	public List<Participant> getParticipants() {
 		if (participants == null) {
 			return Collections.emptyList();
@@ -156,21 +160,16 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.participants = new HashSet<Participant>(participants);
 	}
 
-	// public Set<VisitationPlan> getVisitationPlans() {
-	// if (visitationPlans == null) {
-	// return Collections.emptySet();
-	// }
-	// return visitationPlans;
-	// }
-	//
-	// public void setVisitationPlans(Set<VisitationPlan> visitationPlans) {
-	// this.visitationPlans = visitationPlans;
-	// }
-
 	public AdministrationActivities getActivities() {
 		return activities;
 	}
 
+	/**
+	 * Retrieves all regular teams of this dinner.<br>
+	 * The result may be empty (e.g. if there exist no teams yet)
+	 * 
+	 * @return
+	 */
 	public Set<Team> getTeams() {
 		if (teams == null) {
 			return Collections.emptySet();
@@ -186,6 +185,12 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.activities = activities;
 	}
 
+	/**
+	 * Retrieves all participants that could not be assigned into teams of this dinner.<br>
+	 * The result may be empty (e.g. if there exist no teams yet or if all participants could successfully be assigned into teams)
+	 * 
+	 * @return
+	 */
 	public List<Participant> getNotAssignedParticipants() {
 		if (notAssignedParticipants == null) {
 			return Collections.emptyList();

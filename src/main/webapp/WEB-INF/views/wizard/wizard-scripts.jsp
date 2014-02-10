@@ -1,6 +1,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
+
+<script src='<c:url value="/resources/js/common.js"/>'></script>
+
 <script>
 	$(document).ready(function() {
 		$('.doTooltip').tooltip();
@@ -72,19 +75,7 @@
 		
 		$('#meals').val(JSON.stringify(meals));
 	}
-	
-	function saveMealTimesToModel() {
-		var meals = [];
 		
-		$('.meal-label').each(function() {
-			var label = $(this).text();
-			var time = $(this).next().val();
-			meals.push({"label":label, "time":time});
-		});
-		
-		$('#meals').val(JSON.stringify(meals));
-	}
-	
 	function toggleColumnMappingStatus(selectId, spanId) {
 		statusSpan = $('#'+spanId);
 		if ($(statusSpan).hasClass('label-success')) {

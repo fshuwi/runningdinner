@@ -4,6 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.runningdinner.service.impl.SerializeToDirectoryHandler;
 import org.springframework.beans.factory.annotation.Value;
 
+/**
+ * Factory class for instantiating a concrete implementation of TempParticipantLocationHandler
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class TempParticipantLocationHandlerFactory {
 
 	@Value("${upload.application.tmpdir}")

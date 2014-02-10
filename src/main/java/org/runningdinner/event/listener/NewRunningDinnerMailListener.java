@@ -10,34 +10,32 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 @Component
-public class NewRunningDinnerListener implements ApplicationListener<NewRunningDinnerEvent> {
+public class NewRunningDinnerMailListener extends MailQueueAwareBaseListener implements ApplicationListener<NewRunningDinnerEvent> {
 
 	private MailQueue mailQueue;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(NewRunningDinnerListener.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(NewRunningDinnerMailListener.class);
 
 	@Override
 	public void onApplicationEvent(NewRunningDinnerEvent event) {
 		RunningDinner newRunningDinner = event.getNewRunningDinner();
 		LOGGER.info("Received event for new running dinner {}", newRunningDinner);
-
-		try {
-			if (mailQueue.putToQueue(event)) {
-				LOGGER.info("Put event successfully to mailqueue");
-			}
-			else {
-				LOGGER.error("Could not put event to mailqueue due to the queue is already closed");
-			}
-		}
-		catch (InterruptedException e) {
-			LOGGER.error("Could not put event to mailqueue because the activity was interrupted", e);
-			Thread.currentThread().interrupt();
-		}
+		putEventToQueue(event);
 	}
 
 	@Autowired
 	public void setMailQueue(MailQueue mailQueue) {
 		this.mailQueue = mailQueue;
+	}
+
+	@Override
+	protected MailQueue getMailQueue() {
+		return mailQueue;
+	}
+
+	@Override
+	protected Logger getLogger() {
+		return LOGGER;
 	}
 
 }

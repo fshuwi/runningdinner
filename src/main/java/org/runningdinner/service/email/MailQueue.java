@@ -21,6 +21,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEvent;
 
+/**
+ * Central class for triggering the sending of email mail messages.<br>
+ * Each class (producer) that wants to send one or more emails must put its mail messages (wrapped by ApplicationEvents) to this queue.<br>
+ * This class provides the means for asynchronously taking mail messages from the queue and for sending it to the recipients
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class MailQueue {
 
 	private EmailService emailService;
@@ -29,10 +37,21 @@ public class MailQueue {
 
 	private BlockingQueue<ApplicationEvent> mailMessagesQueue = new LinkedBlockingQueue<ApplicationEvent>();
 	private ExecutorService execService;
+
+	/**
+	 * Used for disallowing any more events on the queue
+	 */
 	private volatile boolean allowMessagesOnQueue = false;
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(MailQueue.class);
 
+	/**
+	 * Put a new application event to the queue. This method may block until there is enough space on the queue.
+	 * 
+	 * @param event
+	 * @return false if the event could not be put to the queue
+	 * @throws InterruptedException
+	 */
 	public boolean putToQueue(ApplicationEvent event) throws InterruptedException {
 		if (!allowMessagesOnQueue) {
 			return false;
@@ -41,6 +60,10 @@ public class MailQueue {
 		return true;
 	}
 
+	/**
+	 * Called on container start up.<br>
+	 * Initializes an internal thread pool with threads that act as consumers.
+	 */
 	@PostConstruct
 	public void startConsumerThread() {
 		final int numConsumerThreads = 3;
@@ -55,6 +78,11 @@ public class MailQueue {
 		this.allowMessagesOnQueue = true;
 	}
 
+	/**
+	 * Called on container shut down.<br>
+	 * This method closes the internal thread pool and rejects any other message to be put into the queue. It is tried to process all
+	 * reamaining messages on the queue, but there is (Currently) no gurantee or persistence mechanism
+	 */
 	@PreDestroy
 	public void stop() {
 		LOGGER.info("Received container stop event, shutting down ExecutorService...");
@@ -75,6 +103,12 @@ public class MailQueue {
 
 	}
 
+	/**
+	 * Worker thread that takes and process ApplicationEVents from the queue
+	 * 
+	 * @author Clemens Stich
+	 * 
+	 */
 	class FetchAndSendEmailFromQueueTask implements Runnable {
 
 		private final Logger LOGGER = LoggerFactory.getLogger(FetchAndSendEmailFromQueueTask.class);
@@ -95,7 +129,7 @@ public class MailQueue {
 					// ExecutorService is probably shutdown:
 					LOGGER.info("Executor service is shutdown by application, quit task {} within thred {}",
 							FetchAndSendEmailFromQueueTask.class.getName(), Thread.currentThread().getName());
-					Thread.currentThread().interrupt(); // Propagate interrupt
+					Thread.currentThread().interrupt(); // Save interrupt status
 					return;
 				}
 

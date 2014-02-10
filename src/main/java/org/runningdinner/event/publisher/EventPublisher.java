@@ -13,6 +13,12 @@ import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
 import org.springframework.stereotype.Component;
 
+/**
+ * Simple Spring component which is used for publishing ApplicationEvents in a synchronous way.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 @Component
 public class EventPublisher implements ApplicationEventPublisherAware {
 
@@ -23,14 +29,31 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 		this.applicationEventPublisher = applicationEventPublisher;
 	}
 
+	/**
+	 * Publish the event about a new created running dinner
+	 * 
+	 * @param runningDinner
+	 */
 	public void notifyNewRunningDinner(final RunningDinner runningDinner) {
 		applicationEventPublisher.publishEvent(new NewRunningDinnerEvent(this, runningDinner));
 	}
 
+	/**
+	 * Publish the event for sending team arrangement messages
+	 * 
+	 * @param regularTeams
+	 * @param teamArrangementsMessageFormatter
+	 */
 	public void publishTeamMessages(final List<Team> regularTeams, TeamArrangementMessageFormatter teamArrangementsMessageFormatter) {
 		applicationEventPublisher.publishEvent(new SendTeamArrangementsEvent(this, regularTeams, teamArrangementsMessageFormatter));
 	}
 
+	/**
+	 * Publish the event for sending dinner route messages
+	 * 
+	 * @param teams
+	 * @param dinnerRouteMessageFormatter
+	 */
 	public void publishDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter) {
 		applicationEventPublisher.publishEvent(new SendDinnerRoutesEvent(this, teams, dinnerRouteMessageFormatter));
 	}

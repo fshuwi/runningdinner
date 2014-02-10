@@ -22,7 +22,6 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -43,7 +42,7 @@ public class TestRunningDinnerService {
 	private static final int NUM_PARTICIPANTS = 22;
 
 	@Autowired
-	private RunningDinnerServiceImpl runningDinnerService;
+	private RunningDinnerService runningDinnerService;
 
 	@Autowired
 	private EntityManagerFactory entityManagerFactory;
@@ -224,11 +223,11 @@ public class TestRunningDinnerService {
 		Team loadedTeam = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
 		Participant hostingParticipant = loadedTeam.getHostTeamMember();
 		assertEquals(true, hostingParticipant.isHost());
-		
+
 		Set<Team> hostTeams = loadedTeam.getVisitationPlan().getHostTeams();
-		assertEquals(2,hostTeams.size());
+		assertEquals(2, hostTeams.size());
 		for (Team hostTeam : hostTeams) {
-			assertEquals(2,hostTeam.getTeamMembers().size());
+			assertEquals(2, hostTeam.getTeamMembers().size());
 			assertEquals(true, hostTeam.getHostTeamMember().isHost());
 		}
 	}

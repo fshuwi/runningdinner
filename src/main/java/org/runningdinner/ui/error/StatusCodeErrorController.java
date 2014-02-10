@@ -12,8 +12,15 @@ public class StatusCodeErrorController {
 	protected ErrorViewHelper errorViewHelper;
 
 	@RequestMapping(value = "error404", method = RequestMethod.GET)
-	public ModelAndView adminOverview() {
+	public ModelAndView error404() {
 		ModelAndView result = new ModelAndView(getFullViewName("error404"));
+		errorViewHelper.enrichModelAndView(result);
+		return result;
+	}
+
+	@RequestMapping(value = "error500", method = RequestMethod.GET)
+	public ModelAndView error500() {
+		ModelAndView result = new ModelAndView(getFullViewName("errorDefault"));
 		errorViewHelper.enrichModelAndView(result);
 		return result;
 	}

@@ -6,6 +6,12 @@ import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 
+/**
+ * Util class that is used for formatting email messages
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class FormatterUtil {
 
 	public static final String PARTNER = "\\{partner\\}";

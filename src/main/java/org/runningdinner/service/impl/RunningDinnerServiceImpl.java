@@ -2,12 +2,14 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import javax.persistence.EntityNotFoundException;
 
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GeneratedTeamsResult;
@@ -28,7 +30,8 @@ import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.repository.RunningDinnerRepository;
+import org.runningdinner.repository.jpa.RunningDinnerRepositoryJpa;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
@@ -42,10 +45,10 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-public class RunningDinnerServiceImpl {
+public class RunningDinnerServiceImpl implements RunningDinnerService {
 
 	// Spring managed dependencies
-	private RunningDinnerRepository repository;
+	private RunningDinnerRepositoryJpa repository;
 	private TempParticipantLocationHandler tempParticipantLocationHandler;
 	private UuidGenerator uuidGenerator;
 	private EventPublisher eventPublisher;
@@ -55,15 +58,7 @@ public class RunningDinnerServiceImpl {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(RunningDinnerServiceImpl.class);
 
-	/**
-	 * Parses participant list out from uploaded file
-	 * 
-	 * @param file
-	 * @param parsingConfiguration
-	 * @return
-	 * @throws IOException
-	 * @throws ConversionException
-	 */
+	@Override
 	public List<Participant> parseParticipants(final MultipartFile file, final ParsingConfiguration parsingConfiguration)
 			throws IOException, ConversionException {
 
@@ -89,6 +84,7 @@ public class RunningDinnerServiceImpl {
 	 * @param participants
 	 * @return
 	 */
+	@Override
 	public List<Participant> calculateNotAssignableParticipants(RunningDinnerConfig runningDinnerConfig, List<Participant> participants) {
 		return runningDinnerCalculator.calculateNotAssignableParticipants(runningDinnerConfig, participants);
 	}
@@ -100,6 +96,7 @@ public class RunningDinnerServiceImpl {
 	 * @param file
 	 * @return
 	 */
+	@Override
 	public INPUT_FILE_TYPE determineFileType(final MultipartFile file) {
 		if (file != null) {
 			INPUT_FILE_TYPE fileType = ConverterFactory.determineFileType(file.getOriginalFilename());
@@ -115,6 +112,16 @@ public class RunningDinnerServiceImpl {
 		return INPUT_FILE_TYPE.UNKNOWN;
 	}
 
+	/**
+	 * Creates a new persistent running dinner instance
+	 * 
+	 * @param runningDinnerInfo Basic detail infos about the running dinner to create
+	 * @param runningDinnerConfig The options of the running dinner
+	 * @param participants All participants of the dinner
+	 * @param newUuid A unique identifier that is used for retrieving this running dinner later on
+	 * @return
+	 */
+	@Override
 	@Transactional
 	public RunningDinner createRunningDinner(final RunningDinnerInfo runningDinnerInfo, final RunningDinnerConfig runningDinnerConfig,
 			final List<Participant> participants, final String newUuid) {
@@ -126,6 +133,7 @@ public class RunningDinnerServiceImpl {
 		result.setDate(runningDinnerInfo.getDate());
 
 		Set<MealClass> mealClasses = runningDinnerConfig.getMealClasses();
+		LOGGER.info("Saving {} meals for running dinner {}", mealClasses.size(), newUuid);
 		for (MealClass mealClass : mealClasses) {
 			repository.save(mealClass);
 		}
@@ -133,12 +141,14 @@ public class RunningDinnerServiceImpl {
 
 		result.setUuid(newUuid);
 
-		// TODO On performance problems use a bulk/batch update mechanisms
-
+		// Note: On performance problems use a bulk/batch update mechanisms
+		LOGGER.info("Saving {} participants for running dinner {}", participants.size(), newUuid);
 		for (Participant participant : participants) {
 			repository.save(participant);
 		}
 		result.setParticipants(participants);
+
+		LOGGER.info("Saving complete running dinner {}", newUuid);
 		repository.save(result);
 
 		final RunningDinner constResultRef = result;
@@ -154,8 +164,16 @@ public class RunningDinnerServiceImpl {
 		return result;
 	}
 
-	// TODO: Is this sufficient?
-	@Transactional(rollbackFor = NoPossibleRunningDinnerException.class)
+	/**
+	 * Randomly creates teams for the running dinner identified by the passed uuid.<br>
+	 * This method assumes that there exist no teams till now.
+	 * 
+	 * @param uuid
+	 * @return
+	 * @throws NoPossibleRunningDinnerException
+	 */
+	@Override
+	@Transactional(rollbackFor = { NoPossibleRunningDinnerException.class, RuntimeException.class })
 	public GeneratedTeamsResult createTeamAndVisitationPlans(final String uuid) throws NoPossibleRunningDinnerException {
 
 		RunningDinner dinner = repository.findDinnerByUuidWithParticipants(uuid);
@@ -186,7 +204,7 @@ public class RunningDinnerServiceImpl {
 		// #3 Save the team-less participants:
 		dinner.setNotAssignedParticipants(notAssignedParticipants);
 
-		// TODO On performance problems use a bulk/batch update mechanisms
+		// Note: On performance problems use a bulk/batch update mechanisms
 
 		return result;
 	}
@@ -199,92 +217,13 @@ public class RunningDinnerServiceImpl {
 		return generatedTeams;
 	}
 
-	public List<Team> loadRegularTeamsWithVisitationPlanFromDinner(final String uuid) {
-		return repository.loadRegularTeamsWithArrangementsFromDinner(uuid);
-		// Consider paging for future
-	}
-
-	/**
-	 * Tries to load an existing running dinner.<br>
-	 * There are Just the basic details loaded. For retrieving the associated entities like participants,teams and visitation-plans another
-	 * load-method must be used.
-	 * 
-	 * @param uuid
-	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
-	 * @return
-	 */
-	public RunningDinner loadDinnerWithBasicDetails(final String uuid) {
-		RunningDinner result = repository.findDinnerByUuid(uuid);
-		if (result == null) {
-			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
-		}
-		return result;
-	}
-
-	/**
-	 * See loadDinnerWithBasicDetails, but fetches also all participants of the dinner.
-	 * 
-	 * @param uuid
-	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
-	 * @return
-	 */
-	public RunningDinner loadDinnerWithParticipants(final String uuid) {
-		RunningDinner result = repository.findDinnerByUuidWithParticipants(uuid);
-		if (result == null) {
-			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
-		}
-		return result;
-	}
-
-	/**
-	 * Loads all participants of a dinner identified by the passed uuid.<br>
-	 * Use this, if you are just interested in the participants and not in other dinner-details.
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public List<Participant> loadAllParticipantsOfDinner(final String uuid) {
-		// TODO: This may also return an empty list even if the dinner with uuid doesn't exist
-		return repository.loadAllParticipantsOfDinner(uuid);
-	}
-
-	/**
-	 * Loads all participants that could not successfully be assigned into teams.<br>
-	 * Note: This makes only sense if there have been built teams already.
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public List<Participant> loadNotAssignableParticipantsOfDinner(final String uuid) {
-		return repository.loadNotAssignableParticipantsFromDinner(uuid);
-	}
-
-	/**
-	 * Loads all successfully generated teams (and all contained data) for a dinner.<br>
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public List<Team> loadRegularTeamsFromDinner(final String uuid) {
-		return repository.loadRegularTeamsFromDinner(uuid);
-	}
-
-	/**
-	 * Detects how many teams have been built for the dinner identified by the passed uuid
-	 * 
-	 * @param uuid
-	 * @return
-	 */
-	public int loadNumberOfTeamsForDinner(final String uuid) {
-		return repository.loadNumberOfTeamsForDinner(uuid);
-	}
-
 	/**
 	 * 
 	 * @param uuid
 	 * @param teamHostMappings Contains the naturalKey of a team as key in the mapping, and the naturalKey of the new hosting participant as
 	 *            value in the mapping
 	 */
+	@Override
 	@Transactional
 	public void updateTeamHosters(final String uuid, Map<String, String> teamHostMappings) {
 
@@ -326,27 +265,28 @@ public class RunningDinnerServiceImpl {
 		}
 	}
 
+	@Override
 	@Transactional
 	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
 
-		List<Team> parentTeams = new ArrayList<Team>(2);
+		// List<Team> parentTeams = new ArrayList<Team>(2);
 
 		// TODO #1: Use query instead
-		List<Team> allTeams = repository.loadRegularTeamsFromDinner(uuid);
-		for (Team team : allTeams) {
-			for (Participant participant : team.getTeamMembers()) {
-				if (participant.getNaturalKey().equals(firstParticipantKey) || participant.getNaturalKey().equals(secondParticipantKey)) {
-					parentTeams.add(team);
-				}
-			}
-		}
+		// List<Team> allTeams = repository.loadRegularTeamsFromDinner(uuid);
+		// for (Team team : allTeams) {
+		// for (Participant participant : team.getTeamMembers()) {
+		// if (participant.getNaturalKey().equals(firstParticipantKey) || participant.getNaturalKey().equals(secondParticipantKey)) {
+		// parentTeams.add(team);
+		// }
+		// }
+		// }
+
 		// TODO #2: Normally I would use this query, but it doesn't work correctly:
-		// List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
-		// new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
+		List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
+				new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
 
 		if (parentTeams.size() != 2) {
-			// TODO Error
-			throw new RuntimeException("Retrieved " + parentTeams.size() + " teams, but expected 2 teams");
+			throw new IllegalStateException("Retrieved " + parentTeams.size() + " teams, but expected 2 teams");
 		}
 
 		Participant firstParticipant = null;
@@ -369,8 +309,7 @@ public class RunningDinnerServiceImpl {
 		}
 
 		if (firstParticipant == null || secondParticipant == null) {
-			// TODO Error
-			throw new RuntimeException("At least one participant could not be fetched");
+			throw new EntityNotFoundException("At least one participant could not be fetched");
 		}
 
 		if (teamOfFirstParticipant.equals(teamOfSecondParticipant)) {
@@ -393,9 +332,28 @@ public class RunningDinnerServiceImpl {
 		return parentTeams;
 	}
 
-	public int sendTeamMessages(String uuid, final List<String> selectedTeamKeys, final TeamArrangementMessageFormatter messageFormatter) {
+	/**
+	 * 
+	 * @param team
+	 * @param oldParticipantWasHost Was the old (now switched) participant a host?
+	 * @param newParticipant The new participant that shall now be in the team
+	 */
+	protected void checkHostingForTeam(Team team, boolean oldParticipantWasHost, Participant newParticipant) {
+		// Note: It would be more "intelligent" to search for a new host in the remaining team-members list instead of just switching the
+		// host-flag, but for now this should be sufficient (TODO for future)
+		if (oldParticipantWasHost && !newParticipant.isHost()) {
+			newParticipant.setHost(true);
+		}
+		else if (!oldParticipantWasHost && newParticipant.isHost()) {
+			newParticipant.setHost(false);
+		}
+		// When reaching here, either both have been hosts, or both have not been hosts, so we don't to perform any further action
+	}
 
-		Set<String> teamKeysAsSet = convertTeamKeysToSet(selectedTeamKeys);
+	@Override
+	public int sendTeamMessages(String uuid, final List<String> teamKeys, final TeamArrangementMessageFormatter messageFormatter) {
+
+		Set<String> teamKeysAsSet = convertTeamKeysToSet(teamKeys);
 
 		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
 
@@ -405,6 +363,7 @@ public class RunningDinnerServiceImpl {
 		return teams.size();
 	}
 
+	@Override
 	public int sendDinnerRouteMessages(final String uuid, final List<String> selectedTeamKeys,
 			final DinnerRouteMessageFormatter dinnerRouteFormatter) {
 
@@ -418,9 +377,148 @@ public class RunningDinnerServiceImpl {
 		return teams.size();
 	}
 
+	@Override
+	public List<Team> loadRegularTeamsWithVisitationPlanFromDinner(final String uuid) {
+		return repository.loadRegularTeamsWithArrangementsFromDinner(uuid);
+		// Consider eventually paging for future
+	}
+
+	/**
+	 * Tries to load an existing running dinner.<br>
+	 * There are Just the basic details loaded. For retrieving the associated entities like participants,teams and visitation-plans another
+	 * load-method must be used.
+	 * 
+	 * @param uuid
+	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
+	 * @return
+	 */
+	@Override
+	public RunningDinner loadDinnerWithBasicDetails(final String uuid) {
+		RunningDinner result = repository.findDinnerWithBasicDetailsByUuid(uuid);
+		if (result == null) {
+			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
+		}
+		return result;
+	}
+
+	/**
+	 * See loadDinnerWithBasicDetails, but fetches also all participants of the dinner.
+	 * 
+	 * @param uuid
+	 * @throws DinnerNotFoundException If dinner with passed uuid could not be found
+	 * @return
+	 */
+	@Override
+	public RunningDinner loadDinnerWithParticipants(final String uuid) {
+		RunningDinner result = repository.findDinnerByUuidWithParticipants(uuid);
+		if (result == null) {
+			throw new DinnerNotFoundException("There exists no dinner for uuid " + uuid);
+		}
+		return result;
+	}
+
+	/**
+	 * Loads all participants of a dinner identified by the passed uuid.<br>
+	 * Use this, if you are just interested in the participants and not in other dinner-details.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	@Override
+	public List<Participant> loadAllParticipantsOfDinner(final String uuid) {
+		return repository.loadAllParticipantsOfDinner(uuid);
+	}
+
+	/**
+	 * Loads all participants that could not successfully be assigned into teams.<br>
+	 * Note: This makes only sense if there have been built teams already.
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	@Override
+	public List<Participant> loadNotAssignableParticipantsOfDinner(final String uuid) {
+		return repository.loadNotAssignableParticipantsFromDinner(uuid);
+	}
+
+	/**
+	 * Loads all successfully generated teams (and all contained data) for a dinner.<br>
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	@Override
+	public List<Team> loadRegularTeamsFromDinner(final String uuid) {
+		return repository.loadRegularTeamsFromDinner(uuid);
+	}
+
+	/**
+	 * Detects how many teams have been built for the dinner identified by the passed uuid
+	 * 
+	 * @param uuid
+	 * @return
+	 */
+	@Override
+	public int loadNumberOfTeamsForDinner(final String uuid) {
+		return repository.loadNumberOfTeamsForDinner(uuid);
+	}
+
+	@Override
+	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
+		return repository.loadSingleTeamWithVisitationPlan(teamKey, true);
+	}
+
+	@Override
+	public Participant loadParticipant(String participantKey) {
+		return repository.loadParticipant(participantKey);
+	}
+
+	/**
+	 * Generate a new UUID which can e.g. be used for a new running dinner
+	 * 
+	 * @return
+	 */
+	@Override
+	public String generateNewUUID() {
+		return uuidGenerator.generateNewUUID();
+	}
+
+	@Override
+	public String copyParticipantListToTempLocation(List<Participant> participants, final String uniqueLocationIdentifier)
+			throws IOException {
+		return tempParticipantLocationHandler.pushToTempLocation(participants, uniqueLocationIdentifier);
+	}
+
+	@Override
+	public List<Participant> getParticipantListFromTempLocation(final String location) throws IOException {
+		return tempParticipantLocationHandler.popFromTempLocation(location);
+	}
+
+	@Override
+	@Transactional
+	public void updateParticipant(String participantKey, Participant participant) {
+		Participant existingParticipant = repository.loadParticipant(participantKey);
+
+		// Note: Currently concurrent modifications are not checked
+
+		existingParticipant.setGender(participant.getGender());
+		existingParticipant.setEmail(participant.getEmail());
+		existingParticipant.setMobileNumber(participant.getMobileNumber());
+		existingParticipant.setNumSeats(participant.getNumSeats());
+
+		existingParticipant.setName(ParticipantName.newName().withFirstname(participant.getName().getFirstnamePart()).andLastname(
+				participant.getName().getLastname()));
+
+		existingParticipant.setAddress(new ParticipantAddress(participant.getAddress().getStreet(), participant.getAddress().getStreetNr(),
+				participant.getAddress().getZip()));
+		existingParticipant.getAddress().setCityName(participant.getAddress().getCityName());
+
+	}
+
+	@Override
 	@Transactional
 	public void updateMealTimes(String uuid, Set<MealClass> meals) {
-		RunningDinner dinner = repository.findDinnerByUuid(uuid);
+		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
 		Set<MealClass> existingMeals = dinner.getConfiguration().getMealClasses();
 
 		if (existingMeals.size() != meals.size()) {
@@ -444,32 +542,12 @@ public class RunningDinnerServiceImpl {
 		}
 	}
 
-	public Team loadSingleTeamWithVisitationPlan(String teamKey) {
-		return repository.loadSingleTeamWithVisitationPlan(teamKey, true);
-	}
-
-	public Participant loadParticipant(String participantKey) {
-		return repository.loadParticipant(participantKey);
-	}
-
-	@Transactional
-	public void updateParticipant(String participantKey, Participant participant) {
-		Participant existingParticipant = repository.loadParticipant(participantKey);
-
-		existingParticipant.setGender(participant.getGender());
-		existingParticipant.setEmail(participant.getEmail());
-		existingParticipant.setMobileNumber(participant.getMobileNumber());
-		existingParticipant.setNumSeats(participant.getNumSeats());
-
-		existingParticipant.setName(ParticipantName.newName().withFirstname(participant.getName().getFirstnamePart()).andLastname(
-				participant.getName().getLastname()));
-
-		existingParticipant.setAddress(new ParticipantAddress(participant.getAddress().getStreet(), participant.getAddress().getStreetNr(),
-				participant.getAddress().getZip()));
-		existingParticipant.getAddress().setCityName(participant.getAddress().getCityName());
-
-	}
-
+	/**
+	 * Simple helper method for checking for duplicates in a passed team key list
+	 * 
+	 * @param teamKeysList
+	 * @return
+	 */
 	protected Set<String> convertTeamKeysToSet(final List<String> teamKeysList) {
 		Set<String> teamKeys = new HashSet<String>(teamKeysList);
 		if (teamKeys.size() != teamKeysList.size()) {
@@ -478,49 +556,19 @@ public class RunningDinnerServiceImpl {
 		return teamKeys;
 	}
 
+	/**
+	 * Asserts that the size of loaded teams is the same as the passed expectedSize.<br>
+	 * 
+	 * @param loadedTeams
+	 * @param expectedSize
+	 */
 	protected void checkLoadedTeamSize(final List<Team> loadedTeams, final int expectedSize) {
-		if (CoreUtil.isEmpty(loadedTeams)) {
+		if (CoreUtil.isEmpty(loadedTeams) && expectedSize > 0) {
 			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
 		}
 		if (loadedTeams.size() != expectedSize) {
 			throw new IllegalStateException("Expected " + expectedSize + " teams to be found, but there were " + loadedTeams.size());
 		}
-	}
-
-	/**
-	 * 
-	 * @param team
-	 * @param oldParticipantWasHost Was the old (now switched) participant a host?
-	 * @param newParticipant The new participant that shall now be in the team
-	 */
-	protected void checkHostingForTeam(Team team, boolean oldParticipantWasHost, Participant newParticipant) {
-		// Note: It would be more "intelligent" to search for a new host in the remaining team-members list instead of just switching the
-		// host-flag, but for now this should be sufficient (TODO for future)
-		if (oldParticipantWasHost && !newParticipant.isHost()) {
-			newParticipant.setHost(true);
-		}
-		else if (!oldParticipantWasHost && newParticipant.isHost()) {
-			newParticipant.setHost(false);
-		}
-		// When reaching here, either both have been hosts, or both have not been hosts, so we don't to perform any further action
-	}
-
-	public String copyParticipantFileToTempLocation(List<Participant> participants, final String uniqueLocationIdentifier)
-			throws IOException {
-		return tempParticipantLocationHandler.pushToTempLocation(participants, uniqueLocationIdentifier);
-	}
-
-	public List<Participant> getParticipantsFromTempLocation(final String location) throws IOException, ConversionException {
-		return tempParticipantLocationHandler.popFromTempLocation(location);
-	}
-
-	/**
-	 * Generate a new UUID which can e.g. be used for a new running dinner
-	 * 
-	 * @return
-	 */
-	public String generateNewUUID() {
-		return uuidGenerator.generateNewUUID();
 	}
 
 	@Autowired
@@ -534,7 +582,7 @@ public class RunningDinnerServiceImpl {
 	}
 
 	@Autowired
-	public void setRepository(RunningDinnerRepository repository) {
+	public void setRepository(RunningDinnerRepositoryJpa repository) {
 		this.repository = repository;
 	}
 

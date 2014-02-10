@@ -14,6 +14,12 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+/**
+ * Implementation which serializes a participant list as a unique file into a configured directory.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class SerializeToDirectoryHandler implements TempParticipantLocationHandler {
 
 	private String tmpUploadDirectory;
@@ -77,6 +83,12 @@ public class SerializeToDirectoryHandler implements TempParticipantLocationHandl
 		this.tmpUploadDirectory = tmpUploadDirectory;
 	}
 
+	/**
+	 * Wrapper around participant list, as kryo has some problems when using plain lists (-> quick workaround)
+	 * 
+	 * @author Clemens Stich
+	 * 
+	 */
 	static class DummySerializerHolderClass {
 		private List<Participant> participants;
 

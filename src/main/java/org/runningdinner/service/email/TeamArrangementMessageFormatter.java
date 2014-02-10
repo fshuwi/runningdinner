@@ -57,8 +57,7 @@ public class TeamArrangementMessageFormatter {
 			String partnerMobile = "Handy-Nr: " + StringUtils.defaultIfEmpty(partner.getMobileNumber(), "Keine Handy-Nr");
 
 			partnerInfo.append(partnerName).append(FormatterUtil.NEWLINE).append(streetWithNr).append(FormatterUtil.NEWLINE).append(
-					zipWithCity).append(FormatterUtil.NEWLINE).append(partnerMail).append(FormatterUtil.NEWLINE).append(
-					partnerMobile);
+					zipWithCity).append(FormatterUtil.NEWLINE).append(partnerMail).append(FormatterUtil.NEWLINE).append(partnerMobile);
 		}
 		theMessage = theMessage.replaceFirst(FormatterUtil.PARTNER, partnerInfo.toString());
 

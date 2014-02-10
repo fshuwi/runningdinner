@@ -8,6 +8,7 @@ import ch.qos.logback.classic.Level;
 
 /**
  * Handy utility function for setting logging levels (slf4j loggers do not directly allow this).
+ * (Currently not used anywhere)
  */
 @Component
 public class LoggingUtilities {

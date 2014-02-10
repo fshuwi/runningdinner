@@ -1,3 +1,5 @@
+<script src='<c:url value="/resources/js/common.js"/>'></script>
+
 <script>
 	var changedHostingFields = {};
 	
@@ -5,12 +7,8 @@
 
 	$(document).ready(function() {
 		$('.doTooltip').tooltip();
-		
-		// TODO: Swap this to extra file as it is only interesting for team overview
-		// $('#teamTabs a:first').tab('show');		
-		
+				
 		// TODO: Check server workflow (Enable drag drop or not!))
-		
 		setUpDragDrop();
 	
 		$(".counted").charCounter(3000,{container: "#counter"});
@@ -19,20 +17,6 @@
 	function toggleTeamSelection() {
 		checked = $('#allTeamsSelectedBox').is(":checked");
 		$('.teamSelectionBox').prop("checked", checked);
-	}
-	
-	
-	// TODO: Copied
-	function saveEditedMealTimesToModel() {
-		var meals = [];
-		
-		$('.meal-label').each(function() {
-			var label = $(this).text();
-			var time = $(this).next().val();
-			meals.push({"label":label, "time":time});
-		});
-		
-		$('#meals').val(JSON.stringify(meals));
 	}
 	
 	
@@ -123,10 +107,10 @@
 	
 	function switchTeamMembers(firstParticipant, secondParticipant) {
 		jsonRequest = new Array();
-		//jsonRequest.push({"participantKey" : firstParticipant});
-		//jsonRequest.push({"participantKey" : secondParticipant});
+		jsonRequest.push({"participantKey" : firstParticipant});
+		jsonRequest.push({"participantKey" : secondParticipant});
 		
-		// TODO: Zu umstaendlich
+		/* TODO: Zu umstaendlich
 		
 		var singleJson = {};
 	 	singleJson.teamKey = '-';
@@ -137,7 +121,7 @@
 	 	singleJson.teamKey = '-';
 		singleJson.participantKey = secondParticipant;
 		jsonRequest.push(singleJson);
-	
+		*/
 		
 		var backendUrl = '${pageContext.request.contextPath}/event/${uuid}/admin/teams/switchmembers';
 
@@ -188,8 +172,6 @@
 			var newTeamMemberDiv = "<div class=\"draggableTeamMember droppableTeamMember\" id=\"participant_" + teamMember.naturalKey + "\">";
 			newTeamMemberDiv += "<h5 class=\"media-heading\"><a href=\"#\">" + teamMember.fullname + "</a></h5>";
 			newTeamMemberDiv += "</div>";
-			
-			// $(newTeamMemberDiv).draggable({ revert: "invalid" });
 			
 			$(teamInfoContainer).append($(newTeamMemberDiv));
 		}
