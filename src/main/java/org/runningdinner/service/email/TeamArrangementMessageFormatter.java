@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
+import org.springframework.context.MessageSource;
 
 public class TeamArrangementMessageFormatter {
 
@@ -20,12 +21,17 @@ public class TeamArrangementMessageFormatter {
 
 	private String subject;
 
-	public TeamArrangementMessageFormatter() {
-		this(null);
+	private MessageSource messageSource;
+	private Locale locale;
+
+	public TeamArrangementMessageFormatter(MessageSource messageSource, Locale locale) {
+		this(messageSource, locale, null);
 	}
 
-	public TeamArrangementMessageFormatter(final DateFormat timeFormat) {
+	public TeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale, final DateFormat timeFormat) {
 		this.timeFormat = timeFormat;
+		this.messageSource = messageSource;
+		this.locale = locale;
 		if (timeFormat == null) {
 			this.timeFormat = new SimpleDateFormat(FormatterUtil.DEFAULT_TIME_FORMAT, Locale.GERMAN); // Fallback
 		}
@@ -33,12 +39,18 @@ public class TeamArrangementMessageFormatter {
 
 	public String formatTeamMemberMessage(final Participant teamMember, final Team parentTeam) {
 
+		final String noTimeText = messageSource.getMessage("message.template.no.time", null, locale);
+		final String noEmailText = messageSource.getMessage("message.template.no.email", null, locale);
+		final String noMobileText = messageSource.getMessage("message.template.no.mobile", null, locale);
+		final String mobileLabel = messageSource.getMessage("label.participant.mobile", null, locale);
+		final String emailLabel = messageSource.getMessage("label.participant.email", null, locale);
+
 		String theMessage = messageTemplate;
 		theMessage = theMessage.replaceAll(FormatterUtil.FIRSTNAME, teamMember.getName().getFirstnamePart());
 		theMessage = theMessage.replaceAll(FormatterUtil.LASTNAME, teamMember.getName().getLastname());
 		theMessage = theMessage.replaceAll(FormatterUtil.MEAL, parentTeam.getMealClass().getLabel());
 		theMessage = theMessage.replaceAll(FormatterUtil.MEALTIME,
-				CoreUtil.getFormattedTime(parentTeam.getMealClass().getTime(), timeFormat, "Unbekannte Uhrzeit"));
+				CoreUtil.getFormattedTime(parentTeam.getMealClass().getTime(), timeFormat, noTimeText));
 
 		Set<Participant> partners = CoreUtil.excludeFromSet(teamMember, parentTeam.getTeamMembers());
 
@@ -53,8 +65,8 @@ public class TeamArrangementMessageFormatter {
 			String partnerName = partner.getName().getFullnameFirstnameFirst();
 			String streetWithNr = partner.getAddress().getStreetWithNr();
 			String zipWithCity = partner.getAddress().getZipWithCity();
-			String partnerMail = "EMail: " + StringUtils.defaultIfEmpty(partner.getEmail(), "Keine EMail");
-			String partnerMobile = "Handy-Nr: " + StringUtils.defaultIfEmpty(partner.getMobileNumber(), "Keine Handy-Nr");
+			String partnerMail = emailLabel + ": " + StringUtils.defaultIfEmpty(partner.getEmail(), noEmailText);
+			String partnerMobile = mobileLabel + ": " + StringUtils.defaultIfEmpty(partner.getMobileNumber(), noMobileText);
 
 			partnerInfo.append(partnerName).append(FormatterUtil.NEWLINE).append(streetWithNr).append(FormatterUtil.NEWLINE).append(
 					zipWithCity).append(FormatterUtil.NEWLINE).append(partnerMail).append(FormatterUtil.NEWLINE).append(partnerMobile);

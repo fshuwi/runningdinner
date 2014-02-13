@@ -7,15 +7,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.core.ParticipantName;
 import org.runningdinner.core.Team;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+@RunWith(SpringJUnit4ClassRunner.class)
+@ContextConfiguration(locations = { "classpath:spring/app-context.xml", "classpath:spring/mail-context.xml" })
+@ActiveProfiles("junit")
 public class TestTeamMessageFormatter {
 
 	private static String timeFormat = "HH:mm";
@@ -30,9 +40,13 @@ public class TestTeamMessageFormatter {
 	private String time2 = "21:00";
 	private SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
 
+	@Autowired
+	protected MessageSource messages;
+
 	@Before
 	public void setUp() {
-		formatter = new TeamArrangementMessageFormatter(dateFormat);
+		Locale locale = Locale.GERMAN;
+		formatter = new TeamArrangementMessageFormatter(messages, locale, dateFormat);
 		formatter.setMessageTemplate("{firstname} {lastname}/{meal}/{mealtime}/{host}/{partner}");
 		formatter.setNonHostMessagePartTemplate("{partner}");
 		formatter.setHostMessagePartTemplate("YOU");

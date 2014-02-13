@@ -2,26 +2,21 @@ package org.runningdinner.ui.dto;
 
 import java.util.Locale;
 
-import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
+import org.springframework.context.MessageSource;
 
 public class SendTeamArrangementsModel extends BaseSendMailsModel {
 
 	protected String hostMessagePartTemplate;
 	protected String nonHostMessagePartTemplate;
 
-	public static SendTeamArrangementsModel createWithDefaultMessageTemplate() {
+	public static SendTeamArrangementsModel createWithDefaultMessageTemplate(final MessageSource messageSource, final Locale locale) {
 		SendTeamArrangementsModel result = new SendTeamArrangementsModel();
 
-		StringBuilder tmp = new StringBuilder();
-		tmp.append("Hallo {firstname} {lastname},").append(FormatterUtil.TWO_NEWLINES).append("dein(e) Tempartner ist/sind: ").append(
-				FormatterUtil.NEWLINE);
-		tmp.append("{partner}").append(FormatterUtil.TWO_NEWLINES).append("Ihr seid für folgende Speise verantwortlich: {meal}.");
-		tmp.append("Diese soll um {mealtime} eingenommen werden.").append(FormatterUtil.TWO_NEWLINES);
-		tmp.append("{host}");
-		result.message = tmp.toString();
-		result.hostMessagePartTemplate = "Es wird vorgeschlagen, dass du als Gastgeber fungierst. Wenn dies nicht in Ordnung ist, dann sprecht euch bitte ab und gebt uns bis spätestens Donnerstag Rückmeldung wer als neuer Gastgeber fungieren soll.";
-		result.nonHostMessagePartTemplate = "Als Gastgeber wurde {partner} vorgeschlagen.";
+		result.message = messageSource.getMessage("message.template.teams", null, locale);
+		result.hostMessagePartTemplate = messageSource.getMessage("message.template.teams.host", null, locale);
+		result.nonHostMessagePartTemplate = messageSource.getMessage("message.template.teams.nonhost", null, locale);
+
 		return result;
 	}
 
@@ -41,9 +36,9 @@ public class SendTeamArrangementsModel extends BaseSendMailsModel {
 		this.nonHostMessagePartTemplate = nonHostMessagePartTemplate;
 	}
 
-	public TeamArrangementMessageFormatter getTeamArrangementMessageFormatter(Locale locale) {
+	public TeamArrangementMessageFormatter getTeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale) {
 		// Maybe use locale for dateformat!
-		TeamArrangementMessageFormatter result = new TeamArrangementMessageFormatter();
+		TeamArrangementMessageFormatter result = new TeamArrangementMessageFormatter(messageSource, locale);
 		result.setMessageTemplate(message);
 		result.setHostMessagePartTemplate(hostMessagePartTemplate);
 		result.setNonHostMessagePartTemplate(nonHostMessagePartTemplate);

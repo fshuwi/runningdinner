@@ -8,16 +8,18 @@
 <%@ page import="org.runningdinner.ui.RequestMappings" %>
 
 
-<spring:url value="/event/{uuid}/admin/teams/mail" var="teamsFinalizeUrl" htmlEscape="true">
-	<spring:param name="uuid" value="${uuid}" />
+<spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="teamsFinalizeUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
 
 <spring:message code="tooltip.teams.finalize.button" var="sendMessagesTooltip"/>
 <c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
+<%--
 <c:if test="${teamAdministration.teamsAlreadySaved}">
 	<c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
 </c:if>
+--%>
 
 <h2>Team-Einteilung</h2>
 

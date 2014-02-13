@@ -66,8 +66,9 @@
     <bean class="org.springframework.dao.annotation.PersistenceExceptionTranslationPostProcessor"/>
 
  	<!--
- 		Enabled usage of EntityManager during whole http request
-	-->      
+ 		Enabled usage of EntityManager during whole http request. 
+ 		Not needed currently.
     <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" id="entityManagerInterceptor" />
+   	-->
        
 </beans>

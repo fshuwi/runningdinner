@@ -10,7 +10,7 @@ import org.runningdinner.core.MealClass;
 
 /**
  * Provides the means to marshall/unmarshall a set of MealClass objects into/from JSON.<br>
- * Used in Wizard when several meals are dynamically added/removed
+ * Used e.g. in Wizard when several meals are dynamically added/removed (but also e.g. for editing meals).
  * 
  * @author Clemens Stich
  * 

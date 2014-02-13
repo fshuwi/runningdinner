@@ -21,6 +21,14 @@ import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * Main service that provides the means for persisting and loading of running dinner instances (and all involved entities).<br>
+ * Furthermore it also provides the means for sending different (email) messages and it also provides support for handling the business
+ * logic of the core classes.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public interface RunningDinnerService {
 
 	/**

@@ -4,7 +4,7 @@ package org.runningdinner.ui.json;
  * Used as a JSON request for either changing switching team-members or for changing the host of a team.<br>
  * For Spring MVC's automatic JSON support we have to create separate concrete classes, therefore this class should not be used as
  * RequestBody or ResponseBody<br>
- * {@link TeamHostChangeList} and {@link SwitchTeamMembers}
+ * See {@link TeamHostChangeList} and {@link SwitchTeamMembers} instead.
  * 
  * @author i01002492
  * 

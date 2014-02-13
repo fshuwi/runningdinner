@@ -6,6 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * Used in Exception-Handlers for adding additional information to the view
+ * 
+ * @author Clemens Stich
+ * 
+ */
 @Component
 public class ErrorViewHelper {
 
@@ -24,6 +30,11 @@ public class ErrorViewHelper {
 		mav.addObject("showException", showException);
 	}
 
+	/**
+	 * Display Exception stacktrace in error view?
+	 * 
+	 * @return
+	 */
 	public boolean isShowException() {
 		return showException;
 	}
@@ -32,6 +43,11 @@ public class ErrorViewHelper {
 		this.showException = showException;
 	}
 
+	/**
+	 * Contact mail for problems
+	 * 
+	 * @return
+	 */
 	public String getContactMail() {
 		return contactMail;
 	}
@@ -40,6 +56,11 @@ public class ErrorViewHelper {
 		this.contactMail = contactMail;
 	}
 
+	/**
+	 * Landing page of application
+	 * 
+	 * @return
+	 */
 	public String getStartUrl() {
 		return startUrl;
 	}

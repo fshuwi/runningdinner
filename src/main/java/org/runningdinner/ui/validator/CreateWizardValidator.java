@@ -38,10 +38,11 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 
 		super.validateMealTimes(((CreateWizardModel)target).getMeals(), errors);
 
-		// TODO: Add message codes
-		ValidationUtils.rejectIfEmpty(errors, "uploadedFileLocation", "TODO");
-		ValidationUtils.rejectIfEmpty(errors, "newUuid", "TODO");
-		ValidationUtils.rejectIfEmpty(errors, "administrationUrl", "TODO");
+		// Actually these are internal attributes that should always exist, but if user maybe accessed the wizard in another way, these may
+		// not exist. We just indicate this with a general error message:
+		ValidationUtils.rejectIfEmpty(errors, "uploadedFileLocation", "error.wizard.invalidstate");
+		ValidationUtils.rejectIfEmpty(errors, "newUuid", "error.wizard.invalidstate");
+		ValidationUtils.rejectIfEmpty(errors, "administrationUrl", "error.wizard.invalidstate");
 	}
 
 	public void validateBasicDinnerOptions(Object target, Errors errors) {
@@ -127,7 +128,7 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 
 	/**
 	 * Generates a detailed error message when the uploaded file could not successfully be parsed (e.g. wrong file format) and put it to the
-	 * passed BindingResult.
+	 * passed Errors object.
 	 * 
 	 * @param convEx
 	 * @param locale

@@ -9,6 +9,8 @@ import java.util.List;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.service.TempParticipantLocationHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -24,6 +26,8 @@ public class SerializeToDirectoryHandler implements TempParticipantLocationHandl
 
 	private String tmpUploadDirectory;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(SerializeToDirectoryHandler.class);
+
 	@Override
 	public String pushToTempLocation(List<Participant> participants, String uniqueIdentifier) throws IOException {
 
@@ -31,6 +35,8 @@ public class SerializeToDirectoryHandler implements TempParticipantLocationHandl
 
 		String filename = getUniqueFilename(String.valueOf(Math.abs(participants.hashCode())), uniqueIdentifier);
 		final String filepath = tmpUploadDirectory + File.separator + filename;
+
+		LOGGER.info("Serializing {} participants to {}", participants.size(), filepath);
 
 		DummySerializerHolderClass holderClass = new DummySerializerHolderClass();
 		holderClass.setParticipants(participants);
@@ -62,6 +68,8 @@ public class SerializeToDirectoryHandler implements TempParticipantLocationHandl
 
 		FileInputStream fileIn = null;
 		Input input = null;
+
+		LOGGER.info("Deserialize participants from {}", location);
 
 		try {
 			fileIn = new FileInputStream(location);

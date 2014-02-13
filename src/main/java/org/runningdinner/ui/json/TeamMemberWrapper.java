@@ -1,7 +1,7 @@
 package org.runningdinner.ui.json;
 
 /**
- * Wraps up the attributes of a team-member (participant) that is used for displaying the results in a JSON-AJaX reqest
+ * Wraps up the attributes of a team-member (participant) that is used for displaying the results in a JSON-AJAX request
  * 
  * @author i01002492
  * 

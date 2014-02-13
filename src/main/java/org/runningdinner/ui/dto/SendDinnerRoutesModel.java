@@ -3,18 +3,13 @@ package org.runningdinner.ui.dto;
 import java.util.Locale;
 
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
-import org.runningdinner.service.email.FormatterUtil;
+import org.springframework.context.MessageSource;
 
 public class SendDinnerRoutesModel extends BaseSendMailsModel {
 
-	public static SendDinnerRoutesModel createWithDefaultMessageTemplate() {
+	public static SendDinnerRoutesModel createWithDefaultMessageTemplate(final MessageSource messageSource, final Locale locale) {
 		SendDinnerRoutesModel result = new SendDinnerRoutesModel();
-
-		StringBuilder tmp = new StringBuilder();
-		tmp.append("Hallo {firstname},").append(FormatterUtil.TWO_NEWLINES).append("hier ist eure Dinner-Route: ").append(
-				FormatterUtil.TWO_NEWLINES);
-		tmp.append("{route}").append(FormatterUtil.TWO_NEWLINES).append("Bitte versucht euch an die Zeitpläne zu halten!");
-		result.message = tmp.toString();
+		result.message = messageSource.getMessage("message.template.dinnerroutes", null, locale);
 		return result;
 	}
 

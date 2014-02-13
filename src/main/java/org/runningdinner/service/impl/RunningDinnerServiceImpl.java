@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.persistence.EntityNotFoundException;
 
 import org.runningdinner.core.CoreUtil;
+import org.runningdinner.core.FuzzyBoolean;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
@@ -98,6 +99,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	 */
 	@Override
 	public INPUT_FILE_TYPE determineFileType(final MultipartFile file) {
+		LOGGER.debug("Trying to determine file type of MultipartFile {}", file);
 		if (file != null) {
 			INPUT_FILE_TYPE fileType = ConverterFactory.determineFileType(file.getOriginalFilename());
 			if (INPUT_FILE_TYPE.UNKNOWN != fileType) {
@@ -181,17 +183,23 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 			throw new DinnerNotFoundException("Could not find dinner with uuid " + uuid);
 		}
 
+		LOGGER.info("Create random teams and visitation-plans for dinner {}", uuid);
+
 		// create new team- and visitation-plans
 		GeneratedTeamsResult result = generateTeamPlan(dinner.getConfiguration(), dinner.getParticipants());
 
-		for (Team team : result.getRegularTeams()) {
-			System.out.println(team.getVisitationPlan().toString());
-		}
+		// TODO: Wtf?!
+		/*
+		 * for (Team team : result.getRegularTeams()) {
+		 * System.out.println(team.getVisitationPlan().toString());
+		 * }
+		 */
 
 		List<Team> regularTeams = result.getRegularTeams();
 		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();
 
 		// #1 Save first every team
+		LOGGER.debug("Save {} generated teams for dinner {}", regularTeams.size(), uuid);
 		for (Team regularTeam : regularTeams) {
 			repository.save(regularTeam);
 		}
@@ -199,9 +207,11 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		// #2 Finally assign visitation plans (and therefore teams):
 		// We just assign the visitation-plans to the Running-Dinner. By using the Visitation-Plans we are able to navigate to the teams
 		// etc. pp:
+		LOGGER.debug("Assign {} generated teams to dinner {}", regularTeams.size(), uuid);
 		dinner.setTeams(regularTeams);
 
 		// #3 Save the team-less participants:
+		LOGGER.debug("Assign {} not assigned participants to dinner {}", notAssignedParticipants.size(), uuid);
 		dinner.setNotAssignedParticipants(notAssignedParticipants);
 
 		// Note: On performance problems use a bulk/batch update mechanisms
@@ -231,15 +241,15 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		LOGGER.info("Call updateTeamHosters with {} teamKeys", teamKeys.size());
 
 		Collection<String> newParticipantKeysTmp = teamHostMappings.values();
-		LOGGER.info("Call updateTeamHosters with {} newParticipantKeys", newParticipantKeysTmp.size());
+		LOGGER.debug("Call updateTeamHosters with {} newParticipantKeys", newParticipantKeysTmp.size());
 
 		HashSet<String> newParticipantKeys = new HashSet<String>(newParticipantKeysTmp);
 		Assert.state(newParticipantKeys.size() == newParticipantKeysTmp.size(),
 				"Each participant naturalKey should have been unique in the passed teamHostMappings object, but it was not");
-		LOGGER.info("All participant naturalKeys are unique");
+		LOGGER.debug("All participant naturalKeys are unique");
 
 		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
-		LOGGER.info("Found {} teams for the passed teamKeys", teams.size());
+		LOGGER.debug("Found {} teams for the passed teamKeys", teams.size());
 		Assert.state(teams.size() == teamKeys.size(), "There should be modified " + teamKeys.size() + " teams, but found " + teams.size()
 				+ " teams in database");
 
@@ -270,8 +280,6 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
 
 		// List<Team> parentTeams = new ArrayList<Team>(2);
-
-		// TODO #1: Use query instead
 		// List<Team> allTeams = repository.loadRegularTeamsFromDinner(uuid);
 		// for (Team team : allTeams) {
 		// for (Participant participant : team.getTeamMembers()) {
@@ -280,10 +288,16 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		// }
 		// }
 		// }
+		LOGGER.info("Calling SwitchTeamMembers for dinner {}", uuid);
 
-		// TODO #2: Normally I would use this query, but it doesn't work correctly:
 		List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,
 				new HashSet<String>(Arrays.asList(firstParticipantKey, secondParticipantKey)));
+		LOGGER.debug("Found {} parent-teams for participant-keys {}", parentTeams.size(), ("[" + firstParticipantKey + ","
+				+ secondParticipantKey + "]"));
+
+		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
+		RunningDinnerConfig configuration = dinner.getConfiguration();
+		LOGGER.debug("Configuration {} loaded for dinner {}", configuration, uuid);
 
 		if (parentTeams.size() != 2) {
 			throw new IllegalStateException("Retrieved " + parentTeams.size() + " teams, but expected 2 teams");
@@ -307,51 +321,98 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 				}
 			}
 		}
+		LOGGER.debug("Found first participant {} and second participant {}", firstParticipant, secondParticipant);
 
 		if (firstParticipant == null || secondParticipant == null) {
 			throw new EntityNotFoundException("At least one participant could not be fetched");
 		}
 
 		if (teamOfFirstParticipant.equals(teamOfSecondParticipant)) {
+			LOGGER.debug("Parent-Team {} of both participants is the same", teamOfFirstParticipant);
 			return parentTeams; // Nothing to do
 		}
 
+		LOGGER.debug("Removing both participants from their parent teams");
 		teamOfFirstParticipant.getTeamMembers().remove(firstParticipant);
 		teamOfSecondParticipant.getTeamMembers().remove(secondParticipant);
 
 		// Check hosts:
 		// As the host-flag may be changed during the checkHostingForTeam calls, we have to save it before:
+		LOGGER.debug("Re-Assign hosting flag to both participants");
 		boolean firstParticipantIsHost = firstParticipant.isHost();
 		boolean secondParticipantIsHost = secondParticipant.isHost();
-		checkHostingForTeam(teamOfFirstParticipant, firstParticipantIsHost, secondParticipant);
-		checkHostingForTeam(teamOfSecondParticipant, secondParticipantIsHost, firstParticipant);
+		checkHostingForTeam(teamOfFirstParticipant, firstParticipantIsHost, secondParticipant, configuration);
+		checkHostingForTeam(teamOfSecondParticipant, secondParticipantIsHost, firstParticipant, configuration);
 
+		LOGGER.debug("Assign participant {} to new parent team {}", secondParticipant, teamOfFirstParticipant);
 		teamOfFirstParticipant.getTeamMembers().add(secondParticipant);
+		LOGGER.debug("Assign participant {} to new parent team {}", firstParticipant, teamOfSecondParticipant);
 		teamOfSecondParticipant.getTeamMembers().add(firstParticipant);
 
 		return parentTeams;
 	}
 
 	/**
+	 * This method performs some intelligent tasks for assigning a (potential new) optimal hosting participant of the parent-team of a
+	 * swapped participant
 	 * 
-	 * @param team
+	 * @param team Parent team of newParticipant
 	 * @param oldParticipantWasHost Was the old (now switched) participant a host?
 	 * @param newParticipant The new participant that shall now be in the team
 	 */
-	protected void checkHostingForTeam(Team team, boolean oldParticipantWasHost, Participant newParticipant) {
-		// Note: It would be more "intelligent" to search for a new host in the remaining team-members list instead of just switching the
-		// host-flag, but for now this should be sufficient (TODO for future)
-		if (oldParticipantWasHost && !newParticipant.isHost()) {
-			newParticipant.setHost(true);
+	protected void checkHostingForTeam(Team team, boolean oldParticipantWasHost, Participant newParticipant,
+			RunningDinnerConfig configuration) {
+
+		// #1: check hosting conidtions
+		if (oldParticipantWasHost) {
+			if (FuzzyBoolean.TRUE == configuration.canHost(newParticipant)) {
+				// Because the old participant was the host we can safely set this participant as new host (it is then the only one)
+				newParticipant.setHost(true);
+				return;
+			}
+			// else: iterate later over all participants and set a new host (-> below)
 		}
 		else if (!oldParticipantWasHost && newParticipant.isHost()) {
+			// In this case another participant was assigned to be the host.
+			// But this may be not optimal as the other participant may have an unknown hosting capability
 			newParticipant.setHost(false);
 		}
-		// When reaching here, either both have been hosts, or both have not been hosts, so we don't to perform any further action
+
+		// #2 Ensure that we have one (optimal) hosting participant
+		Participant currentHostingParticipant = null;
+		Participant newOptimalHostingParticipant = null;
+
+		for (Participant p : team.getTeamMembers()) {
+			FuzzyBoolean canHost = configuration.canHost(p);
+
+			if (canHost == FuzzyBoolean.UNKNOWN && newOptimalHostingParticipant == null) {
+				newOptimalHostingParticipant = p; // This would be the fallback
+			}
+			if (canHost == FuzzyBoolean.TRUE) {
+				newOptimalHostingParticipant = p;
+			}
+			if (p.isHost()) {
+				currentHostingParticipant = p;
+			}
+		}
+
+		if (newOptimalHostingParticipant == null) {
+			// Nothing to do, because there exist no better hosting-solution as the current one
+			return;
+		}
+		if (currentHostingParticipant.equals(newOptimalHostingParticipant)) { // Nothing to do as it is already optimal:
+			return;
+		}
+
+		// Swap hosting participants:
+		currentHostingParticipant.setHost(false); // currentHostingParticipant is never null
+		newOptimalHostingParticipant.setHost(true);
 	}
 
 	@Override
 	public int sendTeamMessages(String uuid, final List<String> teamKeys, final TeamArrangementMessageFormatter messageFormatter) {
+
+		LOGGER.info("Send team-arrangement email messages for {} teams for dinner {}", teamKeys.size(), uuid);
 
 		Set<String> teamKeysAsSet = convertTeamKeysToSet(teamKeys);
 
@@ -366,6 +427,8 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	public int sendDinnerRouteMessages(final String uuid, final List<String> selectedTeamKeys,
 			final DinnerRouteMessageFormatter dinnerRouteFormatter) {
+
+		LOGGER.info("Send final dinner-route email messages for {} teams for dinner {}", selectedTeamKeys.size(), uuid);
 
 		Set<String> teamKeys = convertTeamKeysToSet(selectedTeamKeys);
 
@@ -497,9 +560,14 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	@Transactional
 	public void updateParticipant(String participantKey, Participant participant) {
+
+		LOGGER.info("Update participant {}", participantKey);
+
 		Participant existingParticipant = repository.loadParticipant(participantKey);
 
 		// Note: Currently concurrent modifications are not checked
+
+		LOGGER.debug("Updating attributes of loaded participant {}", existingParticipant);
 
 		existingParticipant.setGender(participant.getGender());
 		existingParticipant.setEmail(participant.getEmail());
@@ -520,6 +588,8 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	public void updateMealTimes(String uuid, Set<MealClass> meals) {
 		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
 		Set<MealClass> existingMeals = dinner.getConfiguration().getMealClasses();
+
+		LOGGER.info("Update {} meal-times for dinner {}", existingMeals.size(), uuid);
 
 		if (existingMeals.size() != meals.size()) {
 			throw new IllegalStateException("Expected " + meals.size() + " meals to be found, but there were  " + existingMeals.size());

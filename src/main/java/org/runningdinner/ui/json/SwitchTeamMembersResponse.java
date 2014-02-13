@@ -9,7 +9,7 @@ import org.runningdinner.core.Team;
 
 /**
  * The response of a AJAX JSON request in which the members of two teams are switched.<br>
- * It contains the new team-teammembrer assignments as a result on success, or an error message.
+ * It contains the new team-teammember assignments as a result on success, or an error message.
  * 
  * @author i01002492
  * 

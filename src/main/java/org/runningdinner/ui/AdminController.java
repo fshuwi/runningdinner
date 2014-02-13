@@ -1,6 +1,6 @@
 package org.runningdinner.ui;
 
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,7 +29,6 @@ import org.runningdinner.ui.dto.GenderOption;
 import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.runningdinner.ui.dto.SendTeamArrangementsModel;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
-import org.runningdinner.ui.dto.TeamAdministrationModel;
 import org.runningdinner.ui.json.SingleTeamParticipantChange;
 import org.runningdinner.ui.json.StandardJsonResponse;
 import org.runningdinner.ui.json.SwitchTeamMembers;
@@ -57,6 +56,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+/**
+ * Provides all methods for managing a created running dinner.<br>
+ * Every method gets the UUID of a running dinner from the request path and loads then the appropriate data (similar to Doodle). Thus we use
+ * currently no sessions at all.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 @Controller
 public class AdminController extends AbstractBaseController {
 
@@ -71,7 +78,7 @@ public class AdminController extends AbstractBaseController {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+		DateFormat dateFormat = CoreUtil.getDefaultDateFormat();
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 		binder.registerCustomEditor(Set.class, "meals", new MealClassPropertyEditor());
@@ -99,7 +106,7 @@ public class AdminController extends AbstractBaseController {
 		List<Team> regularTeams = null;
 		List<Participant> notAssignedParticipants = null;
 
-		TeamAdministrationModel teamAdminModel = null;
+		// TeamAdministrationModel teamAdminModel = null;
 		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		if (numberOfTeamsForDinner > 0) {
@@ -107,7 +114,7 @@ public class AdminController extends AbstractBaseController {
 			regularTeams = runningDinnerService.loadRegularTeamsWithVisitationPlanFromDinner(uuid);
 			notAssignedParticipants = runningDinnerService.loadNotAssignableParticipantsOfDinner(uuid);
 
-			teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), true);
+			// teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), true);
 		}
 		else {
 			// Team/Dinner-plan not yet persisted, generate new one and persist it to DB:
@@ -122,23 +129,23 @@ public class AdminController extends AbstractBaseController {
 				notAssignedParticipants = runningDinnerService.loadAllParticipantsOfDinner(uuid);
 			}
 
-			teamAdminModel = TeamAdministrationModel.fromFirstTeamGeneration(regularTeams.size() > 0);
+			// teamAdminModel = TeamAdministrationModel.fromFirstTeamGeneration(regularTeams.size() > 0);
 		}
 
 		model.addAttribute("regularTeams", regularTeams);
 		model.addAttribute("notAssignedParticipants", notAssignedParticipants);
 		model.addAttribute("uuid", uuid);
-		model.addAttribute("teamAdministration", teamAdminModel);
+		// model.addAttribute("teamAdministration", teamAdminModel);
 
 		return getFullViewName("teams");
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
 	public String showSendTeamArrangementsForm(HttpServletRequest request,
-			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
-		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate();
+		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate(messages, locale);
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
 
@@ -171,7 +178,7 @@ public class AdminController extends AbstractBaseController {
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.POST)
 	public String doSendTeamArrangements(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("sendTeamsModel") SendTeamArrangementsModel sendTeamsModel, BindingResult bindingResult, Model model,
-			final RedirectAttributes redirectAttributes) {
+			final RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		adminValidator.validateSendMessagesModel(sendTeamsModel, bindingResult);
@@ -183,7 +190,7 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedTeams(),
-				sendTeamsModel.getTeamArrangementMessageFormatter(Locale.GERMAN));
+				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale));
 
 		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
@@ -191,10 +198,10 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.GET)
 	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
-			Model model) {
+			Model model, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
-		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate();
+		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate(messages, locale);
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
 
@@ -212,7 +219,7 @@ public class AdminController extends AbstractBaseController {
 	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.POST)
 	public String doSendDinnerRoutes(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("sendDinnerRoutesModel") SendDinnerRoutesModel sendDinnerRoutesModel, BindingResult bindingResult, Model model,
-			final RedirectAttributes redirectAttributes) {
+			final RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		if (request.getParameter("cancel") != null) {

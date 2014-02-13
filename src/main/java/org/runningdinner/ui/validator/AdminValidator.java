@@ -20,6 +20,7 @@ public class AdminValidator extends CommonBaseValidator {
 	private UuidGenerator uuidGenerator;
 
 	/**
+	 * Performs a pre-validation whether a passed dinner-UUID is valid after all. Thus we avoid passing an invalid UUID to the database.
 	 * 
 	 * @param uuid
 	 * @throws InvalidUuidException If passed uuid is not valid
@@ -30,15 +31,26 @@ public class AdminValidator extends CommonBaseValidator {
 		}
 	}
 
-	public void validateNaturalKeys(Collection<String> naturalKeys) {
-		for (String naturalKey : naturalKeys) {
-			validateNaturalKey(naturalKey);
-		}
-	}
-
+	/**
+	 * Performs a pre-validation whether a passed naturalKey of a database-entity is valid after all. Thus we avoid passing an invalid
+	 * entity key to the database.
+	 * 
+	 * @param naturalKey
+	 */
 	public void validateNaturalKey(final String naturalKey) {
 		if (!AbstractEntity.isValid(naturalKey)) {
 			throw new IllegalArgumentException("Invalid natural key passed!");
+		}
+	}
+
+	/**
+	 * Convenience method for validation of several natural keys. See {@link validateNaturalKey}
+	 * 
+	 * @param naturalKeys
+	 */
+	public void validateNaturalKeys(Collection<String> naturalKeys) {
+		for (String naturalKey : naturalKeys) {
+			validateNaturalKey(naturalKey);
 		}
 	}
 
@@ -48,19 +60,19 @@ public class AdminValidator extends CommonBaseValidator {
 	}
 
 	public void validateParticipant(Participant participant, Errors errors) {
-		// TODO i18n
-		ValidationUtils.rejectIfEmpty(errors, "name.firstnamePart", "TODO", "Vorname fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "name.lastname", "TODO", "Nachname fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.street", "TODO", "Strasse fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.streetNr", "TODO", "Strassen-Nr fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.zip", "TODO", "PLZ fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "numSeats", "TODO", "Anzahl Plätze fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "email", "TODO", "Email fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "name.firstnamePart", "error.required.firstname", "Vorname fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "name.lastname", "error.required.lastname", "Nachname fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "address.street", "error.required.street", "Strasse fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "address.streetNr", "error.required.streetnr", "Strassen-Nr fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "address.zip", "error.required.zip", "PLZ fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "numSeats", "error.required.numseats");
+		ValidationUtils.rejectIfEmpty(errors, "email", "error.required.email");
 
 		if (StringUtils.isNotEmpty(participant.getEmail())) {
 			if (!participant.getEmail().contains("@")) {
-				errors.rejectValue("email", "TODO", "Ungueltige EMail");
+				errors.rejectValue("email", "error.invalid.email");
 			}
 		}
+
 	}
 }

@@ -55,6 +55,7 @@
 			<beans:map>
 				<beans:entry key="org.runningdinner.exceptions.DinnerNotFoundException" value="error/errorDinnerNotFound" />
 				<beans:entry key="org.runningdinner.exceptions.InvalidUuidException" value="error/errorInvalidUuid" />
+				<beans:entry key="java.lang.UnsupportedOperationException" value="error/errorUnsupported" />
 				<beans:entry key="java.lang.RuntimeException" value="error/errorDefault" />
 			</beans:map>
 		</beans:property>

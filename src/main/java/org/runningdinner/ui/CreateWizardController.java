@@ -1,7 +1,7 @@
 package org.runningdinner.ui;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -13,6 +13,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
@@ -46,6 +47,13 @@ import org.springframework.web.util.WebUtils;
 
 // TODO: Remove parsing config from session attributes!
 
+/**
+ * This controller acts as the landing page and contains all methods for creating a new running dinner.<br>
+ * The state of the wizard is hold in a session object during execution of wizard.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 @Controller
 @SessionAttributes("createWizardModel")
 public class CreateWizardController extends AbstractBaseController {
@@ -66,7 +74,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 	@InitBinder
 	public void initBinder(WebDataBinder binder) {
-		SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy");
+		DateFormat dateFormat = CoreUtil.getDefaultDateFormat();
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
 		binder.registerCustomEditor(Set.class, "meals", new MealClassPropertyEditor());

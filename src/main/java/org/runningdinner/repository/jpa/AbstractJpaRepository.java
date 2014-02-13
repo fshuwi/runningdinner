@@ -34,9 +34,9 @@ public class AbstractJpaRepository {
 		if (CoreUtil.isEmpty(resultList)) {
 			return null;
 		}
-		if (resultList.size() != 1) {
-			throw new NonUniqueResultException("Found more than one entity");
-		}
+		// if (resultList.size() != 1) {
+		// throw new NonUniqueResultException("Found more than one entity");
+		// }
 		return resultList.get(0);
 	}
 

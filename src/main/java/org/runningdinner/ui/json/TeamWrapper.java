@@ -8,7 +8,7 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 
 /**
- * Wraps up the attributes of a team that is used for displaying the results in a JSON-AJaX reqest
+ * Wraps up the attributes of a team that is used for displaying the results in a JSON-AJAX reqest
  * 
  * @author i01002492
  * 

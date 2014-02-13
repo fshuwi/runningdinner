@@ -52,6 +52,7 @@
  	<definition name="view-admin-menu" template="/WEB-INF/views/admin/admin-menu.jsp" />
  	<definition name="view-status-info" template="/WEB-INF/views/common/statusView.jsp" />
  	
+ 	<!-- Concrete template mappings -->
  	<definition name="wizard/wizard-start" extends="template-welcome">
   		<put-attribute name="content" value="/WEB-INF/views/wizard/wizard-start.jsp" />
  	</definition>

@@ -6,6 +6,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
 
+/**
+ * As Spring's exception handler is not capable of dealing with HTTP error status codes we provide our own controller to do so.<br>
+ * The status codes are mapped from web.xml to this view's request methods.
+ * 
+ * @author Clemens Stich
+ * 
+ */
 @Controller
 public class StatusCodeErrorController {
 

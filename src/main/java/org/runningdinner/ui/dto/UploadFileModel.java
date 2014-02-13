@@ -27,7 +27,8 @@ import org.runningdinner.core.converter.config.SequenceColumnConfig;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
- * Used in create running dinner wizard for uploading files
+ * Used in create-running-dinner-wizard for uploading files. Contains mainly the logic for creating a valid ParsingConfiguration object
+ * based on the user's custom mapping selections.
  * 
  * @author Clemens Stich
  * 
