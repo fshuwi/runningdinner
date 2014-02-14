@@ -46,12 +46,16 @@
 				<label for="hostMessagePartTemplate">Nachricht für Gastgeber</label>
 				<span class="help-block">Dieser Block wird weiter oben unter {host} eingefügt</span>
 				<form:textarea path="hostMessagePartTemplate" id="hostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control" />
+				<h6 class="pull-right" id="hostMessageTemplateCounter">200 characters remaining</h6>
+				<form:errors path="hostMessagePartTemplate"/>
 			</div>
 			
 			<div class="form-group">
 				<label for="nonHostMessagePartTemplate">Nachricht für Nicht-Gastgeber</label>
 				<span class="help-block">Dieser Block wird weiter oben unter {host} eingefügt</span>
 				<form:textarea path="nonHostMessagePartTemplate" id="nonHostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control" />
+				<h6 class="pull-right" id="nonHostMessageTemplateCounter">200 characters remaining</h6>
+				<form:errors path="nonHostMessagePartTemplate"/>
 			</div>
 		</div>
 		

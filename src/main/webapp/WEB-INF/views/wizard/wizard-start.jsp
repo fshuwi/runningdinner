@@ -19,7 +19,7 @@
 			
 		<bs:inputField name="title" label="${titleLabel}" placeholder="${titleLabel}" />
 		
-		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" />
+		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" inputColClass="col-xs-2" />
 		
 		<bs:inputField name="city" label="${cityLabel}" placeholder="${cityLabel}" helpForLabelInline="(optional)"/>
  	  
@@ -27,7 +27,7 @@
   			<div class="panel-heading"><h4 class="panel-title">Erweiterte Dinner Optionen</h4></div>
   			<div class="panel-body">
   
-  				<bs:inputField name="teamSize" label="Teamgröße" inputColClass="col-xs-2" />
+  				<bs:inputField name="teamSize" label="Teamgröße" inputColClass="col-xs-1" />
 
 				<label>Speisen</label>
 				<span class="help-block"><spring:message code="label.mealsinfo" /></span>

@@ -60,11 +60,11 @@ public class AdminValidator extends CommonBaseValidator {
 	}
 
 	public void validateParticipant(Participant participant, Errors errors) {
-		ValidationUtils.rejectIfEmpty(errors, "name.firstnamePart", "error.required.firstname", "Vorname fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "name.lastname", "error.required.lastname", "Nachname fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.street", "error.required.street", "Strasse fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.streetNr", "error.required.streetnr", "Strassen-Nr fehlt");
-		ValidationUtils.rejectIfEmpty(errors, "address.zip", "error.required.zip", "PLZ fehlt");
+		ValidationUtils.rejectIfEmpty(errors, "name.firstnamePart", "error.required.firstname");
+		ValidationUtils.rejectIfEmpty(errors, "name.lastname", "error.required.lastname");
+		ValidationUtils.rejectIfEmpty(errors, "address.street", "error.required.street");
+		ValidationUtils.rejectIfEmpty(errors, "address.streetNr", "error.required.streetnr");
+		ValidationUtils.rejectIfEmpty(errors, "address.zip", "error.required.zip");
 		ValidationUtils.rejectIfEmpty(errors, "numSeats", "error.required.numseats");
 		ValidationUtils.rejectIfEmpty(errors, "email", "error.required.email");
 

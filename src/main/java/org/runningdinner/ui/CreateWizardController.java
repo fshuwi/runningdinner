@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
@@ -23,7 +22,7 @@ import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
-import org.runningdinner.ui.dto.GenderAspectOption;
+import org.runningdinner.ui.dto.SelectOption;
 import org.runningdinner.ui.dto.UploadFileModel;
 import org.runningdinner.ui.util.MealClassPropertyEditor;
 import org.runningdinner.ui.validator.CreateWizardValidator;
@@ -77,7 +76,7 @@ public class CreateWizardController extends AbstractBaseController {
 		DateFormat dateFormat = CoreUtil.getDefaultDateFormat();
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-		binder.registerCustomEditor(Set.class, "meals", new MealClassPropertyEditor());
+		binder.registerCustomEditor(List.class, "meals", new MealClassPropertyEditor());
 		// These fields are modified only on server-side:
 		binder.setDisallowedFields("uploadedFileLocation", "newUuid", "administrationUrl");
 	}
@@ -289,6 +288,15 @@ public class CreateWizardController extends AbstractBaseController {
 		createWizardModel.setAdministrationUrl(adminUrlGenerator.constructAdministrationUrl(uuid, request));
 	}
 
+	// @ModelAttribute("genderAspects")
+	// public List<GenderAspectOption> popuplateGenderAspects(Locale locale) {
+	// List<GenderAspectOption> result = new ArrayList<GenderAspectOption>(3);
+	// result.add(new GenderAspectOption(GenderAspect.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
+	// result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
+	// result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
+	// return result;
+	// }
+
 	/**
 	 * Used for select-box in first wizard step
 	 * 
@@ -296,11 +304,12 @@ public class CreateWizardController extends AbstractBaseController {
 	 * @return
 	 */
 	@ModelAttribute("genderAspects")
-	public List<GenderAspectOption> popuplateGenderAspects(Locale locale) {
-		List<GenderAspectOption> result = new ArrayList<GenderAspectOption>(3);
-		result.add(new GenderAspectOption(GenderAspect.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
-		result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
-		result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
+	public List<SelectOption> popuplateGenderAspects(Locale locale) {
+		List<SelectOption> result = new ArrayList<SelectOption>(3);
+		result.add(SelectOption.newGenderAspectOption(GenderAspect.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
+		result.add(SelectOption.newGenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
+		result.add(SelectOption.newGenderAspectOption(GenderAspect.FORCE_SAME_GENDER,
+				messages.getMessage("select.gender.same", null, locale)));
 		return result;
 	}
 

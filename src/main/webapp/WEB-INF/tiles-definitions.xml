@@ -51,6 +51,7 @@
  	<definition name="view-participants" template="/WEB-INF/views/common/participantsListView.jsp" />
  	<definition name="view-admin-menu" template="/WEB-INF/views/admin/admin-menu.jsp" />
  	<definition name="view-status-info" template="/WEB-INF/views/common/statusView.jsp" />
+ 	<definition name="view-mealtimes" template="/WEB-INF/views/common/mealtimes.jsp" />
  	
  	<!-- Concrete template mappings -->
  	<definition name="wizard/wizard-start" extends="template-welcome">

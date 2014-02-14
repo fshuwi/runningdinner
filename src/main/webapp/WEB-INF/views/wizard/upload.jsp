@@ -21,7 +21,7 @@
 			<div class="panel-body">
 				<p class="help-block">Hier kann das Format der Datei mit den Teilnehmern an die eigenen Beduerfnisse angepasst werden.</p>
 			
-				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-2" inputTooltip="Ab welcher Zeile beginnen die 'eigentlichen' Daten" />
+				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-1" inputTooltip="Ab welcher Zeile beginnen die 'eigentlichen' Daten" />
 			
 				<table class="table table-striped table-bordered">
 					<thead>

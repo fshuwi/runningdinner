@@ -3,22 +3,17 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-<h2>Edit Meal Times</h2>
+<h3 class="contentheadline">Edit Meal Times</h3>
 
 <div class="well">
 	<form:form method="post" id="editMealTimesForm" commandName="editMealTimesModel" htmlEscape="true" onsubmit="saveMealTimesToModel()" role="form">
-		<c:forEach items="${editMealTimesModel.meals}" var="meal" varStatus="loopCounter">
-			<div class="form-group">
-				<div class="row">
-					<div class="col-xs-3">
-						<label id="meal-${loopCounter.count}" class="control-label meal-label">${meal.label}</label>
-						<input type="text" class="form-control meal-time" value="<fmt:formatDate type="time" value="${meal.time}" timeStyle="SHORT" />" id="time-${loopCounter.count}"/>
-					</div>
-				</div>
-			</div>
-		</c:forEach>
-			
+		
+		<tiles:insertDefinition name="view-mealtimes">
+			<tiles:putAttribute name="meals" value="${editMealTimesModel.meals}" />
+		</tiles:insertDefinition>
+					
 		<form:hidden path="meals" id="meals"/>
 			
 		<input type="submit" class="btn btn-primary" value="Speichern" name="save" />

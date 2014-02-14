@@ -6,7 +6,11 @@
 
 <script>
 	$(document).ready(function() {
+			
 		$('.doTooltip').tooltip();
+		
+		 $("#date").datepicker({ dateFormat: "dd.mm.yy" });	
+		 $("#date").datepicker($.datepicker.regional[ "de" ]);
 	});
 	
 	function addMeal() {

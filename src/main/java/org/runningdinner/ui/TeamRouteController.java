@@ -4,9 +4,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.runningdinner.core.Team;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TeamRouteBuilder;
 import org.runningdinner.service.email.FormatterUtil;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 @Controller
 public class TeamRouteController {
 
-	private RunningDinnerServiceImpl runningDinnerService;
+	private RunningDinnerService runningDinnerService;
 
 	private AdminValidator adminValidator;
 
-	@RequestMapping(value = "/team/{key}/route", method = RequestMethod.GET)
+	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
 	public String showTeamDinnerRoute(@PathVariable("key") String teamKey, Model model) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey));
@@ -45,7 +45,7 @@ public class TeamRouteController {
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
+	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
 

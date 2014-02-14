@@ -14,9 +14,7 @@
 	
 	<import resource="property-configuration.xml" />
 	<import resource="app-context.xml" />	
-	
-	<bean id="emailMessageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="emailmessages" />
-		    	 
+	    	 
     <bean id="runningDinnerCreatedMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
     		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />
     		
@@ -25,8 +23,7 @@
     	 
     <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
     	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate"
-    	p:baseMessageTemplate-ref="baseMessageTemplate" p:emailMessageSource-ref="emailMessageSource" 
-    	p:testEmailRecipient="clemensstich@googlemail.com"/>
+    	p:baseMessageTemplate-ref="baseMessageTemplate" p:messageSource-ref="messageSource" p:testEmailRecipient=""/>
     				
     <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:adminUrlGenerator-ref="adminUrlGenerator" p:emailService-ref="emailService"
     />

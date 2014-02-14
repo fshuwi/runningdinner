@@ -24,7 +24,7 @@ public class TeamArrangementMessageFormatter {
 	private MessageSource messageSource;
 	private Locale locale;
 
-	public TeamArrangementMessageFormatter(MessageSource messageSource, Locale locale) {
+	public TeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale) {
 		this(messageSource, locale, null);
 	}
 

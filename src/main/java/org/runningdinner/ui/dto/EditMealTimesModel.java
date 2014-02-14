@@ -1,20 +1,20 @@
 package org.runningdinner.ui.dto;
 
 import java.util.Date;
-import java.util.Set;
+import java.util.List;
 
 import org.runningdinner.core.MealClass;
 import org.runningdinner.ui.util.MealClassHelper;
 
 public class EditMealTimesModel {
 
-	private Set<MealClass> meals;
+	private List<MealClass> meals;
 
-	public Set<MealClass> getMeals() {
+	public List<MealClass> getMeals() {
 		return meals;
 	}
 
-	public void setMeals(Set<MealClass> meals) {
+	public void setMeals(List<MealClass> meals) {
 		this.meals = meals;
 	}
 

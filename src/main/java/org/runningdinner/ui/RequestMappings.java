@@ -9,6 +9,7 @@ public class RequestMappings {
 	public static final String ADMIN_OVERVIEW = ADMIN_URL_PATTERN;
 	public static final String SHOW_TEAMS = ADMIN_URL_PATTERN + "/teams";
 	public static final String SEND_TEAM_MAILS = ADMIN_URL_PATTERN + "/teams/mail";
+	public static final String EXPORT_TEAMS = ADMIN_URL_PATTERN + "/teams/export";
 	public static final String SEND_PARTICIPANT_MAILS = ADMIN_URL_PATTERN + "/participants/mail";
 	public static final String SEND_DINNERROUTES_MAIL = ADMIN_URL_PATTERN + "/dinnerroute/mail";
 	public static final String SHOW_PARTICIPANTS = ADMIN_URL_PATTERN + "/participants";
@@ -22,4 +23,7 @@ public class RequestMappings {
 	public static final String WIZARD_STEP = "/wizard";
 	public static final String WIZARD_UPLOAD = "/wizard-upload";
 	public static final String WIZARD_FINISH = "/finish";
+
+	// *************** Private Team request mappings ****************** //
+	public static final String TEAM_DINNER_ROUTE = "/team/{key}/route";
 }

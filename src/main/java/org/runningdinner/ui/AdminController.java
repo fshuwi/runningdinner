@@ -17,6 +17,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Gender;
 import org.runningdinner.core.GeneratedTeamsResult;
+import org.runningdinner.core.MealClass;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
@@ -25,7 +26,7 @@ import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.ui.dto.EditMealTimesModel;
-import org.runningdinner.ui.dto.GenderOption;
+import org.runningdinner.ui.dto.SelectOption;
 import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.runningdinner.ui.dto.SendTeamArrangementsModel;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
@@ -81,7 +82,7 @@ public class AdminController extends AbstractBaseController {
 		DateFormat dateFormat = CoreUtil.getDefaultDateFormat();
 		dateFormat.setLenient(false);
 		binder.registerCustomEditor(Date.class, new CustomDateEditor(dateFormat, true));
-		binder.registerCustomEditor(Set.class, "meals", new MealClassPropertyEditor());
+		binder.registerCustomEditor(List.class, "meals", new MealClassPropertyEditor());
 	}
 
 	@RequestMapping(value = RequestMappings.ADMIN_OVERVIEW, method = RequestMethod.GET)
@@ -235,7 +236,7 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedTeams(),
-				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(Locale.GERMAN));
+				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN));
 
 		return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
@@ -266,7 +267,7 @@ public class AdminController extends AbstractBaseController {
 		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		EditMealTimesModel editMealTimesModel = new EditMealTimesModel();
-		editMealTimesModel.setMeals(dinner.getConfiguration().getMealClasses());
+		editMealTimesModel.setMeals(new ArrayList<MealClass>(dinner.getConfiguration().getMealClasses()));
 
 		model.addAttribute("editMealTimesModel", editMealTimesModel);
 		model.addAttribute("uuid", uuid);
@@ -296,7 +297,7 @@ public class AdminController extends AbstractBaseController {
 		Date dateOfDinner = dinner.getDate();
 		MealClassHelper.applyDateToMealTimes(editMealTimesModel.getMeals(), dateOfDinner);
 
-		runningDinnerService.updateMealTimes(uuid, editMealTimesModel.getMeals());
+		runningDinnerService.updateMealTimes(uuid, new HashSet<MealClass>(editMealTimesModel.getMeals()));
 
 		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, "Meal-Times successfully edited!"));
@@ -343,6 +344,12 @@ public class AdminController extends AbstractBaseController {
 				SimpleStatusMessage.SUCCESS_STATUS, "Participant successfully edited!"));
 	}
 
+	@RequestMapping(value = RequestMappings.EXPORT_TEAMS, method = RequestMethod.GET)
+	public String exportTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
 	/**
 	 * Used for select-box when editing participant
 	 * 
@@ -350,11 +357,11 @@ public class AdminController extends AbstractBaseController {
 	 * @return
 	 */
 	@ModelAttribute("genders")
-	public List<GenderOption> popuplateGenderAspects(Locale locale) {
-		List<GenderOption> result = new ArrayList<GenderOption>(3);
-		result.add(new GenderOption(Gender.UNDEFINED, "Unbekannt"));
-		result.add(new GenderOption(Gender.MALE, "männlich"));
-		result.add(new GenderOption(Gender.FEMALE, "weiblich"));
+	public List<SelectOption> popuplateGenderAspects(Locale locale) {
+		List<SelectOption> result = new ArrayList<SelectOption>(3);
+		result.add(SelectOption.newGenderOption(Gender.UNDEFINED, messages.getMessage("label.gender.unknown", null, locale)));
+		result.add(SelectOption.newGenderOption(Gender.MALE, messages.getMessage("label.gender.male", null, locale)));
+		result.add(SelectOption.newGenderOption(Gender.FEMALE, messages.getMessage("label.gender.female", null, locale)));
 		return result;
 	}
 

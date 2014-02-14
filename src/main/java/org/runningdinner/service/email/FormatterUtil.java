@@ -24,11 +24,12 @@ public class FormatterUtil {
 	public static final String HOST = "\\{host\\}";
 
 	public static final String ROUTE = "\\{route\\}";
+	public static final String HOSTADDRESS = "\\{hostaddress\\}";
 
 	public static final String NEWLINE = "\r\n";
 	public static final String TWO_NEWLINES = NEWLINE + NEWLINE;
 
-	public static final String DEFAULT_TIME_FORMAT = "HH:mm";
+	public static final String DEFAULT_TIME_FORMAT = CoreUtil.getDefaultTimeFormat();
 
 	/**
 	 * Returns a comma separated string with all members of the passed team

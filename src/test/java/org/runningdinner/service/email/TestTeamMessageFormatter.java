@@ -17,8 +17,8 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.core.ParticipantName;
 import org.runningdinner.core.Team;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -40,12 +40,16 @@ public class TestTeamMessageFormatter {
 	private String time2 = "21:00";
 	private SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
 
-	@Autowired
 	protected MessageSource messages;
 
 	@Before
 	public void setUp() {
 		Locale locale = Locale.GERMAN;
+		// MessageSource is defined in web-context... just load it manually:
+		ResourceBundleMessageSource tmp = new ResourceBundleMessageSource();
+		tmp.setBasename("messages");
+		messages = tmp;
+
 		formatter = new TeamArrangementMessageFormatter(messages, locale, dateFormat);
 		formatter.setMessageTemplate("{firstname} {lastname}/{meal}/{mealtime}/{host}/{partner}");
 		formatter.setNonHostMessagePartTemplate("{partner}");

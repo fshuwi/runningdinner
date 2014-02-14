@@ -38,29 +38,26 @@
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
-<div class="col-xs-4">
-	<h2>Dinner</h2>
-	<a href="${teamsUrl}">Teameinteilung</a><br/>
-	<a href="${overviewUrl}">Überblick</a><br/>
-	<a href="${timesUrl}">Zeitplaene</a><br/>
-	<a href="${optionsUrl}">Dinner-Optionen</a>
-</div> 
 
-<div class="col-xs-4">
-	<h2>Teilnehmer</h2>
-	<a href="${participantsUrl}">Teilnehmerliste anschauen</a><br/>
-	<a href="${participantsUploadUrl}">Neue / Geaenderte Teilnehmerliste hochladen</a><br/>
-	<a href="${teamsExchangeUrl}">Team austauschen</a><br/>
-</div>
+<h3 class="contentheadline">Navigation</h3><hr />
+<ul class="nav nav-pills nav-stacked">
+    <li class="active"><a href="${overviewUrl}">Überblick</a></li>
+    <li><a href="${teamsUrl}">Teameinteilung</a></li>
+    <li><a href="${timesUrl}">Zeitpläne</a></li>
+</ul>
 
-<div class="col-xs-4">
-	<h2>Benachrichtigungen</h2>
-	<a href="${participantsMailUrl}">Rundmail an alle Teilnehmer</a><br/>
-	<a href="${teamsMailUrl}?selectAll=true">Teameinteilungen verschicken</a><br />
-	<a href="${dinnerRouteMailUrl}">Dinnerplaene verschicken</a><br />
-</div>
 
-<div class="col-xs-12">
-	<hr style="margin-bottom:15px;"/>
-</div>
+<hr/> <!-- <h3>Teilnehmer</h3> -->
+<ul class="nav nav-pills nav-stacked">
+    <li><a href="${participantsUrl}">Teilnehmerliste</a></li>
+    <li><a href="${teamsExchangeUrl}">Team austauschen</a></li>
+</ul>
 
+
+<!-- <h3>Benachrichtigungen</h3><hr style="margin:0 ! important;"/>-->
+<hr/>
+<ul class="nav nav-pills nav-stacked">
+    <li><a href="${participantsMailUrl}">Rundmail an alle Teilnehmer</a></li>
+    <li><a href="${teamsMailUrl}">Teameinteilungen verschicken</a></li>
+    <li><a href="${dinnerRouteMailUrl}">Dinner-Routen verschicken</a></li>
+</ul>

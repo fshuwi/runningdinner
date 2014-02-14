@@ -1,8 +1,8 @@
 package org.runningdinner.ui.validator;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -11,7 +11,7 @@ import org.runningdinner.core.MealClass;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
-import org.runningdinner.service.impl.RunningDinnerServiceImpl;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.UploadFileModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 public class CreateWizardValidator extends CommonBaseValidator implements Validator {
 
-	private RunningDinnerServiceImpl runningDinnerService;
+	private RunningDinnerService runningDinnerService;
 
 	@Override
 	public boolean supports(Class<?> clazz) {
@@ -61,7 +61,7 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 	 * @param meals
 	 * @param errors
 	 */
-	private void validateMeals(Set<MealClass> meals, Errors errors) {
+	private void validateMeals(Collection<MealClass> meals, Errors errors) {
 		if (CoreUtil.isEmpty(meals) || meals.size() < 2) {
 			errors.rejectValue("meals", "error.meals.invalidsize");
 		}
@@ -154,7 +154,7 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerServiceImpl runningDinnerService) {
+	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
 

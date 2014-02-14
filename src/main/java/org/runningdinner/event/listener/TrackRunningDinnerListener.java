@@ -8,7 +8,7 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 
 /**
- * Primitive mechanism for tracking the usage of running dinners: This class uses a special configured logger to track each generated
+ * Primitive mechanism for tracking the usage of running dinner app: This class uses a special configured logger to track each generated
  * running dinner. Should however be sufficient for now in a first go.
  * 
  * @author Clemens Stich

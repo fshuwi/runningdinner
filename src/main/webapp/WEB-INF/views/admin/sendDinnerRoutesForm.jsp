@@ -22,9 +22,26 @@
 				<label for="message">Nachricht</label>
 				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {route}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="counter">3000 characters remaining</h6>
+				<h6 class="pull-right" id="messageCounter">3000 characters remaining</h6>
 				<form:errors path="message"/>
 			</div>
+			
+			<div class="form-group">
+				<label for="selfTemplate">Eigene Speisen-Beschreibung in der Route</label>
+				<span class="help-block">Dieser Block wird weiter oben als Teil von {route} eingefügt. Benutze hier folgende Templates: {firstname}, {lastname}, {meal}, {mealtime}</span>
+				<form:textarea path="selfTemplate" id="selfTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
+				<h6 class="pull-right" id="selfMessageCounter">200 characters remaining</h6>
+				<form:errors path="selfTemplate"/>
+			</div>
+			
+			<div class="form-group">
+				<label for="hostsTemplate">Speisen-Beschreibung der zu besuchenden Gastgeber in der Route</label>
+				<span class="help-block">Dieser Block wird weiter oben als Teil von {route} eingefügt. Benutze hier folgende Templates: {firstname}, {lastname}, {meal}, {mealtime}, {hostaddress}</span>
+				<form:textarea path="hostsTemplate" id="hostsTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
+				<h6 class="pull-right" id="hostsTemplateCounter">200 characters remaining</h6>
+				<form:errors path="hostsTemplate"/>
+			</div>
+			
 		</div>
 		
 		<div>

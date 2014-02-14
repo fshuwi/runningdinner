@@ -1,5 +1,6 @@
 body {
-	margin-top: 75px;
+	/*margin-top: 75px;*/
+	padding: 5px;
 }
 
 .inactiveWizardStep {
@@ -8,3 +9,26 @@ body {
 .activeWizardStep {
 	color: #428BCA;
 }
+
+/* Admin Menu */
+.nav-pills>li>a {
+	padding: 5px 10px;
+}
+
+.my-fluid-container {
+  padding-left: 15px;
+  padding-right: 15px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+
+h3 .contentheadline {
+	margin-top:0 ! important;
+}
+
+/*
+.container {
+	padding: 0;
+}
+*/

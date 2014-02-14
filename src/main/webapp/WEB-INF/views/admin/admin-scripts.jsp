@@ -11,7 +11,7 @@
 		// TODO: Check server workflow (Enable drag drop or not!))
 		setUpDragDrop();
 	
-		$(".counted").charCounter(3000,{container: "#counter"});
+		$(".counted").charCounter(3000,{container: "#counter"});	
 	});
 	
 	function toggleTeamSelection() {

@@ -11,6 +11,9 @@
 <spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="teamsFinalizeUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
+<spring:url value="<%=RequestMappings.EXPORT_TEAMS%>" var="teamsExportUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
+</spring:url>
 
 
 <spring:message code="tooltip.teams.finalize.button" var="sendMessagesTooltip"/>
@@ -24,8 +27,8 @@
 <h2>Team-Einteilung</h2>
 
 <ul class="nav nav-tabs">
-	<li class="active"><a href="#regular" data-toggle="tab">Regulaere Teams</a></li>
-	<li><a href="#remainder" data-toggle="tab">Uebrig gebliebene Teilnehmer</a></li>
+	<li class="active"><a href="#regular" data-toggle="tab">Reguläre Teams</a></li>
+	<li><a href="#remainder" data-toggle="tab">übrig gebliebene Teilnehmer</a></li>
 </ul>
 
 <div class="tab-content" id="teamTabs">
@@ -34,7 +37,7 @@
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
 				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
-					<a class="btn btn-info btn-sm" href="#${uuid}">Export...</a>
+					<a class="btn btn-info btn-sm" href="${teamsExportUrl}" target="_blank">Export...</a>
 				</div>
 			
 				<table class="table table-hover">
@@ -110,7 +113,7 @@
 							   </td>
 							   
 							   <td>
-							   		<spring:url value="/team/{key}/route" var="teamRoutePreviewUrl" htmlEscape="true">
+							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE%>" var="teamRoutePreviewUrl" htmlEscape="true">
 										<spring:param name="key" value="${team.naturalKey}" />
 									</spring:url>
 								   <div><a class='btn btn-info btn-sm' href="${teamRoutePreviewUrl}"><span class="glyphicon glyphicon-eye-open"></span> Vorschau</a></div>

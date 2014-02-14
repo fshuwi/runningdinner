@@ -28,7 +28,7 @@ public class EmailService {
 	private SimpleMailMessage runningDinnerCreatedMessageTemplate;
 	private SimpleMailMessage baseMessageTemplate;
 
-	private MessageSource emailMessageSource;
+	private MessageSource messageSource;
 
 	/**
 	 * Used for sending all mails to the same recipient (useful in test/Dev scenarios when real mail interaction shall be tested)
@@ -47,7 +47,7 @@ public class EmailService {
 
 		SimpleMailMessage message = new SimpleMailMessage(runningDinnerCreatedMessageTemplate);
 		message.setTo(email);
-		String text = emailMessageSource.getMessage("create.runningdinner.template", new Object[] { administrationUrl }, Locale.GERMAN);
+		String text = messageSource.getMessage("message.template.runningdinner.created", new Object[] { administrationUrl }, Locale.GERMAN);
 		message.setText(text);
 
 		LOGGER.info("Send running dinner created mail with size of {} characters to {}", text.length(), email);
@@ -199,8 +199,8 @@ public class EmailService {
 		this.baseMessageTemplate = baseMessageTemplate;
 	}
 
-	public void setEmailMessageSource(MessageSource emailMessageSource) {
-		this.emailMessageSource = emailMessageSource;
+	public void setMessageSource(MessageSource messageSource) {
+		this.messageSource = messageSource;
 	}
 
 	public void setTestEmailRecipient(String testEmailRecipient) {

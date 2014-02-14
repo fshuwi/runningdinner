@@ -4,5 +4,6 @@
 <script src='<c:url value="/resources/js/bootstrap.min.js"/>'></script>
 <script src='<c:url value="/resources/js/common.js"/>'></script>
 <script src='<c:url value="/resources/js/jquery-ui-1.10.4.custom.min.js"/>'></script>
+<script src='<c:url value="/resources/js/jquery.ui.datepicker-de.js"/>'></script>
 
-<script src='<c:url value="/resources/js/jquery.dataTables.min.js"/>'></script> 
+<!-- <script src='<c:url value="/resources/js/jquery.dataTables.min.js"/>'></script> -->

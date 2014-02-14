@@ -1,9 +1,9 @@
 package org.runningdinner.ui.dto;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.util.List;
 
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
@@ -28,7 +28,7 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 
 	private GenderAspect genderTeamDistribution;
 
-	private Set<MealClass> meals;
+	private List<MealClass> meals;
 
 	private String uploadedFileLocation;
 
@@ -54,7 +54,7 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 		this.genderTeamDistribution = GenderAspect.IGNORE_GENDER;
 		this.equalTeamDistribution = true;
 
-		this.meals = new LinkedHashSet<MealClass>(3);
+		this.meals = new ArrayList<MealClass>(3);
 		this.meals.add(MealClass.APPETIZER);
 		this.meals.add(MealClass.MAINCOURSE);
 		this.meals.add(MealClass.DESSERT);
@@ -144,11 +144,11 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 		this.genderTeamDistribution = genderTeamDistribution;
 	}
 
-	public Set<MealClass> getMeals() {
+	public List<MealClass> getMeals() {
 		return meals;
 	}
 
-	public void setMeals(Set<MealClass> meals) {
+	public void setMeals(List<MealClass> meals) {
 		this.meals = meals;
 	}
 

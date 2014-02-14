@@ -17,16 +17,21 @@
   		  
   		<tiles:insertAttribute name="menu" />
   			
-  		<div class="container">
+  		<div class="my-fluid-container">
   		 	
+  		 	<%--
   			<div class="row">
   				<div clasS="col-xs-12">
   					<tiles:insertDefinition name="view-admin-menu" />
   				</div>
   			</div>
-  				
+  			--%>
   			<div class="row">
-				<div class="col-xs-12">
+  				<div class="col-sm-3 col-md-2" style="margin-top:15px;">
+  					<tiles:insertDefinition name="view-admin-menu" />
+  				</div>
+  				
+				<div class="col-sm-9 col-md-10" style="margin-top:15px;">
 					<tiles:insertDefinition name="view-status-info" />
   					<tiles:insertAttribute name="content" />
   				</div>

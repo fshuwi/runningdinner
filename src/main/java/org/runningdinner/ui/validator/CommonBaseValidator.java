@@ -1,6 +1,6 @@
 package org.runningdinner.ui.validator;
 
-import java.util.Set;
+import java.util.Collection;
 
 import org.runningdinner.core.MealClass;
 import org.springframework.validation.Errors;
@@ -13,7 +13,7 @@ import org.springframework.validation.Errors;
  */
 public abstract class CommonBaseValidator {
 
-	public void validateMealTimes(Set<MealClass> meals, Errors errors) {
+	public void validateMealTimes(Collection<MealClass> meals, Errors errors) {
 		// TODO Implement
 	}
 
