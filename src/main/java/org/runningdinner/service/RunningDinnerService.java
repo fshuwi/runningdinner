@@ -1,6 +1,7 @@
 package org.runningdinner.service;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -137,6 +138,14 @@ public interface RunningDinnerService {
 	RunningDinner loadDinnerWithBasicDetails(String uuid);
 
 	/**
+	 * Finds all dinners that have been created before the passed date.
+	 * 
+	 * @param creationDate The max. creation date of the dinners to retrieve
+	 * @return
+	 */
+	List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate);
+
+	/**
 	 * See loadDinnerWithBasicDetails, but fetches also all participants of the dinner.
 	 * 
 	 * @param uuid
@@ -194,6 +203,13 @@ public interface RunningDinnerService {
 	 * @return
 	 */
 	Participant loadParticipant(String participantKey);
+
+	/**
+	 * Deletes the dinner instance and all related entities.
+	 * 
+	 * @param dinner
+	 */
+	void deleteCompleteDinner(final RunningDinner dinner);
 
 	/**
 	 * Generate a new UUID which can e.g. be used for a new running dinner

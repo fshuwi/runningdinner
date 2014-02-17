@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -484,6 +485,11 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		return repository.loadAllParticipantsOfDinner(uuid);
 	}
 
+	@Override
+	public List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate) {
+		return repository.findDinnersWithEarlierCreationDate(creationDate);
+	}
+
 	/**
 	 * Loads all participants that could not successfully be assigned into teams.<br>
 	 * Note: This makes only sense if there have been built teams already.
@@ -526,6 +532,12 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	public Participant loadParticipant(String participantKey) {
 		return repository.loadParticipant(participantKey);
+	}
+
+	@Override
+	@Transactional
+	public void deleteCompleteDinner(final RunningDinner dinner) {
+
 	}
 
 	/**

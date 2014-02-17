@@ -1,5 +1,6 @@
 package org.runningdinner.repository.jpa;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -7,6 +8,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
 import org.runningdinner.core.Participant;
@@ -32,6 +34,13 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		TypedQuery<RunningDinner> query = em.createQuery("SELECT r FROM RunningDinner r WHERE r.uuid=:uuid", RunningDinner.class);
 		query.setParameter("uuid", uuid);
 		return getSingleResult(query);
+	}
+
+	public List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate) {
+		TypedQuery<RunningDinner> query = em.createQuery("SELECT r FROM RunningDinner r WHERE r.createdAt < :creationDate",
+				RunningDinner.class);
+		query.setParameter("creationDate", creationDate, TemporalType.TIMESTAMP);
+		return query.getResultList();
 	}
 
 	/**
