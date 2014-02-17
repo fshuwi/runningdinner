@@ -15,20 +15,11 @@
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
-
-<spring:message code="tooltip.teams.finalize.button" var="sendMessagesTooltip"/>
-<c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
-<%--
-<c:if test="${teamAdministration.teamsAlreadySaved}">
-	<c:set var="sendMessagesLabel" value="Teameinteilungen verschicken" />
-</c:if>
---%>
-
-<h2>Team-Einteilung</h2>
+<h3 class="contentheadline"><spring:message code="headline.teams"/></h3>
 
 <ul class="nav nav-tabs">
-	<li class="active"><a href="#regular" data-toggle="tab">Reguläre Teams</a></li>
-	<li><a href="#remainder" data-toggle="tab">übrig gebliebene Teilnehmer</a></li>
+	<li class="active"><a href="#regular" data-toggle="tab"><spring:message code="label.teams.regular"/></a></li>
+	<li><a href="#remainder" data-toggle="tab"><spring:message code="label.teams.remainder" /></a></li>
 </ul>
 
 <div class="tab-content" id="teamTabs">
@@ -37,18 +28,18 @@
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
 				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
-					<a class="btn btn-info btn-sm" href="${teamsExportUrl}" target="_blank">Export...</a>
+					<a class="btn btn-info btn-sm" href="${teamsExportUrl}" target="_blank"><spring:message code="label.export" /></a>
 				</div>
 			
 				<table class="table table-hover">
 					<thead>
 						<tr>
-							<th>Team</th>
-							<th>Team-Mitglieder</th>
-							<th>Speise</th>
-							<th>Besucht</th>
-							<th>Empfängt</th>
-							<th>Gastgeber</th>
+							<th><spring:message code="label.team" /></th>
+							<th><spring:message code="label.teammembers" /></th>
+							<th><spring:message code="label.meal" /></th>
+							<th><spring:message code="label.visits" /></th>
+							<th><spring:message code="label.receives" /></th>
+							<th><spring:message code="label.host" /></th>
 							<th>&nbsp;</th>
 							<th>&nbsp;</th>
 						</tr>
@@ -102,21 +93,14 @@
 							   			</c:forEach>
 						 			</select>					
 							   </td>
-							   
-
-							   <td valign="middle">
-							   		<a href="#" class="btn btn-success btn-sm" style="cursor:default;"><span class="glyphicon glyphicon-ok"></span></a>		
-							   </td>
-							   
-							   <td>
-							   		<span class="label label-primary">${team.hostTeamMember.address.zip}</span>
-							   </td>
+							  							   
+							   <td><span class="label label-primary">${team.hostTeamMember.address.zip}</span></td>
 							   
 							   <td>
 							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE%>" var="teamRoutePreviewUrl" htmlEscape="true">
 										<spring:param name="key" value="${team.naturalKey}" />
 									</spring:url>
-								   <div><a class='btn btn-info btn-sm' href="${teamRoutePreviewUrl}"><span class="glyphicon glyphicon-eye-open"></span> Vorschau</a></div>
+								   <div><a class='btn btn-info btn-sm' href="${teamRoutePreviewUrl}" target="_blank"><span class="glyphicon glyphicon-eye-open"></span> <spring:message code="label.preview" /></a></div>
 							   </td>
 							</tr>
 						</c:forEach>
@@ -126,29 +110,32 @@
 							<td></td>
 							<td></td>
 							<td></td>
-							<td><a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> Gastgeber Speichern</a></td>
-							<td></td>
-							<td></td>
+							<td>
+								<a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> <spring:message code="label.teams.savehosts" /></a>
+							</td>
+							<td colspan="2">
+								<spring:message code="tooltip.teams.sendmessage" var="sendMessagesTooltip"/>
+								<spring:message code="label.teams.sendmessage" var="sendMessagesLabel"/>
+								<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
+									data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}">
+									<span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
+							</td>
 						</tr>
 					</tbody>
 				</table>
-				
-				<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
-				data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}">
-					<span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
-				
+								
 
 				<div id="saveTeamHostsResponse" class="hidden col-xs-8 col-xs-offset-2"></div>
 				
 			</c:when>
 			<c:otherwise>
-				<h5>Es gibt leider nicht genügend Teilnehmer für eine Teameinteilung mit den gespeicherten Dinner-Optionen!</h5>
+				<h5><spring:message code="text.teams.invalidsize" /></h5>
 			</c:otherwise>
 		</c:choose>	
 	</div><%-- End regular teams pane --%>
 	
 	<div class="tab-pane fade in" id="remainder">
-		<p>Noch nicht implementiert...
+		<p>... Noch nicht implementiert ...</p>
 	</div>
 	
 </div>

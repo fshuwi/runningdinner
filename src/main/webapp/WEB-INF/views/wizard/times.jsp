@@ -5,7 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-<h2><spring:message code="label.runningdinner.times.headline"/></h2>
+<h2><spring:message code="headline.mealtimes" /></h2>
 
 <div class="well">
 	<form:form method="post" commandName="createWizardModel" htmlEscape="true" onsubmit="saveMealTimesToModel()" role="form">
@@ -17,7 +17,7 @@
 		<form:hidden path="meals" id="meals"/>
 			
 		<input type="hidden" value="1" name="_page" />
-		<input type="submit" class="btn btn-primary" value="Weiter" name="_target2" />
-		<input type="submit" class="btn btn-danger" value="Abbrechen" name="_cancel" />				  
+		<input type="submit" class="btn btn-primary" value="<spring:message code="label.next" />" name="_target2" />
+		<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="_cancel" />				  
 	</form:form>
 </div>

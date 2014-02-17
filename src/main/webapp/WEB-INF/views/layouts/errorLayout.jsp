@@ -8,9 +8,7 @@
 
 <!DOCTYPE html>
 <html>
-	<tiles:insertAttribute name="htmlHeader">
-		<tiles:putAttribute name="pageTitle">Running Dinner - Error</tiles:putAttribute>
-	</tiles:insertAttribute>
+	<tiles:insertAttribute name="htmlHeader" />
 	
 	<style>
 		.error-template {padding: 40px 15px;text-align: center;}
@@ -31,15 +29,15 @@
 		                <tiles:insertAttribute name="content" />
 		                		                
 		                <div class="error-actions">
-		                    <a href="${startUrl}" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-home"></span> Start</a>
-		                    <a href="mailto:${contactMail}" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-envelope"></span> Kontakt</a>
+		                    <a href="${startUrl}" class="btn btn-primary btn-lg"><span class="glyphicon glyphicon-home"></span> Home</a>
+		                    <a href="mailto:${contactMail}" class="btn btn-default btn-lg"><span class="glyphicon glyphicon-envelope"></span> <spring:message code="label.contact"/></a>
 		                </div>
 		                
 		                <div class="technicalInfo">
 		                	<spring:message code="label.show.technical.error" var="showExceptionLabel" />
 		                	<spring:message code="label.hide.technical.error" var="hideExceptionLabel" />
 		                
-		                	<p>Zeit: <b><fmt:formatDate type="both" value="${timestamp}" timeStyle="FULL" /></b></p>
+		                	<p><spring:message code="label.time"/>: <b><fmt:formatDate type="both" value="${timestamp}" timeStyle="FULL" /></b></p>
 		                	<c:if test="${showException}">
 		                		<c:if test="${ex != null}">
 	                				<a href="javascript:toggleErrorView('errortext', '${showExceptionLabel}', '${hideExceptionLabel}')" hidefocus="hidefocus" id="errortext_label" 

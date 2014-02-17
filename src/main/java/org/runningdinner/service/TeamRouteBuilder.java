@@ -2,7 +2,6 @@ package org.runningdinner.service;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +9,7 @@ import java.util.Set;
 
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.Team;
+import org.runningdinner.ui.util.MealClassHelper;
 
 public class TeamRouteBuilder {
 
@@ -32,7 +32,7 @@ public class TeamRouteBuilder {
 		}
 
 		List<MealClass> allMeals = new ArrayList<MealClass>(mealTeamMapping.keySet());
-		Collections.sort(allMeals, new MealSorter());
+		Collections.sort(allMeals, new MealClassHelper.MealClassSorter());
 
 		ArrayList<Team> teamDinnerRoute = new ArrayList<Team>();
 		for (MealClass orderedMeal : allMeals) {
@@ -42,11 +42,4 @@ public class TeamRouteBuilder {
 		return teamDinnerRoute;
 	}
 
-	static class MealSorter implements Comparator<MealClass> {
-		@Override
-		public int compare(MealClass mealClass1, MealClass mealClass2) {
-			return mealClass1.getTime().compareTo(mealClass2.getTime());
-		}
-
-	}
 }

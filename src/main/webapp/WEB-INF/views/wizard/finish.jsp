@@ -11,12 +11,12 @@
 <h2><spring:message code="label.runningdinner.wizard.finished.headline" text="Fertig!"/></h2>
 
 <div class="well">
-	<form:form method="post" id="startForm5" onsubmit="return false;" role="form" htmlEscape="true" commandName="createWizardModel">
+	<form:form method="post" onsubmit="return false;" role="form" htmlEscape="true" commandName="createWizardModel">
 		<bs:inputField name="administrationUrl" label="Administrations-Link" readonly="true" 
 					   cssStyle="cursor:default;" helpForInput="${adminLinkHelp}" inputColClass="col-xs-7"/>
 		
 		<div class="form-group">
-			<a href="${createWizardModel.administrationUrl}">Goto Administration</a>
+			<a href="${createWizardModel.administrationUrl}"><spring:message code="label.administration.link" /></a>
 		</div>
 	</form:form>
 </div>

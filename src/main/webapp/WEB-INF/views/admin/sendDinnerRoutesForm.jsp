@@ -6,20 +6,21 @@
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
+<h3 class="contentheadline"><spring:message code="label.dinnerroutes.sendmessage" /></h3>
 
 <div>
-	<h2>Dinner-Routen verschicken</h2>
-	
+
 	<div class="alert alert-info"><strong>Info</strong><br/>
-		Dies sollte der letzte und einmalige Schritt sein. Jedes Team (bzw deren Teilnehmer) enthält seine individuelle Dinner-Route.
+		<spring:message code="text.dinnerroutes.message.info" />
 	</div>
 	
 	<form:form method="POST" commandName="sendDinnerRoutesModel" htmlEscape="true" role="form">
 		<div class="well">
-			<bs:inputField name="subject" label="Subjekt" inputColClass="col-xs-6" placeholder="Titel der Mail"/>
+			<spring:message code="label.subject" var="subjectLabel" />
+			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
 			
 			<div class="form-group">
-				<label for="message">Nachricht</label>
+				<label for="message"><spring:message code="label.message" /></label>
 				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {route}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
 				<h6 class="pull-right" id="messageCounter">3000 characters remaining</h6>
@@ -45,15 +46,15 @@
 		</div>
 		
 		<div>
-			<h4>Team-Auswahl für Dinner-Routen-Versand</h4>
-			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label>Alle selektieren/deselektieren</label></span>
+			<h4><spring:message code="label.teams.selection" /></h4>
+			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
 			<ul>
 				<form:checkboxes element="li" items="${sendDinnerRoutesModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
 			</ul>
 		</div>
 		
-		<input type="submit" class="btn btn-primary" value="Dinner-Routen verschicken!" name="sendDinnerRoutes" />
-		<input type="submit" class="btn btn-danger" value="Abbrechen" name="cancel" />
+		<input type="submit" class="btn btn-primary" value="<spring:message code="label.dinnerroutes.sendmessage" />!" name="sendDinnerRoutes" />
+		<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="cancel" />
 	
 	</form:form>		
 </div>

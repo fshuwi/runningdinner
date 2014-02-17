@@ -288,15 +288,6 @@ public class CreateWizardController extends AbstractBaseController {
 		createWizardModel.setAdministrationUrl(adminUrlGenerator.constructAdministrationUrl(uuid, request));
 	}
 
-	// @ModelAttribute("genderAspects")
-	// public List<GenderAspectOption> popuplateGenderAspects(Locale locale) {
-	// List<GenderAspectOption> result = new ArrayList<GenderAspectOption>(3);
-	// result.add(new GenderAspectOption(GenderAspect.IGNORE_GENDER, messages.getMessage("select.gender.random", null, locale)));
-	// result.add(new GenderAspectOption(GenderAspect.FORCE_GENDER_MIX, messages.getMessage("select.gender.mix", null, locale)));
-	// result.add(new GenderAspectOption(GenderAspect.FORCE_SAME_GENDER, messages.getMessage("select.gender.same", null, locale)));
-	// return result;
-	// }
-
 	/**
 	 * Used for select-box in first wizard step
 	 * 

@@ -7,6 +7,8 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 
 
+<h3 class="contentheadline">Mail-Benachrichtigung über Teameinteilungen</h3>
+
 <div class="row well">
 	<div class="col-xs-12">
 		<c:choose>
@@ -27,15 +29,14 @@
 	</div>
 </c:if>
 
-<div>
-	<h2>Mail-Benachrichtigung</h2>
-	
+<div>	
 	<form:form method="POST" commandName="sendTeamsModel" htmlEscape="true" role="form">
 		<div class="well">
-			<bs:inputField name="subject" label="Subjekt" inputColClass="col-xs-6" placeholder="Titel der Mail"/>
+			<spring:message code="label.subject" var="subjectLabel" />
+			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
 			
 			<div class="form-group">
-				<label for="message">Nachricht</label>
+				<label for="message"><spring:message code="label.message" /></label>
 				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
 				<h6 class="pull-right" id="counter">3000 characters remaining</h6>
@@ -61,8 +62,8 @@
 		
 		
 		<div>
-			<h4>Team-Auswahl für Mail-Versand</h4>
-			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label>Alle selektieren/deselektieren</label></span>
+			<h4><spring:message code="label.teams.selection" /></h4>
+			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
 			<ul>
 				<form:checkboxes element="li" items="${sendTeamsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
 			</ul>

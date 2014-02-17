@@ -7,17 +7,18 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
-<spring:message code="label.adminlink.email.help" var="labelEmailHelp" />
-
 <%-- Render participant preview table --%>
-<h2><spring:message code="label.runningdinner.participantlist.headline"/></h2>
+<h2><spring:message code="headline.participantlist"/></h2>
 <tiles:insertDefinition name="view-participants" />
 
-<form:form class="well" method="post" id="startForm4" action="wizard" commandName="createWizardModel" htmlEscape="true" role="form">
+<spring:message code="label.email" var="emailLabel"/>
+<spring:message code="label.adminlink.email.help" var="labelEmailHelp" />
 
-	<bs:inputField name="email" label="EMail Adresse" placeholder="EMail Adresse" type="email" helpForInput="${labelEmailHelp}" inputColClass="col-xs-6"/>
+<form:form class="well" method="post" action="wizard" commandName="createWizardModel" htmlEscape="true" role="form">
+
+	<bs:inputField name="email" label="${emailLabel}" placeholder="${emailLabel}" type="email" helpForInput="${labelEmailHelp}" inputColClass="col-xs-6" />
 	
 	<input type="hidden" value="3" name="_page" />
-	<input type="submit" class="btn btn-success" value="Fertigstellen" name="_finish" data-placement="bottom" data-toggle="tooltip" data-original-title="Speichert die Liste und erstellt einen Dinner-Plan" />
-	<input type="submit" class="btn btn-danger" value="Abbrechen" name="_cancel" />
+	<input type="submit" class="btn btn-success" value="<spring:message code="label.finalize" />" name="_finish" data-placement="bottom" data-toggle="tooltip" data-original-title="tooltip.createwizared.finish" />
+	<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="_cancel" />
 </form:form>

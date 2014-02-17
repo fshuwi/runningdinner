@@ -17,19 +17,22 @@
 
 	<!-- landing page (with first wizard step) -->
  	<definition name="template-welcome" extends="template-basis" template="/WEB-INF/views/layouts/welcomeLayout.jsp">
- 		<put-attribute name="customScripts" value="/WEB-INF/views/wizard/wizard-scripts.jsp" />
+ 		<put-attribute name="customScripts" value="/WEB-INF/views/wizard/js/wizard-scripts.jsp" />
  	</definition>
  	
  	<!-- create dinner wizard steps -->
  	 <definition name="template-wizard-step" extends="template-basis" template="/WEB-INF/views/layouts/wizardStepLayout.jsp">
  	 	<put-attribute name="pageTitle" value="Run Your Dinner - Wizard" />
- 	 	<put-attribute name="customScripts" value="/WEB-INF/views/wizard/wizard-scripts.jsp" />
+ 	 	<put-attribute name="customScripts" value="/WEB-INF/views/wizard/js/wizard-scripts.jsp" />
  	</definition>
  	 	
  	<!-- default layouts (used e.g. for single admin views) -->
  	 <definition name="template-default" extends="template-basis" template="/WEB-INF/views/layouts/defaultLayout.jsp">
- 	 	<put-attribute name="pageTitle" value="Run Your Dinner" />
- 	 	<put-attribute name="customScripts" value="/WEB-INF/views/admin/admin-scripts.jsp" />
+ 	 	<put-attribute name="pageTitle" value="Run Your Dinner - Administration" />
+ 	 	<!-- <put-attribute name="customScripts" value="/WEB-INF/views/admin/admin-scripts.jsp" /> -->
+ 	 	<put-list-attribute name="customScripts">
+    		<add-attribute value="/WEB-INF/views/admin/js/admin-scripts.jsp" />
+  		</put-list-attribute>
  	</definition>
  	
  	 	<!-- default layouts (used e.g. for single admin views) -->
@@ -43,15 +46,14 @@
 		<put-attribute name="pageTitle" value="Run Your Dinner - Error" />
 		<put-attribute name="htmlHeader" value="/WEB-INF/views/defaultHtmlHeader.jsp"/>
 		<put-attribute name="content" value="" />
-		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>
-		<put-attribute name="customScripts" value=""/>  		
+		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>	
  	</definition>
  	
  	<!-- Single views(tiles) definitions -->
  	<definition name="view-participants" template="/WEB-INF/views/common/participantsListView.jsp" />
- 	<definition name="view-admin-menu" template="/WEB-INF/views/admin/admin-menu.jsp" />
+ 	<definition name="view-admin-menu" template="/WEB-INF/views/admin/adminMenu.jsp" />
  	<definition name="view-status-info" template="/WEB-INF/views/common/statusView.jsp" />
- 	<definition name="view-mealtimes" template="/WEB-INF/views/common/mealtimes.jsp" />
+ 	<definition name="view-mealtimes" template="/WEB-INF/views/common/mealTimes.jsp" />
  	
  	<!-- Concrete template mappings -->
  	<definition name="wizard/wizard-start" extends="template-welcome">
@@ -66,12 +68,33 @@
  	
  	 <definition name="admin/*" extends="template-default">
   		<put-attribute name="content" value="/WEB-INF/views/admin/{1}.jsp" />
-  		<put-attribute name="pageTitle" value="ASDF" />
+  		<!-- pass current view name for menu highlighting -->
+  		<put-attribute name="currentView" value="{1}" />
+ 	</definition>
+ 	
+ 	 <definition name="admin/teams" extends="template-default">
+  		<put-attribute name="content" value="/WEB-INF/views/admin/teams.jsp" />
+  		 <!-- pass current view name for menu highlighting -->
+  		<put-attribute name="currentView" value="teams" />
+  		<put-list-attribute name="customScripts">
+    		<add-attribute value="/WEB-INF/views/admin/js/admin-scripts.jsp" />
+    		<add-attribute value="/WEB-INF/views/admin/js/team-scripts.jsp" />
+  		</put-list-attribute>
+ 	</definition>
+ 	
+ 	 <definition name="admin/send*" extends="template-default">
+  		<put-attribute name="content" value="/WEB-INF/views/admin/send{1}.jsp" />
+  		<!-- pass current view name for menu highlighting -->
+  		<put-attribute name="currentView" value="send{1}" />
+  		<put-list-attribute name="customScripts">
+    		<add-attribute value="/WEB-INF/views/admin/js/admin-scripts.jsp" />
+    		<add-attribute value="/WEB-INF/views/admin/js/mail-scripts.jsp" />
+  		</put-list-attribute>
  	</definition>
  	
  	 <definition name="dinnerroute/*" extends="template-route">
   		<put-attribute name="content" value="/WEB-INF/views/dinnerroute/{1}.jsp" />
-  		<put-attribute name="customScripts" value="/WEB-INF/views/dinnerroute/route-scripts.jsp" />
+  		<put-attribute name="customScripts" value="/WEB-INF/views/dinnerroute/js/route-scripts.jsp" />
  	</definition>
  	
  	 <definition name="error/*" extends="template-error">

@@ -10,14 +10,14 @@
 	<thead>
 		<tr>
 			<th>#</th>
-			<th>Name</th>
-			<th>Strasse + HausNr</th>
-			<th>PLZ + Stadt</th>
-			<th># Plätze</th>
-			<th>EMail</th>
-			<th>Handy-Nr</th>
-			<th>Geschlecht</th>
-			<th>Alter</th>
+			<th><spring:message code="label.fullname" /></th>
+			<th><spring:message code="label.street" /> + <spring:message code="label.streetnr" /></th>
+			<th><spring:message code="label.zip" /> + <spring:message code="label.city" /></th>
+			<th><spring:message code="label.numseats" /></th>
+			<th><spring:message code="label.email" /></th>
+			<th><spring:message code="label.mobilenr" /></th>
+			<th><spring:message code="label.gender" /></th>
+			<th><spring:message code="label.age" /></th>
 		</tr>
 	</thead>
 	<tbody>
@@ -38,6 +38,6 @@
 </table>
 
 <div class="panel panel-${participantStatus}">
-	<div class="panel-heading"><h4 class="panel-title">Vorschau-Information</h4></div>
+	<div class="panel-heading"><h4 class="panel-title"><spring:message code="text.participant.preview" /></h4></div>
 	<div class="panel-body">${participantStatusMessage}</div>
 </div>

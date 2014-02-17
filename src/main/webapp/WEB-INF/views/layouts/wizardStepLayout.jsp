@@ -9,9 +9,7 @@
 <!DOCTYPE html>
 <html>
 
-	<tiles:insertAttribute name="htmlHeader">
-		<tiles:putAttribute name="pageTitle">Running Dinner - Neue Berechnung</tiles:putAttribute>
-	</tiles:insertAttribute>
+	<tiles:insertAttribute name="htmlHeader" />
 	  
 	<body>
   		  

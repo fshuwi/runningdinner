@@ -64,8 +64,8 @@
 		</div>
 		
 		<input type="hidden" value="2" name="_page" />
-		<input type="submit" class="btn btn-primary" value="Weiter" name="_target3" />
-		<input type="submit" class="btn btn-danger" value="Abbrechen" name="_cancel" />
+		<input type="submit" class="btn btn-primary" value="<spring:message code="label.next" />" name="_target3" />
+		<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="_cancel" />
 			
 	</form:form>
 		

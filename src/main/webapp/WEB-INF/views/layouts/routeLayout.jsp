@@ -8,14 +8,9 @@
 
 <!DOCTYPE html>
 <html>
-	<tiles:insertAttribute name="htmlHeader">
-		<tiles:putAttribute name="pageTitle">Dinner Route</tiles:putAttribute>
-	</tiles:insertAttribute>
+	<tiles:insertAttribute name="htmlHeader" />
 	  
-	<body>
-  		  
-  		<tiles:insertAttribute name="menu" />
-  			
+	<body>  			
   		<div class="container">		 	
    					
   			<div class="row">

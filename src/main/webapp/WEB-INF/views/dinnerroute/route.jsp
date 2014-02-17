@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@page import="org.runningdinner.service.email.FormatterUtil" %>
 
 <h1>Dinner-Plan</h1>
 <h5>${participantNames}</h5>
@@ -21,18 +22,18 @@
 				<h3 class="media-heading">Euer Gang: ${team.mealClass.label}</h3>
 				Gastgeber ist: <strong>${participant.name.fullnameFirstnameFirst}</strong><br/>
 				<br/>
-				<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
+				<strong><spring:message code="label.time"/>: <fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${team.mealClass.time}" /> Uhr</strong>
 			</div>
 		</c:when>
 		<c:otherwise>
 			<div class="col-xs-3 alert alert-info hoster">
 				<h3 class="media-heading">${team.mealClass.label}</h3>
 				<address>
-					Nachname: <strong>${participant.name.lastname}</strong><br>
+					<spring:message code="label.lastname" />: <strong>${participant.name.lastname}</strong><br>
 					${participant.address.streetWithNr}<br>
 					${participant.address.zipWithCity}<br>
 					<br>
-					<strong>Uhrzeit: <fmt:formatDate type="time" value="${team.mealClass.time}" timeStyle="SHORT" /> Uhr</strong>
+					<strong><spring:message code="label.time"/>: <fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${team.mealClass.time}" /> Uhr</strong>
 				</address>
 			</div> 
 		</c:otherwise>

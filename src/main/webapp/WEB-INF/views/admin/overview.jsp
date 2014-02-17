@@ -3,6 +3,11 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
+
+<h3 class="contentheadline"><spring:message code="headline.overview" /></h3>
+
+<tiles:insertDefinition name="view-status-info" />
 
 <div class="jumbotron" style="padding-top:17px;padding-bottom:20px;">
 	<h2>${runningDinner.title}</h2>

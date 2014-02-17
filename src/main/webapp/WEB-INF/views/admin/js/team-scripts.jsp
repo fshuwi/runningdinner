@@ -1,24 +1,16 @@
-<script src='<c:url value="/resources/js/common.js"/>'></script>
-
 <script>
 	var changedHostingFields = {};
-	
 	var checkedTeamMembers = [];
 
 	$(document).ready(function() {
-		$('.doTooltip').tooltip();
-				
 		// TODO: Check server workflow (Enable drag drop or not!))
 		setUpDragDrop();
-	
-		$(".counted").charCounter(3000,{container: "#counter"});	
 	});
 	
 	function toggleTeamSelection() {
 		checked = $('#allTeamsSelectedBox').is(":checked");
 		$('.teamSelectionBox').prop("checked", checked);
 	}
-	
 	
 	function setUpDragDrop() {
 		 $(".draggableTeamMember").draggable({ revert: "invalid" });
@@ -40,7 +32,7 @@
 		 		
 		 		switchTeamMembers(firstParticipant, secondParticipant);
 		 	}
-		 });	
+		 });
 	}
 	
 	function getParticipantKey(element) {
@@ -109,19 +101,6 @@
 		jsonRequest = new Array();
 		jsonRequest.push({"participantKey" : firstParticipant});
 		jsonRequest.push({"participantKey" : secondParticipant});
-		
-		/* TODO: Zu umstaendlich
-		
-		var singleJson = {};
-	 	singleJson.teamKey = '-';
-		singleJson.participantKey = firstParticipant;
-		jsonRequest.push(singleJson);
-		
-		singleJson = {};
-	 	singleJson.teamKey = '-';
-		singleJson.participantKey = secondParticipant;
-		jsonRequest.push(singleJson);
-		*/
 		
 		var backendUrl = '${pageContext.request.contextPath}/event/${uuid}/admin/teams/switchmembers';
 

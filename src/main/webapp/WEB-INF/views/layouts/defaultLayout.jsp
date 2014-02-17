@@ -9,9 +9,7 @@
 <!DOCTYPE html>
 <html>
 
-	<tiles:insertAttribute name="htmlHeader">
-		<tiles:putAttribute name="pageTitle">Running Dinner - Neue Berechnung</tiles:putAttribute>
-	</tiles:insertAttribute>
+	<tiles:insertAttribute name="htmlHeader" />
 	  
 	<body>
   		  
@@ -28,11 +26,12 @@
   			--%>
   			<div class="row">
   				<div class="col-sm-3 col-md-2" style="margin-top:15px;">
-  					<tiles:insertDefinition name="view-admin-menu" />
+  					<tiles:useAttribute name="currentView" id="currentView" classname="java.lang.String" ignore="true"/>
+  					<tiles:insertDefinition name="view-admin-menu">
+  						<tiles:putAttribute name="currentView" value="${currentView}" />
+  					</tiles:insertDefinition>
   				</div>
-  				
 				<div class="col-sm-9 col-md-10" style="margin-top:15px;">
-					<tiles:insertDefinition name="view-status-info" />
   					<tiles:insertAttribute name="content" />
   				</div>
   			</div>
@@ -42,7 +41,13 @@
   	
   		<tiles:insertAttribute name="htmlFooter" />
   		
-  		<tiles:insertAttribute name="customScripts" />
+  		
+  		<tiles:useAttribute name="customScripts" id="customScripts" ignore="true" classname="java.util.List"/>
+  		<c:if test="${not empty customScripts}">
+	  		<c:forEach var="customScript" items="${customScripts}">
+	  			<tiles:insertAttribute value="${customScript}" flush="true" />
+			</c:forEach>
+		</c:if>
   		
   	</body>
   	

@@ -15,7 +15,7 @@
 
 <div class="well">
 	
-	<form:form method="post" id="startForm1" commandName="createWizardModel" htmlEscape="true" onsubmit="saveMealsToModel()" role="form"> 
+	<form:form method="post" commandName="createWizardModel" htmlEscape="true" onsubmit="saveMealsToModel()" role="form"> 
 			
 		<bs:inputField name="title" label="${titleLabel}" placeholder="${titleLabel}" />
 		
@@ -29,7 +29,7 @@
   
   				<bs:inputField name="teamSize" label="Teamgröße" inputColClass="col-xs-1" />
 
-				<label>Speisen</label>
+				<label><spring:message code="label.meals" /></label>
 				<span class="help-block"><spring:message code="label.mealsinfo" /></span>
 				<div id="mealcontainer">
 					<c:forEach items="${createWizardModel.meals}" var="meal" varStatus="loopCounter">
@@ -45,7 +45,7 @@
 				</div>
 				<div class="form-group" id="meals.form.div">
 					<form:errors path="meals" cssClass="control-label" cssStyle="font-weight:bold;display:block;margin-bottom:5px;"/>
-					<a href="javascript:addMeal()" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> Hinzufügen</a>
+					<a href="javascript:addMeal()" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> <spring:message code="label.add"/></a>
 				</div>
 			
 				<bs:singleCheckbox name="equalTeamDistribution" checkboxText="${teamDistributionText}" label="Aufteilung der Teams"></bs:singleCheckbox>
@@ -58,7 +58,7 @@
 	<form:hidden path="meals" id="meals"/>
 	
 	<input type="hidden" value="0" name="_page" />
-	<input type="submit" class="btn btn-primary" value="Weiter" name="_target1" />				  
+	<input type="submit" class="btn btn-primary" value="<spring:message code="label.next" />" name="_target1" />				  
 	
   </form:form>
 
