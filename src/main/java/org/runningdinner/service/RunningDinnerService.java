@@ -87,11 +87,12 @@ public interface RunningDinnerService {
 
 	/**
 	 * 
-	 * @param uuid
+	 * @param uuid The identifier of the dinner to which the passed teams belong
 	 * @param teamHostMappings Contains the naturalKey of a team as key in the mapping, and the naturalKey of the new hosting participant as
 	 *            value in the mapping
+	 * @return The changed teams
 	 */
-	void updateTeamHosters(String uuid, Map<String, String> teamHostMappings);
+	List<Team> updateTeamHosters(String uuid, Map<String, String> teamHostMappings);
 
 	/**
 	 * Swap the parent team of the first participant with the parent team of the second participant.<br>

@@ -12,6 +12,8 @@ public class TeamMemberWrapper {
 	protected String naturalKey;
 	protected boolean host;
 
+	protected String editLink;
+
 	public TeamMemberWrapper() {
 	}
 
@@ -43,6 +45,14 @@ public class TeamMemberWrapper {
 
 	public void setHost(boolean host) {
 		this.host = host;
+	}
+
+	public String getEditLink() {
+		return editLink;
+	}
+
+	public void setEditLink(String editLink) {
+		this.editLink = editLink;
 	}
 
 	@Override

@@ -7,6 +7,7 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 <%@ page import="org.runningdinner.ui.RequestMappings" %>
 
+<img src="<c:url value="/resources/images/ajax-loader.gif" />" id="dragdrop-ajax-loader" style="display:none;position:absolute;left:-10px;top:-10px;" />
 
 <spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="teamsFinalizeUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
@@ -14,6 +15,7 @@
 <spring:url value="<%=RequestMappings.EXPORT_TEAMS%>" var="teamsExportUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
+
 
 <h3 class="contentheadline"><spring:message code="headline.teams"/></h3>
 
@@ -50,7 +52,7 @@
 								<td><span id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
 								
 								<td>
-									<div id="teaminfo_${team.naturalKey}">
+									<div teamKey="${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
 										
 											<spring:url value="<%=RequestMappings.EDIT_PARTICIPANT%>" var="editParticipantUrl" htmlEscape="true">
@@ -58,9 +60,9 @@
 												<spring:param name="key" value="${teamMember.naturalKey}" />
 											</spring:url>
 											
-											<div class="draggableTeamMember droppableTeamMember" id="participant_${teamMember.naturalKey}">
+											<div class="draggableTeamMember droppableTeamMember" participantKey="${teamMember.naturalKey}">
 												<h5 class="media-heading">
-													<a href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a>
+													<a class="teamMember" href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a>
 												</h5>
 											</div>
 											
@@ -87,14 +89,14 @@
 							   </td>
 							   
 							   <td class="col-xs-2" style="text-align:center;">	
-							   		<select class="form-control teamHoster" id="${team.naturalKey}" onchange="onTeamHosterChanged('${team.naturalKey}')">
+							   		<select class="form-control teamHoster" teamKey="${team.naturalKey}" onchange="onTeamHosterChanged('${team.naturalKey}')">
 							   			<c:forEach items="${team.teamMembers}" var="teamMember">
 							   				<option value="${teamMember.naturalKey}" <c:if test="${teamMember.host eq true}">selected</c:if>>${teamMember.name.fullnameFirstnameFirst}</option>
 							   			</c:forEach>
 						 			</select>					
 							   </td>
 							  							   
-							   <td><span class="label label-primary">${team.hostTeamMember.address.zip}</span></td>
+							   <td><span class="label label-primary" teamKeyZip="${team.naturalKey}">${team.hostTeamMember.address.zip}</span></td>
 							   
 							   <td>
 							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE%>" var="teamRoutePreviewUrl" htmlEscape="true">
@@ -112,6 +114,7 @@
 							<td></td>
 							<td>
 								<a class="btn btn-primary btn-sm" href="javascript:saveTeamHosts()"><span class="glyphicon glyphicon-save"></span> <spring:message code="label.teams.savehosts" /></a>
+								<img src="<c:url value="/resources/images/ajax-loader.gif" />" id="savehosts-ajax-loader" style="display:none;" />
 							</td>
 							<td colspan="2">
 								<spring:message code="tooltip.teams.sendmessage" var="sendMessagesTooltip"/>
@@ -125,7 +128,7 @@
 				</table>
 								
 
-				<div id="saveTeamHostsResponse" class="hidden col-xs-8 col-xs-offset-2"></div>
+				<div id="saveTeamHostsResponse" class="hidden col-xs-12 col-xs-offset-0"></div>
 				
 			</c:when>
 			<c:otherwise>

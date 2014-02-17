@@ -209,9 +209,16 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		return result;
 	}
 
+	/**
+	 * Loads all parent-teams of the passed participants. This method fetches automatically all team-members of the found teams.
+	 * 
+	 * @param uuid
+	 * @param participantKeys The business keys of the participants for which to load the teams
+	 * @return
+	 */
 	public List<Team> loadTeamsForParticipants(final String uuid, Set<String> participantKeys) {
 		TypedQuery<Team> query = em.createQuery(
-				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers members WHERE members.naturalKey IN :participantKeys AND r.uuid=:uuid",
+				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t JOIN t.teamMembers members LEFT JOIN FETCH t.teamMembers WHERE members.naturalKey IN :participantKeys AND r.uuid=:uuid",
 				Team.class);
 		query.setParameter("participantKeys", participantKeys);
 		query.setParameter("uuid", uuid);

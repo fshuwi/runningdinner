@@ -235,7 +235,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	 */
 	@Override
 	@Transactional
-	public void updateTeamHosters(final String uuid, Map<String, String> teamHostMappings) {
+	public List<Team> updateTeamHosters(final String uuid, Map<String, String> teamHostMappings) {
 
 		Set<String> teamKeys = teamHostMappings.keySet();
 		LOGGER.info("Call updateTeamHosters with {} teamKeys", teamKeys.size());
@@ -273,21 +273,13 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 
 			LOGGER.debug("Changed hoster of team {}", team.getTeamNumber());
 		}
+
+		return teams;
 	}
 
 	@Override
 	@Transactional
 	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
-
-		// List<Team> parentTeams = new ArrayList<Team>(2);
-		// List<Team> allTeams = repository.loadRegularTeamsFromDinner(uuid);
-		// for (Team team : allTeams) {
-		// for (Participant participant : team.getTeamMembers()) {
-		// if (participant.getNaturalKey().equals(firstParticipantKey) || participant.getNaturalKey().equals(secondParticipantKey)) {
-		// parentTeams.add(team);
-		// }
-		// }
-		// }
 		LOGGER.info("Calling SwitchTeamMembers for dinner {}", uuid);
 
 		List<Team> parentTeams = repository.loadTeamsForParticipants(uuid,

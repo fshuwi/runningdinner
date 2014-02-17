@@ -17,7 +17,7 @@ public class RequestMappings {
 	public static final String EDIT_PARTICIPANT = ADMIN_URL_PATTERN + "/participant/{key}/edit";
 
 	public static final String AJAX_SAVE_HOSTS = ADMIN_URL_PATTERN + "/teams/savehosts";
-	public static final String AJAX_SWITCH_TEAMMEMBERS = "/event/{uuid}/admin/teams/switchmembers";
+	public static final String AJAX_SWITCH_TEAMMEMBERS = ADMIN_URL_PATTERN + "/teams/switchmembers";
 
 	// *************** Wizard request mappings *********************** //
 	public static final String WIZARD_STEP = "/wizard";

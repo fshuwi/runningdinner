@@ -10,7 +10,7 @@
 		$('.doTooltip').tooltip();
 		
 		 $("#date").datepicker({ dateFormat: "dd.mm.yy" });	
-		 $("#date").datepicker($.datepicker.regional[ "de" ]);
+		 $("#date").datepicker($.datepicker.regional[ "de" ]); // TODO: Doesn't work
 	});
 	
 	function addMeal() {

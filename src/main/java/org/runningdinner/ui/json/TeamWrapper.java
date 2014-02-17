@@ -18,6 +18,11 @@ public class TeamWrapper {
 	protected int teamNumber;
 	protected List<TeamMemberWrapper> teamMembers;
 
+	/**
+	 * Shortcut for displaying the zip of the current host
+	 */
+	protected String hostZip = "Unknown";
+
 	public TeamWrapper(Team wrappedTeam) {
 		this.naturalKey = wrappedTeam.getNaturalKey();
 		this.teamNumber = wrappedTeam.getTeamNumber();
@@ -25,7 +30,11 @@ public class TeamWrapper {
 		for (Participant participant : wrappedTeam.getTeamMembers()) {
 			this.teamMembers.add(new TeamMemberWrapper(participant.getName().getFullnameFirstnameFirst(), participant.getNaturalKey(),
 					participant.isHost()));
+			if (participant.isHost()) {
+				this.hostZip = String.valueOf(participant.getAddress().getZip());
+			}
 		}
+
 	}
 
 	public TeamWrapper() {
@@ -56,6 +65,14 @@ public class TeamWrapper {
 
 	public void setTeamMembers(List<TeamMemberWrapper> teamMembers) {
 		this.teamMembers = teamMembers;
+	}
+
+	public String getHostZip() {
+		return hostZip;
+	}
+
+	public void setHostZip(String hostZip) {
+		this.hostZip = hostZip;
 	}
 
 	@Override

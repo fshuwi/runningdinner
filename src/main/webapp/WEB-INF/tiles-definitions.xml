@@ -66,13 +66,7 @@
 		<put-attribute name="currentView" value="{1}" />
  	</definition>
  	
- 	 <definition name="admin/*" extends="template-default">
-  		<put-attribute name="content" value="/WEB-INF/views/admin/{1}.jsp" />
-  		<!-- pass current view name for menu highlighting -->
-  		<put-attribute name="currentView" value="{1}" />
- 	</definition>
- 	
- 	 <definition name="admin/teams" extends="template-default">
+ 	 	 <definition name="admin/teams" extends="template-default">
   		<put-attribute name="content" value="/WEB-INF/views/admin/teams.jsp" />
   		 <!-- pass current view name for menu highlighting -->
   		<put-attribute name="currentView" value="teams" />
@@ -92,6 +86,12 @@
   		</put-list-attribute>
  	</definition>
  	
+ 	 <definition name="admin/*" extends="template-default">
+  		<put-attribute name="content" value="/WEB-INF/views/admin/{1}.jsp" />
+  		<!-- pass current view name for menu highlighting -->
+  		<put-attribute name="currentView" value="{1}" />
+ 	</definition>
+ 	 	
  	 <definition name="dinnerroute/*" extends="template-route">
   		<put-attribute name="content" value="/WEB-INF/views/dinnerroute/{1}.jsp" />
   		<put-attribute name="customScripts" value="/WEB-INF/views/dinnerroute/js/route-scripts.jsp" />

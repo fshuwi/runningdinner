@@ -30,8 +30,8 @@ import org.runningdinner.ui.dto.SelectOption;
 import org.runningdinner.ui.dto.SendDinnerRoutesModel;
 import org.runningdinner.ui.dto.SendTeamArrangementsModel;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
+import org.runningdinner.ui.json.SaveTeamHostsResponse;
 import org.runningdinner.ui.json.SingleTeamParticipantChange;
-import org.runningdinner.ui.json.StandardJsonResponse;
 import org.runningdinner.ui.json.SwitchTeamMembers;
 import org.runningdinner.ui.json.SwitchTeamMembersResponse;
 import org.runningdinner.ui.json.TeamHostChangeList;
@@ -374,26 +374,26 @@ public class AdminController extends AbstractBaseController {
 	 */
 	@RequestMapping(value = RequestMappings.AJAX_SAVE_HOSTS, method = RequestMethod.POST, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StandardJsonResponse saveTeamHosts(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+	public SaveTeamHostsResponse saveTeamHosts(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@RequestBody TeamHostChangeList changedHostTeams) {
 		adminValidator.validateUuid(uuid);
 
 		if (CoreUtil.isEmpty(changedHostTeams)) {
-			return StandardJsonResponse.createSuccessResponse();
+			return SaveTeamHostsResponse.createSuccessResponse(Collections.<Team> emptyList());
 		}
 
 		Map<String, String> teamHostMappings = TeamHostChangeList.generateTeamHostsMap(changedHostTeams);
 
 		try {
-			runningDinnerService.updateTeamHosters(uuid, teamHostMappings);
+			List<Team> updatedTeamHosters = runningDinnerService.updateTeamHosters(uuid, teamHostMappings);
+			return SaveTeamHostsResponse.createSuccessResponse(updatedTeamHosters);
 		}
 		catch (Exception ex) {
 			LOGGER.error("Failed to update team hosters for dinner {} with number of passed teamHostMappings {}", uuid,
 					teamHostMappings.size(), ex);
-			return StandardJsonResponse.createErrorResponse(ex.getMessage());
+			return SaveTeamHostsResponse.createErrorResponse(ex.getMessage());
 		}
 
-		return StandardJsonResponse.createSuccessResponse();
 	}
 
 	/**
@@ -423,7 +423,7 @@ public class AdminController extends AbstractBaseController {
 
 			List<Team> result = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
 					switchTeamMembers.get(1).getParticipantKey());
-			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result);
+			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result, uuid);
 			return response;
 		}
 		catch (Exception ex) {
