@@ -3,7 +3,9 @@ package org.runningdinner.ui.json;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.junit.Before;
@@ -31,7 +33,7 @@ public class MealClassPropertyEditorTest {
 	public void testConvertFromJson() {
 		String json = "[{\"label\" : \"Vorspeise\"},{\"label\":\"Nachspeise\"}, {\"label\":\"Hauptgericht\"}]";
 		editor.setAsText(json);
-		Set<MealClass> convertedMealClasses = (Set<MealClass>)editor.getValue();
+		List<MealClass> convertedMealClasses = (List<MealClass>)editor.getValue();
 		assertEquals(3, convertedMealClasses.size());
 		assertEquals(true, convertedMealClasses.contains(MealClass.APPETIZER));
 		assertEquals(true, convertedMealClasses.contains(MealClass.MAINCOURSE));
@@ -40,7 +42,7 @@ public class MealClassPropertyEditorTest {
 
 	@Test
 	public void testConvertToJson() {
-		editor.setValue(mealClasses);
+		editor.setValue(new ArrayList<MealClass>(mealClasses));
 		String json = editor.getAsText();
 		assertTrue(json.length() > 0);
 		assertEquals(

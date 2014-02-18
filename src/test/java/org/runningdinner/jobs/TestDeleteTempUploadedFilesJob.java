@@ -47,7 +47,7 @@ public class TestDeleteTempUploadedFilesJob {
 		assertEquals(true, newFile1.exists());
 
 		// After lifetime limit is exceed re-run job and ensure that newFile1 is deleted
-		Thread.sleep(MAX_LIFETIME_MILLIS);
+		Thread.sleep(MAX_LIFETIME_MILLIS + 200); // sleep is on some machines inaccurate.. add little offset to be sure to have enough time
 		// ... but create a new file before and ensure that this one is not deleted:
 		assertEquals(true, newFile2.createNewFile());
 		deleteFilesJob.deleteOldFiles();
@@ -55,7 +55,7 @@ public class TestDeleteTempUploadedFilesJob {
 		assertEquals(true, newFile2.exists());
 
 		// Exceed lifetime limit again... now both files should not exist any longer:
-		Thread.sleep(MAX_LIFETIME_MILLIS);
+		Thread.sleep(MAX_LIFETIME_MILLIS + 200);// sleep is on some machines inaccurate.. add little offset to be sure to have enough time
 		deleteFilesJob.deleteOldFiles();
 		assertEquals(false, newFile1.exists());
 		assertEquals(false, newFile2.exists());
