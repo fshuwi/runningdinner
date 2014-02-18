@@ -389,11 +389,18 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 			}
 		}
 
-		if (newOptimalHostingParticipant == null) {
-			// Nothing to do, because there exist no better hosting-solution as the current one
+		if (currentHostingParticipant == null) {
+			if (newOptimalHostingParticipant != null) {
+				newOptimalHostingParticipant.setHost(true);
+			}
+			else {
+				newParticipant.setHost(true); // Fallback
+			}
 			return;
 		}
-		if (currentHostingParticipant.equals(newOptimalHostingParticipant)) { // Nothing to do as it is already optimal:
+
+		if (newOptimalHostingParticipant == null || currentHostingParticipant.equals(newOptimalHostingParticipant)) {
+			// Nothing to do, because there exist no better hosting-solution as the current one
 			return;
 		}
 
