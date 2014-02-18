@@ -13,7 +13,6 @@
 		
 	
 	<import resource="property-configuration.xml" />
-	<import resource="app-context.xml" />	
 	    	 
     <bean id="runningDinnerCreatedMessageTemplate" class="org.springframework.mail.SimpleMailMessage" p:from="${mail.from}"
     		p:subject="Running Dinner: Neues Dinner erstellt" p:replyTo="${mail.replyto}" />

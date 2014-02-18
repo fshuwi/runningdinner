@@ -5,7 +5,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.List;
 
 import org.junit.After;
@@ -15,6 +14,7 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerCalculatorTest;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.service.impl.SerializeToDirectoryHandler;
+import org.runningdinner.test.util.TestUtil;
 
 public class TestSerializeToDirHandler {
 
@@ -23,7 +23,7 @@ public class TestSerializeToDirHandler {
 
 	@Before
 	public void setUp() throws URISyntaxException {
-		File file = getTmpUploadDirAsFile();
+		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
 		handler.setTmpUploadDirectory(file.getAbsolutePath());
 	}
 
@@ -56,7 +56,7 @@ public class TestSerializeToDirHandler {
 	}
 
 	protected int getNumChildrenOfTmpUploadDir() throws URISyntaxException {
-		File file = getTmpUploadDirAsFile();
+		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
 		File[] children = file.listFiles();
 		if (children == null || children.length == 0) {
 			return 0;
@@ -64,16 +64,10 @@ public class TestSerializeToDirHandler {
 		return children.length;
 	}
 
-	protected File getTmpUploadDirAsFile() throws URISyntaxException {
-		URL tmpUrl = getClass().getResource(tmpUploadDirectory);
-		File file = new File(tmpUrl.toURI());
-		return file;
-	}
-
 	@After
 	public void tearDown() throws URISyntaxException {
 
-		File file = getTmpUploadDirAsFile();
+		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
 
 		File[] children = file.listFiles();
 		if (children != null && children.length > 0) {

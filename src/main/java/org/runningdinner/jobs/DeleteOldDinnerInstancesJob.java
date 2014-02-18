@@ -24,7 +24,7 @@ public class DeleteOldDinnerInstancesJob {
 
 	private TimeUnit timeUnit;
 
-	private int maxLifeTime;
+	private long maxLifeTime;
 
 	private RunningDinnerService runningDinnerService;
 
@@ -81,14 +81,14 @@ public class DeleteOldDinnerInstancesJob {
 	}
 
 	public void setTimeUnitAsString(final String timeUnitStr) {
-		this.timeUnit = TimeUnit.valueOf(timeUnitStr);
+		this.timeUnit = TimeUnit.valueOf(timeUnitStr.trim());
 	}
 
-	public int getMaxLifeTime() {
+	public long getMaxLifeTime() {
 		return maxLifeTime;
 	}
 
-	public void setMaxLifeTime(int maxLifeTime) {
+	public void setMaxLifeTime(long maxLifeTime) {
 		this.maxLifeTime = maxLifeTime;
 	}
 

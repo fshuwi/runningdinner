@@ -248,7 +248,7 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 	}
 
 	@Transactional
-	public <T extends AbstractEntity> T save(final T entity) {
+	public <T extends AbstractEntity> T saveOrMerge(final T entity) {
 		if (entity.isNew()) {
 			em.persist(entity);
 			return entity;
@@ -257,29 +257,9 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 			return em.merge(entity);
 		}
 	}
+
+	@Transactional
+	public <T extends AbstractEntity> void remove(final T entity) {
+		em.remove(entity);
+	}
 }
-
-// public List<Participant> loadTeamMembersOfTeams(Set<Team> allTeams) {
-// Set<Long> teamIds = getEntityIds(allTeams);
-// TypedQuery<Participant> query = em.createQuery("SELECT DISTINCT p FROM Team t JOIN t.teamMembers p WHERE t.id IN :teamIds",
-// Participant.class);
-// query.setParameter("teamIds", teamIds);
-// return query.getResultList();
-// }
-
-// public List<Team> loadTeamsById(Set<Long> teamIds) {
-// TypedQuery<Team> query = em.createQuery(
-// "SELECT DISTINCT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass WHERE t.id IN :teamIds",
-// Team.class);
-// query.setParameter("teamIds", teamIds);
-// return query.getResultList();
-// }
-
-// public List<Team> loadTeamsForParticipants(final String uuid, Set<String> participantKeys) {
-// TypedQuery<Team> query = em.createQuery(
-// "SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers members WHERE members.naturalKey IN :participantKeys AND r.uuid=:uuid",
-// Team.class);
-// query.setParameter("participantKeys", participantKeys);
-// query.setParameter("uuid", uuid);
-// return query.getResultList();
-// }

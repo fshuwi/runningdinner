@@ -16,13 +16,11 @@ import org.junit.runner.RunWith;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
-import org.runningdinner.core.ParticipantAddress;
-import org.runningdinner.core.RunningDinnerCalculatorTest;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.ui.dto.CreateWizardModel;
+import org.runningdinner.test.util.TestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
@@ -51,11 +49,11 @@ public class TestRunningDinnerService {
 	public void testCreateRunningDinner() {
 		String newUuid = MY_TEST_UUID;
 		Date now = new Date();
-		RunningDinnerInfo info = createRunningDinnerInfo("title", now, "email@email.de", "Freiburg");
+		RunningDinnerInfo info = TestUtil.createRunningDinnerInfo("title", now, "email@email.de", "Freiburg");
 
 		RunningDinnerConfig runningDinnerConfig = RunningDinnerConfig.newConfigurer().build();
 
-		List<Participant> participants = generateParticipants();
+		List<Participant> participants = TestUtil.generateParticipants(NUM_PARTICIPANTS);
 
 		RunningDinner result = runningDinnerService.createRunningDinner(info, runningDinnerConfig, participants, newUuid);
 		assertEquals(newUuid, result.getUuid());
@@ -251,32 +249,6 @@ public class TestRunningDinnerService {
 		if (!oneHostFound) {
 			fail("Team " + team + " has no single host");
 		}
-	}
-
-	/**
-	 * Generates NUM_PARTICIPANTS (22) participants
-	 * 
-	 * @return
-	 */
-	private List<Participant> generateParticipants() {
-		// Generate 22 dummy participants...
-		List<Participant> generatedParticipants = RunningDinnerCalculatorTest.generateParticipants(NUM_PARTICIPANTS, 0);
-		// ... and add Adresses:
-		for (Participant generatedParticipant : generatedParticipants) {
-			generatedParticipant.setAddress(ParticipantAddress.parseFromString("MyStreet 1\n12345 MyCity"));
-		}
-
-		return generatedParticipants;
-	}
-
-	private RunningDinnerInfo createRunningDinnerInfo(String title, Date date, String email, String city) {
-		// Utilize that CreateWizardModel also implements RunningDinnerInfo:
-		CreateWizardModel result = CreateWizardModel.newModelWithDefaults();
-		result.setTitle(title);
-		result.setCity(city);
-		result.setEmail(email);
-		result.setDate(date);
-		return result;
 	}
 
 }

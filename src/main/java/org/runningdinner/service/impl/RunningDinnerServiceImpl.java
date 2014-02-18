@@ -138,7 +138,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		Set<MealClass> mealClasses = runningDinnerConfig.getMealClasses();
 		LOGGER.info("Saving {} meals for running dinner {}", mealClasses.size(), newUuid);
 		for (MealClass mealClass : mealClasses) {
-			repository.save(mealClass);
+			repository.saveOrMerge(mealClass);
 		}
 		result.setConfiguration(runningDinnerConfig);
 
@@ -147,12 +147,12 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		// Note: On performance problems use a bulk/batch update mechanisms
 		LOGGER.info("Saving {} participants for running dinner {}", participants.size(), newUuid);
 		for (Participant participant : participants) {
-			repository.save(participant);
+			repository.saveOrMerge(participant);
 		}
 		result.setParticipants(participants);
 
 		LOGGER.info("Saving complete running dinner {}", newUuid);
-		repository.save(result);
+		repository.saveOrMerge(result);
 
 		final RunningDinner constResultRef = result;
 
@@ -202,7 +202,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		// #1 Save first every team
 		LOGGER.debug("Save {} generated teams for dinner {}", regularTeams.size(), uuid);
 		for (Team regularTeam : regularTeams) {
-			repository.save(regularTeam);
+			repository.saveOrMerge(regularTeam);
 		}
 
 		// #2 Finally assign visitation plans (and therefore teams):
@@ -537,7 +537,18 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	@Transactional
 	public void deleteCompleteDinner(final RunningDinner dinner) {
+		List<Team> teams = repository.loadRegularTeamsWithArrangementsFromDinner(dinner.getUuid());
 
+		// Clear out team-references in visitation-plans
+		for (Team team : teams) {
+			team.setMealClass(null);
+			team.setTeamMembers(null);
+			team.getVisitationPlan().removeAllTeamReferences();
+		}
+
+		RunningDinner mergedDinner = repository.saveOrMerge(dinner);
+		// This removes automatically all participant-, mealclass- and team-associations (and entities):
+		repository.remove(mergedDinner);
 	}
 
 	/**

@@ -25,7 +25,7 @@ public class DeleteTempUploadFilesJob {
 	/**
 	 * How old is a file allowed to be (if its older as the limit (from now) then delete it)
 	 */
-	protected int maxLifeTimeMillis = 900000; // Default
+	protected long maxLifeTimeMillis = 900000; // Default
 
 	private static Logger LOGGER = LoggerFactory.getLogger(DeleteTempUploadFilesJob.class);
 
@@ -83,7 +83,7 @@ public class DeleteTempUploadFilesJob {
 		long lastModifiedMillis = file.lastModified(); // For these files modificationDate should equal to creationDate
 
 		DateTime lastModifiedDate = new DateTime(lastModifiedMillis);
-		DateTime lifeTimeLimit = now.minusMillis(maxLifeTimeMillis);
+		DateTime lifeTimeLimit = now.minus(maxLifeTimeMillis);
 
 		if (lastModifiedDate.isBefore(lifeTimeLimit)) {
 			return true;
@@ -103,7 +103,7 @@ public class DeleteTempUploadFilesJob {
 		return maxLifeTimeMillis;
 	}
 
-	public void setMaxLifeTimeMillis(int maxLifeTimeMillis) {
+	public void setMaxLifeTimeMillis(long maxLifeTimeMillis) {
 		this.maxLifeTimeMillis = maxLifeTimeMillis;
 	}
 
