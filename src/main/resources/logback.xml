@@ -11,9 +11,9 @@
   
   
    <appender name="EMAIL_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${TCLOGDIR}/email.log</file>
+    <file>${MYLOGDIR}/email.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${TCLOGDIR}/email.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${MYLOGDIR}/email.%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>5</maxHistory>
     </rollingPolicy>
     <encoder>
@@ -22,9 +22,9 @@
   </appender>
   
    <appender name="TRACKING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${TCLOGDIR}/tracking.log</file>
+    <file>${MYLOGDIR}/tracking.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${TCLOGDIR}/tracking.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${MYLOGDIR}/tracking.%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>5</maxHistory>
     </rollingPolicy>
     <encoder>
@@ -33,9 +33,9 @@
   </appender>
   
   <appender name="MAIN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-    <file>${TCLOGDIR}/rd.log</file>
+    <file>${MYLOGDIR}/rd.log</file>
     <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-      <fileNamePattern>${TCLOGDIR}/rd.%d{yyyy-MM-dd}.log</fileNamePattern>
+      <fileNamePattern>${MYLOGDIR}/rd.%d{yyyy-MM-dd}.log</fileNamePattern>
       <maxHistory>5</maxHistory>
     </rollingPolicy>
     <encoder>
