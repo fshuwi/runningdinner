@@ -1,13 +1,16 @@
 package org.runningdinner.ui.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.joda.time.DateTime;
 import org.runningdinner.core.MealClass;
+import org.springframework.context.MessageSource;
 
 public class MealClassHelper {
 
@@ -51,6 +54,14 @@ public class MealClassHelper {
 				meal.setTime(dinnerTime.toDate());
 			}
 		}
+	}
+
+	public static List<MealClass> createDefaultMeals(final MessageSource messageSource, final Locale locale) {
+		ArrayList<MealClass> result = new ArrayList<MealClass>();
+		result.add(new MealClass(messageSource.getMessage("label.appetizer", null, locale)));
+		result.add(new MealClass(messageSource.getMessage("label.maincourse", null, locale)));
+		result.add(new MealClass(messageSource.getMessage("label.dessert", null, locale)));
+		return result;
 	}
 
 	public static class MealClassSorter implements Comparator<MealClass> {

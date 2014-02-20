@@ -18,7 +18,7 @@ public class TestDeleteTempUploadedFilesJob {
 	// 0,6 s for testing
 	private long MAX_LIFETIME_MILLIS = 600;
 
-	private String tmpUploadDirectoryPath = "/uploadDirTmp";
+	private String tmpUploadDirectoryPath = "src/test/resources/uploadDirTmp";
 	private File tmpUploadDirectory;
 
 	@Before
@@ -26,8 +26,8 @@ public class TestDeleteTempUploadedFilesJob {
 		// Construct own job instance by hand (the scheduled job spring-instance doesn't perform any work -> config_junit.properties)
 		// We want just to test functionality and not spring's scheduling:
 
-		tmpUploadDirectory = TestUtil.getClasspathResourceAsFile(tmpUploadDirectoryPath);
-		assertEquals(false, hasChildren(tmpUploadDirectory));
+		tmpUploadDirectory = new File(tmpUploadDirectoryPath);
+		assertEquals(0, TestUtil.getNumChildren(tmpUploadDirectory));
 
 		deleteFilesJob = new DeleteTempUploadFilesJob();
 		deleteFilesJob.setTmpUploadDirectory(tmpUploadDirectory.getAbsolutePath());
@@ -39,6 +39,8 @@ public class TestDeleteTempUploadedFilesJob {
 
 		File newFile1 = new File(tmpUploadDirectory.getAbsolutePath() + File.separator + "createdFile1.txt");
 		File newFile2 = new File(tmpUploadDirectory.getAbsolutePath() + File.separator + "createdFile2.txt");
+		newFile1.deleteOnExit();
+		newFile2.deleteOnExit();
 
 		// Create one file:
 		assertEquals(true, newFile1.createNewFile());
@@ -59,27 +61,12 @@ public class TestDeleteTempUploadedFilesJob {
 		deleteFilesJob.deleteOldFiles();
 		assertEquals(false, newFile1.exists());
 		assertEquals(false, newFile2.exists());
-		assertEquals(false, hasChildren(tmpUploadDirectory));
+		assertEquals(0, TestUtil.getNumChildren(tmpUploadDirectory));
 	}
 
 	@After
 	public void tearDown() throws URISyntaxException {
 		// This is a repetition of job logic... but anyway ensure an empty directory:
-		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectoryPath);
-
-		File[] children = file.listFiles();
-		if (children != null && children.length > 0) {
-			for (File child : children) {
-				child.delete();
-			}
-		}
-	}
-
-	protected boolean hasChildren(File directory) {
-		File[] tmp = directory.listFiles();
-		if (tmp == null || tmp.length == 0) {
-			return false;
-		}
-		return true;
+		TestUtil.deleteChildFiles(tmpUploadDirectory);
 	}
 }

@@ -19,12 +19,15 @@ import org.runningdinner.test.util.TestUtil;
 public class TestSerializeToDirHandler {
 
 	private SerializeToDirectoryHandler handler = new SerializeToDirectoryHandler();
-	private String tmpUploadDirectory = "/uploadDirTmp";
+
+	private String tmpUploadDirectoryPath = "src/test/resources/uploadDirTmp";
+
+	private File tmpUploadDirectory;
 
 	@Before
 	public void setUp() throws URISyntaxException {
-		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
-		handler.setTmpUploadDirectory(file.getAbsolutePath());
+		tmpUploadDirectory = new File(tmpUploadDirectoryPath);
+		handler.setTmpUploadDirectory(tmpUploadDirectory.getAbsolutePath());
 	}
 
 	@Test
@@ -56,24 +59,11 @@ public class TestSerializeToDirHandler {
 	}
 
 	protected int getNumChildrenOfTmpUploadDir() throws URISyntaxException {
-		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
-		File[] children = file.listFiles();
-		if (children == null || children.length == 0) {
-			return 0;
-		}
-		return children.length;
+		return TestUtil.getNumChildren(tmpUploadDirectory);
 	}
 
 	@After
 	public void tearDown() throws URISyntaxException {
-
-		File file = TestUtil.getClasspathResourceAsFile(tmpUploadDirectory);
-
-		File[] children = file.listFiles();
-		if (children != null && children.length > 0) {
-			for (File child : children) {
-				child.delete();
-			}
-		}
+		TestUtil.deleteChildFiles(tmpUploadDirectory);
 	}
 }

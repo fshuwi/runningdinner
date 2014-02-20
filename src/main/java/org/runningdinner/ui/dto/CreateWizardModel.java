@@ -1,9 +1,9 @@
 package org.runningdinner.ui.dto;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
@@ -11,6 +11,7 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.ui.util.MealClassHelper;
+import org.springframework.context.MessageSource;
 
 public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 
@@ -43,21 +44,25 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 	protected CreateWizardModel() {
 	}
 
-	public static CreateWizardModel newModelWithDefaults() {
+	public static CreateWizardModel newModelWithDefaultSettingsAndMeals(final MessageSource messageSource, final Locale locale) {
 		CreateWizardModel result = new CreateWizardModel();
-		result.initDefaults();
+		result.initDefaults(messageSource, locale);
 		return result;
 	}
 
-	public void initDefaults() {
+	public static CreateWizardModel newModelWithDefaultSettings() {
+		CreateWizardModel result = new CreateWizardModel();
+		result.initDefaults(null, null);
+		return result;
+	}
+
+	protected void initDefaults(final MessageSource messageSource, final Locale locale) {
 		this.teamSize = 2;
 		this.genderTeamDistribution = GenderAspect.IGNORE_GENDER;
 		this.equalTeamDistribution = true;
-
-		this.meals = new ArrayList<MealClass>(3);
-		this.meals.add(MealClass.APPETIZER);
-		this.meals.add(MealClass.MAINCOURSE);
-		this.meals.add(MealClass.DESSERT);
+		if (messageSource != null && locale != null) {
+			this.meals = MealClassHelper.createDefaultMeals(messageSource, locale);
+		}
 	}
 
 	/**

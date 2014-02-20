@@ -18,7 +18,7 @@ public class TestUtil {
 
 	public static RunningDinnerInfo createRunningDinnerInfo(String title, Date date, String email, String city) {
 		// Utilize that CreateWizardModel also implements RunningDinnerInfo:
-		CreateWizardModel result = CreateWizardModel.newModelWithDefaults();
+		CreateWizardModel result = CreateWizardModel.newModelWithDefaultSettings();
 		result.setTitle(title);
 		result.setCity(city);
 		result.setEmail(email);
@@ -46,5 +46,22 @@ public class TestUtil {
 		URL tmpUrl = TestUtil.class.getResource(path);
 		File file = new File(tmpUrl.toURI());
 		return file;
+	}
+
+	public static void deleteChildFiles(File directory) {
+		File[] children = directory.listFiles();
+		if (children != null && children.length > 0) {
+			for (File child : children) {
+				child.delete();
+			}
+		}
+	}
+
+	public static int getNumChildren(File directory) {
+		File[] tmp = directory.listFiles();
+		if (tmp == null || tmp.length == 0) {
+			return 0;
+		}
+		return tmp.length;
 	}
 }

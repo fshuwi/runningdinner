@@ -66,13 +66,13 @@ public class TestTeamMessageFormatter {
 		Participant p4 = generateParticipant("F4 L4", "S 4", false);
 
 		Team t1 = new Team(1);
-		MealClass m1 = MealClass.APPETIZER;
+		MealClass m1 = MealClass.APPETIZER();
 		m1.setTime(dateFormat.parse(time1));
 		t1.setTeamMembers(new HashSet<Participant>(Arrays.asList(p1, p2)));
 		t1.setMealClass(m1);
 
 		Team t2 = new Team(2);
-		MealClass m2 = MealClass.MAINCOURSE;
+		MealClass m2 = MealClass.MAINCOURSE();
 		m2.setTime(dateFormat.parse(time2));
 		t2.setTeamMembers(new HashSet<Participant>(Arrays.asList(p3, p4)));
 		t2.setMealClass(m2);

@@ -23,9 +23,9 @@ public class MealClassPropertyEditorTest {
 		editor = new MealClassPropertyEditor();
 
 		this.mealClasses.clear();
-		this.mealClasses.add(MealClass.APPETIZER);
-		this.mealClasses.add(MealClass.MAINCOURSE);
-		this.mealClasses.add(MealClass.DESSERT);
+		this.mealClasses.add(MealClass.APPETIZER());
+		this.mealClasses.add(MealClass.MAINCOURSE());
+		this.mealClasses.add(MealClass.DESSERT());
 	}
 
 	@SuppressWarnings("unchecked")
@@ -35,9 +35,9 @@ public class MealClassPropertyEditorTest {
 		editor.setAsText(json);
 		List<MealClass> convertedMealClasses = (List<MealClass>)editor.getValue();
 		assertEquals(3, convertedMealClasses.size());
-		assertEquals(true, convertedMealClasses.contains(MealClass.APPETIZER));
-		assertEquals(true, convertedMealClasses.contains(MealClass.MAINCOURSE));
-		assertEquals(true, convertedMealClasses.contains(MealClass.DESSERT));
+		assertEquals(true, convertedMealClasses.contains(MealClass.APPETIZER()));
+		assertEquals(true, convertedMealClasses.contains(MealClass.MAINCOURSE()));
+		assertEquals(true, convertedMealClasses.contains(MealClass.DESSERT()));
 	}
 
 	@Test
@@ -45,9 +45,10 @@ public class MealClassPropertyEditorTest {
 		editor.setValue(new ArrayList<MealClass>(mealClasses));
 		String json = editor.getAsText();
 		assertTrue(json.length() > 0);
+		System.out.println(json);
 		assertEquals(
 				"[{\"label\":\"Vorspeise\",\"time\":null},{\"label\":\"Nachspeise\",\"time\":null},{\"label\":\"Hauptgericht\",\"time\":null}]",
 				json);
-		System.out.println(json);
+
 	}
 }

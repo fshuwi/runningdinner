@@ -82,8 +82,8 @@ public class CreateWizardController extends AbstractBaseController {
 	}
 
 	@RequestMapping(value = RequestMappings.WIZARD_STEP, method = RequestMethod.GET)
-	public String startWizard(Model model, SessionStatus sessionStatus) {
-		CreateWizardModel wizardModel = CreateWizardModel.newModelWithDefaults();
+	public String startWizard(Model model, SessionStatus sessionStatus, Locale locale) {
+		CreateWizardModel wizardModel = CreateWizardModel.newModelWithDefaultSettingsAndMeals(messages, locale);
 		model.addAttribute("createWizardModel", wizardModel);
 		return getFullViewName("wizard-start");
 	}

@@ -11,7 +11,7 @@
    	<beans profile="dev,prod">
    		<jee:jndi-lookup id="dataSource" jndi-name="java:comp/env/jdbc/runningdinner"/>
     </beans>
-    <beans profile="junit">
+    <beans profile="junit,default">
     	<bean id="dataSource" 
     		class="org.apache.commons.dbcp.BasicDataSource"
 			p:driverClassName="${jdbc.driverClassName}"
