@@ -49,20 +49,7 @@
 		<servlet-name>MainServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-	
-	
-	<!-- Dandelion-Datatables servlet definition -->
-	<servlet>
-	   <servlet-name>datatablesController</servlet-name>
-	   <servlet-class>com.github.dandelion.datatables.extras.servlet2.servlet.DatatablesServlet</servlet-class>
-	</servlet>
-	
-	<!-- Dandelion-Datatables servlet mapping -->
-	<servlet-mapping>
-	   <servlet-name>datatablesController</servlet-name>
-	   <url-pattern>/datatablesController/*</url-pattern>
-	</servlet-mapping>
-	
+		
 	
 	<error-page>
 		<error-code>404</error-code>
