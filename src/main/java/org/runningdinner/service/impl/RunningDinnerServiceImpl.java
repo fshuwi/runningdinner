@@ -2,6 +2,7 @@ package org.runningdinner.service.impl;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
@@ -30,8 +31,11 @@ import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
+import org.runningdinner.model.BaseMailReport;
+import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.repository.jpa.RunningDinnerRepositoryJpa;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TempParticipantLocationHandler;
@@ -410,21 +414,40 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	@Override
+	@Transactional
 	public int sendTeamMessages(String uuid, final List<String> teamKeys, final TeamArrangementMessageFormatter messageFormatter) {
 
 		LOGGER.info("Send team-arrangement email messages for {} teams for dinner {}", teamKeys.size(), uuid);
 
 		Set<String> teamKeysAsSet = convertTeamKeysToSet(teamKeys);
 
-		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
+		if (CoreUtil.isEmpty(teamKeysAsSet)) {
+			LOGGER.warn("No teams passed for sending messages!");
+			return 0;
+		}
+
+		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
+		final List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
 
 		checkLoadedTeamSize(teams, teamKeysAsSet.size());
 
-		eventPublisher.publishTeamMessages(teams, messageFormatter);
+		final TeamMailReport teamMailStatusInfo = new TeamMailReport(dinner);
+		teamMailStatusInfo.applyNewSending();
+		repository.saveOrMerge(teamMailStatusInfo);
+
+		// Publish event only after transaction is successfully committed:
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				eventPublisher.publishTeamMessages(teams, messageFormatter, teamMailStatusInfo);
+			}
+		});
+
 		return teams.size();
 	}
 
 	@Override
+	@Transactional
 	public int sendDinnerRouteMessages(final String uuid, final List<String> selectedTeamKeys,
 			final DinnerRouteMessageFormatter dinnerRouteFormatter) {
 
@@ -432,11 +455,28 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 
 		Set<String> teamKeys = convertTeamKeysToSet(selectedTeamKeys);
 
-		List<Team> teams = repository.loadTeamsWithVisitationPlan(teamKeys, true);
+		if (CoreUtil.isEmpty(teamKeys)) {
+			LOGGER.warn("No teams passed for sending dinner route messages!");
+			return 0;
+		}
+
+		final List<Team> teams = repository.loadTeamsWithVisitationPlan(teamKeys, true);
+		final RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
 
 		checkLoadedTeamSize(teams, teamKeys.size());
 
-		eventPublisher.publishDinnerRouteMessages(teams, dinnerRouteFormatter);
+		final DinnerRouteMailReport dinnerRouteMailReport = new DinnerRouteMailReport(dinner);
+		dinnerRouteMailReport.applyNewSending();
+		repository.saveOrMerge(dinnerRouteMailReport);
+
+		// Publish event only after transaction is successfully committed:
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				eventPublisher.publishDinnerRouteMessages(teams, dinnerRouteFormatter, dinnerRouteMailReport);
+			}
+		});
+
 		return teams.size();
 	}
 
@@ -554,6 +594,19 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		}
 
 		RunningDinner mergedDinner = repository.saveOrMerge(dinner);
+
+		// First remove all mail status info entities as they have a foreign key relationship to runningdinner entity:
+		List<TeamMailReport> teamMailStatusInfos = repository.findAllMailReportsForDinner(mergedDinner.getUuid(), TeamMailReport.class);
+		List<DinnerRouteMailReport> dinnerRouteMailStatusInfos = repository.findAllMailReportsForDinner(mergedDinner.getUuid(),
+				DinnerRouteMailReport.class);
+
+		ArrayList<BaseMailReport> allStatusInfoObjects = new ArrayList<BaseMailReport>(teamMailStatusInfos);
+		allStatusInfoObjects.addAll(dinnerRouteMailStatusInfos);
+		for (BaseMailReport statusInfo : allStatusInfoObjects) {
+			repository.remove(statusInfo);
+		}
+
+		// Then remove finally the dinner:
 		// This removes automatically all participant-, mealclass- and team-associations (and entities):
 		repository.remove(mergedDinner);
 	}
@@ -661,6 +714,36 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		if (loadedTeams.size() != expectedSize) {
 			throw new IllegalStateException("Expected " + expectedSize + " teams to be found, but there were " + loadedTeams.size());
 		}
+	}
+
+	@Override
+	@Transactional
+	public BaseMailReport updateMailReport(final BaseMailReport mailReport) {
+		LOGGER.info("Update Mail Report from {} with sending-status: {}",
+				CoreUtil.getFormattedTime(mailReport.getSendingStartDate(), CoreUtil.getDefaultDateFormat(), "Unknown"),
+				mailReport.isSending());
+		return repository.saveOrMerge(mailReport);
+	}
+
+	@Override
+	public TeamMailReport findLastTeamMailReport(final String dinnerUuid) {
+		List<TeamMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, TeamMailReport.class);
+		if (CoreUtil.isEmpty(tmpResult)) {
+			return null;
+		}
+		return tmpResult.iterator().next();
+	}
+
+	@Override
+	@Transactional
+	public void deleteMailReport(BaseMailReport mailReport) {
+		BaseMailReport mergedReport = repository.saveOrMerge(mailReport);
+		repository.remove(mergedReport);
+	}
+
+	@Override
+	public List<BaseMailReport> findPendingMailReports(final Date sendingStartDateLimit) {
+		return repository.findPendingMailReports(sendingStartDateLimit);
 	}
 
 	@Autowired
