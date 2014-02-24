@@ -1,8 +1,10 @@
 package org.runningdinner.service.email;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -59,10 +61,11 @@ public class EmailService {
 		}
 	}
 
-	public void sendTeamArrangementMessages(final Collection<Team> teams, final TeamArrangementMessageFormatter formatter) {
+	public Map<String, Boolean> sendTeamArrangementMessages(final Collection<Team> teams, final TeamArrangementMessageFormatter formatter) {
+
+		Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
 
 		final String subject = formatter.getSubject();
-
 		for (Team team : teams) {
 
 			Set<Participant> allTeamMembers = team.getTeamMembers();
@@ -72,6 +75,7 @@ public class EmailService {
 
 				final String teamMemberMail = teamMember.getEmail();
 				if (!isEmailValid(teamMemberMail)) {
+					sendingResults.put(teamMemberMail, false);
 					continue;
 				}
 
@@ -88,18 +92,23 @@ public class EmailService {
 
 				try {
 					mailSender.send(mailMessage);
+					sendingResults.put(email, true);
 				}
 				catch (Exception ex) {
+					sendingResults.put(email, false);
 					LOGGER.error("Failed to send mail to {}", email, ex);
 				}
 			}
 		}
+
+		return sendingResults;
 	}
 
-	public void sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter) {
+	public Map<String, Boolean> sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter) {
+
+		Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
 
 		final String subject = formatter.getSubject();
-
 		for (Team team : teams) {
 
 			LOGGER.debug("Process team {} for dinnerroute message", team);
@@ -109,6 +118,7 @@ public class EmailService {
 
 				final String teamMemberEmail = teamMember.getEmail();
 				if (!isEmailValid(teamMemberEmail)) {
+					sendingResults.put(teamMemberEmail, false);
 					continue;
 				}
 
@@ -125,13 +135,16 @@ public class EmailService {
 
 				try {
 					mailSender.send(mailMessage);
+					sendingResults.put(email, true);
 				}
 				catch (Exception ex) {
+					sendingResults.put(email, false);
 					LOGGER.error("Failed to send mail to {}", email, ex);
 				}
 			}
 		}
 
+		return sendingResults;
 	}
 
 	public void sendMessageToParticipants(final Collection<Participant> participants, final String subject, final String message) {

@@ -1,6 +1,7 @@
 package org.runningdinner.service.email;
 
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -11,10 +12,13 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
 import org.runningdinner.core.Team;
+import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.events.NewRunningDinnerEvent;
 import org.runningdinner.events.SendDinnerRoutesEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
+import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,6 +41,8 @@ public class MailQueue {
 
 	private BlockingQueue<ApplicationEvent> mailMessagesQueue = new LinkedBlockingQueue<ApplicationEvent>();
 	private ExecutorService execService;
+
+	private EventPublisher eventPublisher;
 
 	/**
 	 * Used for disallowing any more events on the queue
@@ -91,6 +97,9 @@ public class MailQueue {
 
 		execService.shutdown();
 
+		// TODO: Currently we don't handle the MailStatusInfo object's interrupted states; it would be reasonable to retrieve all not
+		// completed tasks and try to store them in database as interrupted
+
 		try {
 			LOGGER.info("Await Executor service termination...");
 			execService.awaitTermination(2, TimeUnit.SECONDS);
@@ -104,7 +113,7 @@ public class MailQueue {
 	}
 
 	/**
-	 * Worker thread that takes and process ApplicationEVents from the queue
+	 * Worker thread that takes and process ApplicationEvents from the queue
 	 * 
 	 * @author Clemens Stich
 	 * 
@@ -133,18 +142,23 @@ public class MailQueue {
 					return;
 				}
 
-				LOGGER.info("Received event from queue {}", event);
+				LOGGER.info("Received event {}", event);
 
-				if (event instanceof NewRunningDinnerEvent) {
-					sendNewRunningDinnerEmail((NewRunningDinnerEvent)event);
+				try {
+					if (event instanceof NewRunningDinnerEvent) {
+						sendNewRunningDinnerEmail((NewRunningDinnerEvent)event);
+					}
+
+					if (event instanceof SendTeamArrangementsEvent) {
+						sendTeamArrangementMails((SendTeamArrangementsEvent)event);
+					}
+
+					if (event instanceof SendDinnerRoutesEvent) {
+						sendDinnerRouteMails((SendDinnerRoutesEvent)event);
+					}
 				}
-
-				if (event instanceof SendTeamArrangementsEvent) {
-					sendTeamArrangementMails((SendTeamArrangementsEvent)event);
-				}
-
-				if (event instanceof SendDinnerRoutesEvent) {
-					sendDinnerRouteMails((SendDinnerRoutesEvent)event);
+				catch (Exception ex) {
+					LOGGER.error("Fatal error while processing event {}", event, ex);
 				}
 			}
 
@@ -160,16 +174,23 @@ public class MailQueue {
 
 		private void sendTeamArrangementMails(SendTeamArrangementsEvent event) {
 			List<Team> teams = event.getRegularTeams();
-			TeamArrangementMessageFormatter teamArrangementMessageFormatter = event.getTeamArrangementMessageFormatter();
-			emailService.sendTeamArrangementMessages(teams, teamArrangementMessageFormatter);
+			TeamArrangementMessageFormatter teamArrangementMessageFormatter = event.getTeamArrangementsMessageFormatter();
+			TeamMailReport teamMailReport = event.getTeamMailReport();
+
+			Map<String, Boolean> sendingResults = emailService.sendTeamArrangementMessages(teams, teamArrangementMessageFormatter);
+
+			eventPublisher.notifySendTeamMailsFinished(teamMailReport, sendingResults);
 		}
 
 		private void sendDinnerRouteMails(SendDinnerRoutesEvent event) {
 			List<Team> teams = event.getTeams();
 			DinnerRouteMessageFormatter dinnerRouteMessageFormatter = event.getDinnerRouteMessageFormatter();
-			emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter);
-		}
+			DinnerRouteMailReport dinnerRouteMailReport = event.getDinnerRouteMailReport();
 
+			Map<String, Boolean> sendingResults = emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter);
+
+			eventPublisher.notifySendDinnerRouteMailsFinished(dinnerRouteMailReport, sendingResults);
+		}
 	}
 
 	@Autowired
@@ -180,6 +201,11 @@ public class MailQueue {
 	@Autowired
 	public void setAdminUrlGenerator(AdminUrlGenerator adminUrlGenerator) {
 		this.adminUrlGenerator = adminUrlGenerator;
+	}
+
+	@Autowired
+	public void setEventPublisher(EventPublisher eventPublisher) {
+		this.eventPublisher = eventPublisher;
 	}
 
 }

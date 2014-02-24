@@ -21,6 +21,8 @@ public class MailSenderMockInMemory implements MailSender {
 
 	protected Set<SimpleMailMessage> messages = new HashSet<SimpleMailMessage>();
 
+	protected long simulatedMailSendingTimeMillis = 10;
+
 	private static Logger LOGGER = LoggerFactory.getLogger(MailSenderMockInMemory.class);
 
 	@Override
@@ -31,8 +33,18 @@ public class MailSenderMockInMemory implements MailSender {
 	@Override
 	public void send(SimpleMailMessage[] simpleMessages) throws MailException {
 		if (simpleMessages == null) {
+			LOGGER.warn("No messages passed!");
 			return;
 		}
+
+		try {
+			Thread.sleep(simulatedMailSendingTimeMillis);
+		}
+		catch (InterruptedException e) {
+			LOGGER.warn("Mail sending was interrupted, cancel all currently passed messages to send", e);
+			return;
+		}
+
 		if (simpleMessages.length == 1) {
 			LOGGER.info("Sending mail to {}", simpleMessages[0].getTo()[0]); // To-field is actually always field... anyway this is just a
 																				// mock
@@ -50,6 +62,10 @@ public class MailSenderMockInMemory implements MailSender {
 
 	public void removeAllMessages() {
 		this.messages.clear();
+	}
+
+	public void setSimulatedMailSendingTimeMillis(long simulatedMailSendingTimeMillis) {
+		this.simulatedMailSendingTimeMillis = simulatedMailSendingTimeMillis;
 	}
 
 }
