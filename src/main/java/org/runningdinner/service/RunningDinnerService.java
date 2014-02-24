@@ -16,8 +16,10 @@ import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.exceptions.DinnerNotFoundException;
+import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.web.multipart.MultipartFile;
@@ -253,4 +255,36 @@ public interface RunningDinnerService {
 	 */
 	void updateMealTimes(String uuid, Set<MealClass> meals);
 
+	/**
+	 * Persists the changes in the passed mail report.
+	 * 
+	 * @param mailReport
+	 * @return
+	 */
+	BaseMailReport updateMailReport(BaseMailReport mailReport);
+
+	/**
+	 * Finds the last mail report about sending team arrangements for the dinner identified by the passed uuid.
+	 * 
+	 * @param dinnerUuid
+	 * @return The found report or null if e.g. there was never send a team arrangment mail
+	 */
+	TeamMailReport findLastTeamMailReport(final String dinnerUuid);
+
+	/**
+	 * Finds all mail reports that are pending. Pending means that a report is still in "sending"-state, but it seems to never complete (may
+	 * e.g. happen if container is shutdown while there was an active sending mail task).
+	 * 
+	 * @param sendingStartDateLimit Every report (which is in sending state) that is older as this passed date is recognized as a pending
+	 *            report
+	 * @return
+	 */
+	List<BaseMailReport> findPendingMailReports(final Date sendingStartDateLimit);
+
+	/**
+	 * Deletes the passed mail report regardless it's state
+	 * 
+	 * @param mailReport
+	 */
+	void deleteMailReport(BaseMailReport mailReport);
 }

@@ -14,6 +14,7 @@ import javax.persistence.TypedQuery;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.model.AbstractEntity;
+import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -247,6 +248,42 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		return getSingleResultMandatory(query);
 	}
 
+	/**
+	 * Returns a list with all mail status entities (e.g. status about team sending emails) for the dinner identified by the passed uuid.<br>
+	 * The returned list is ordered by creation date with the latest one coming first.
+	 * 
+	 * @param uuid
+	 * @param mailStatusInfoClass
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public <T extends BaseMailReport> List<T> findAllMailReportsForDinner(final String uuid, final Class<T> mailStatusInfoClass) {
+		// Note: This works only with hibernate! We use the CLASS clause for getting the concrete subclass.
+		// JPA uses the TYPE clause for doing so, but this works only with hibernate 4 and above (hibernate 3.x has a bug)
+		TypedQuery<BaseMailReport> query = em.createQuery(
+				"SELECT mr FROM BaseMailReport mr WHERE mr.class = " + mailStatusInfoClass.getSimpleName()
+						+ " AND mr.runningDinner.uuid=:uuid ORDER BY mr.sendingStartDate DESC", BaseMailReport.class);
+		query.setParameter("uuid", uuid);
+		return (List<T>)query.getResultList();
+	}
+
+	/**
+	 * Finds all mail reports that are pending. Pending means that a report is still in "sending"-state, but it seems to never complete (may
+	 * e.g. happen if container is shutdown while there was an active sending mail task).<br>
+	 * Note: This query returns different types of reports.
+	 * 
+	 * @param sendingStartDateLimit Every report (which is in sending state) that is older as this passed date is recognized as a pending
+	 *            report
+	 * @return
+	 */
+	public List<BaseMailReport> findPendingMailReports(final Date sendingStartDateLimit) {
+		TypedQuery<BaseMailReport> query = em.createQuery(
+				"SELECT mr FROM BaseMailReport mr WHERE mr.sendingStartDate < :sendingStartDate AND mr.sending = true",
+				BaseMailReport.class);
+		query.setParameter("sendingStartDate", sendingStartDateLimit, TemporalType.TIMESTAMP);
+		return query.getResultList();
+	}
+
 	@Transactional
 	public <T extends AbstractEntity> T saveOrMerge(final T entity) {
 		if (entity.isNew()) {
@@ -262,4 +299,5 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 	public <T extends AbstractEntity> void remove(final T entity) {
 		em.remove(entity);
 	}
+
 }
