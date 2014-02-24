@@ -36,7 +36,15 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 	public void validate(Object target, Errors errors) {
 		validateBasicDinnerOptions(target, errors);
 
-		super.validateMealTimes(((CreateWizardModel)target).getMeals(), errors);
+		CreateWizardModel createWizardModel = (CreateWizardModel)target;
+
+		super.validateMealTimes(createWizardModel.getMeals(), errors);
+
+		ValidationUtils.rejectIfEmpty(errors, "email", "error.required.email");
+		if (StringUtils.isNotEmpty(createWizardModel.getEmail()) && createWizardModel.getEmail().indexOf("@") < 0) {
+			// This simple check is sufficient for now
+			errors.rejectValue("email", "error.invalid.email");
+		}
 
 		// Actually these are internal attributes that should always exist, but if user maybe accessed the wizard in another way, these may
 		// not exist. We just indicate this with a general error message:
