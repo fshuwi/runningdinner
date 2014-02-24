@@ -1,0 +1,2 @@
+export _JAVA_OPTIONS="-Dspring.profiles.active=prod"
+export _JAVA_OPTIONS="-DMYLOGDIR=/var/lib/openshift/530475c04382ec3535000060/jbossews/logs/"
