@@ -9,7 +9,7 @@
     </encoder>
   </appender>
   
-  	<logger name="org.runningdinner.service.email.EmailService" level="INFO" additivity="false">
+  	<logger name="org.runningdinner.service.email.EmailService" level="DEBUG" additivity="false">
 		<appender-ref ref="STDOUT" />
 	</logger>
 	

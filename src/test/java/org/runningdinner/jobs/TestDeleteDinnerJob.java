@@ -4,8 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
-import java.util.Date;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.sql.DataSource;
@@ -14,11 +12,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
-import org.runningdinner.core.Participant;
-import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.RunningDinner;
-import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.test.util.TestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +25,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/app-context.xml", "classpath:spring/mail-context.xml" })
+@ContextConfiguration(locations = { TestUtil.APP_CONTEXT, TestUtil.MAIL_CONTEXT })
 @ActiveProfiles("junit")
 // Clear database after each test method is run... this is quite of an overhead, but sufficient for the samll test cases
 // @Transactional for each test-method sucks
@@ -76,7 +71,7 @@ public class TestDeleteDinnerJob {
 			assertTrue(true);
 		}
 
-		RunningDinner dinner = createDinnerAndVisitationPlans();
+		RunningDinner dinner = TestUtil.createExampleDinnerAndVisitationPlans(runningDinnerService, MY_TEST_UUID);
 
 		// This call should not delete anything as (hopefully :-)) 1,5 seconds have not been passed till now. Quite rough testing ;-)
 		deleteDinnerJob.deleteOldDinnerInstances();
@@ -114,22 +109,6 @@ public class TestDeleteDinnerJob {
 
 	private int getNumRowsInTable(final String tablename) {
 		return jdbcTemplate.queryForInt("SELECT distinct count(*) FROM " + tablename);
-	}
-
-	private RunningDinner createDinnerAndVisitationPlans() throws NoPossibleRunningDinnerException {
-		Date now = new Date();
-		RunningDinnerInfo info = TestUtil.createRunningDinnerInfo("title", now, "email@email.de", "Freiburg");
-		RunningDinnerConfig runningDinnerConfig = RunningDinnerConfig.newConfigurer().build();
-
-		List<Participant> participants = TestUtil.generateParticipants(18 + 1);
-
-		RunningDinner dinner = runningDinnerService.createRunningDinner(info, runningDinnerConfig, participants, MY_TEST_UUID);
-		runningDinnerService.createTeamAndVisitationPlans(MY_TEST_UUID);
-
-		assertEquals(9, runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID).size());
-		assertEquals(1, runningDinnerService.loadNotAssignableParticipantsOfDinner(MY_TEST_UUID).size());
-
-		return dinner;
 	}
 
 }

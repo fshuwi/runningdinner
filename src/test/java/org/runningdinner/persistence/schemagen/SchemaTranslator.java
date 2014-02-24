@@ -12,7 +12,9 @@ import org.runningdinner.core.MealClass;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.VisitationPlan;
+import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.TeamMailReport;
 
 public class SchemaTranslator {
 	private Configuration config = null;
@@ -76,11 +78,12 @@ public class SchemaTranslator {
 
 	public static void main(String[] args) throws IOException {
 		SchemaTranslator translator = new SchemaTranslator();
-		Class<?>[] entityClasses = { MealClass.class/* , RunningDinnerConfig.class */, Participant.class, Team.class, VisitationPlan.class,
-				RunningDinner.class };
+		Class<?>[] entityClasses = { MealClass.class, Participant.class, Team.class, VisitationPlan.class, RunningDinner.class,
+				TeamMailReport.class, DinnerRouteMailReport.class };
 
-		translator.setDialect("org.hibernate.dialect.DerbyDialect").addAnnotatedClasses(entityClasses).translate(
-				new FileOutputStream(new File("db-schema.sql")));
+		String dialect = "org.hibernate.dialect.MySQLDialect";
+		// String dialect = "org.hibernate.dialect.DerbyDialect";
+		translator.setDialect(dialect).addAnnotatedClasses(entityClasses).translate(new FileOutputStream(new File("db-schema.sql")));
 
 	}
 

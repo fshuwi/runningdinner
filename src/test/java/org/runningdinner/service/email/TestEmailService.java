@@ -12,6 +12,7 @@ import org.runningdinner.event.listener.NewRunningDinnerMailListener;
 import org.runningdinner.events.NewRunningDinnerEvent;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.email.mock.MailSenderMockInMemory;
+import org.runningdinner.test.util.TestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.test.context.ActiveProfiles;
@@ -19,7 +20,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = { "classpath:spring/app-context.xml", "classpath:spring/mail-context.xml" })
+@ContextConfiguration(locations = { TestUtil.APP_CONTEXT, TestUtil.MAIL_CONTEXT })
 @ActiveProfiles("junit")
 public class TestEmailService {
 
