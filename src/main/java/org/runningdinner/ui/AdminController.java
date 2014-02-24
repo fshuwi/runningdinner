@@ -23,6 +23,7 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.ui.dto.EditMealTimesModel;
@@ -73,8 +74,6 @@ public class AdminController extends AbstractBaseController {
 
 	private AdminValidator adminValidator;
 
-	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";
-
 	private static Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
 	@InitBinder
@@ -100,22 +99,15 @@ public class AdminController extends AbstractBaseController {
 	public String showTeamArrangement(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
-		// TODO: Method should be revised!
-
-		int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
+		final int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
 
 		List<Team> regularTeams = null;
 		List<Participant> notAssignedParticipants = null;
-
-		// TeamAdministrationModel teamAdminModel = null;
-		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		if (numberOfTeamsForDinner > 0) {
 			// Team/Dinner-plan already persisted, fetch it from DB:
 			regularTeams = runningDinnerService.loadRegularTeamsWithVisitationPlanFromDinner(uuid);
 			notAssignedParticipants = runningDinnerService.loadNotAssignableParticipantsOfDinner(uuid);
-
-			// teamAdminModel = TeamAdministrationModel.fromActivities(dinner.getActivities(), true);
 		}
 		else {
 			// Team/Dinner-plan not yet persisted, generate new one and persist it to DB:
@@ -129,14 +121,11 @@ public class AdminController extends AbstractBaseController {
 				regularTeams = Collections.emptyList();
 				notAssignedParticipants = runningDinnerService.loadAllParticipantsOfDinner(uuid);
 			}
-
-			// teamAdminModel = TeamAdministrationModel.fromFirstTeamGeneration(regularTeams.size() > 0);
 		}
 
 		model.addAttribute("regularTeams", regularTeams);
 		model.addAttribute("notAssignedParticipants", notAssignedParticipants);
 		model.addAttribute("uuid", uuid);
-		// model.addAttribute("teamAdministration", teamAdminModel);
 
 		return getFullViewName("teams");
 	}
@@ -153,9 +142,12 @@ public class AdminController extends AbstractBaseController {
 		sendTeamsModel.setTeamDisplayMap(teamDisplayMap);
 
 		// Select all Teams:
-		if (request.getParameter(SELECT_ALL_TEAMS_PARAMETER) != null) {
+		if (request.getParameter(RequestMappings.SELECT_ALL_TEAMS_PARAMETER) != null) {
 			sendTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
 		}
+
+		TeamMailReport teamMailStatusInfo = runningDinnerService.findLastTeamMailReport(uuid);
+		sendTeamsModel.setLastMailSendingStatus(teamMailStatusInfo);
 
 		model.addAttribute("uuid", uuid);
 		model.addAttribute("sendTeamsModel", sendTeamsModel);
@@ -187,6 +179,7 @@ public class AdminController extends AbstractBaseController {
 			sendTeamsModel.setTeamDisplayMap(getTeamsToSelect(uuid)); // Reload teams for display
 			model.addAttribute("sendTeamsModel", sendTeamsModel);
 			model.addAttribute("uuid", uuid);
+			// Team-Status not included here currently...
 			return getFullViewName("sendTeamsForm");
 		}
 
@@ -346,6 +339,18 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.EXPORT_TEAMS, method = RequestMethod.GET)
 	public String exportTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	@RequestMapping(value = RequestMappings.SEND_PARTICIPANT_MAILS, method = RequestMethod.GET)
+	public String sendParticipantMails(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
+		adminValidator.validateUuid(uuid);
+		throw new UnsupportedOperationException("not yet implemented");
+	}
+
+	@RequestMapping(value = RequestMappings.EXCHANGE_TEAM, method = RequestMethod.GET)
+	public String exchangeTeam(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 		throw new UnsupportedOperationException("not yet implemented");
 	}

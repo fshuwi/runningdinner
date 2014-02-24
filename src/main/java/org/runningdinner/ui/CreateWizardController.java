@@ -44,8 +44,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.util.WebUtils;
 
-// TODO: Remove parsing config from session attributes!
-
 /**
  * This controller acts as the landing page and contains all methods for creating a new running dinner.<br>
  * The state of the wizard is hold in a session object during execution of wizard.
@@ -90,7 +88,7 @@ public class CreateWizardController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.WIZARD_FINISH, method = RequestMethod.GET)
 	public String finishWizard(@ModelAttribute("createWizardModel") CreateWizardModel createWizardModel, Model model) {
-		model.addAttribute("createWizardMOdel", createWizardModel);
+		// model.addAttribute("createWizardModel", createWizardModel);
 		return getFullViewName("finish");
 	}
 
@@ -112,6 +110,7 @@ public class CreateWizardController extends AbstractBaseController {
 		if (request.getParameter("_finish") != null) {
 			validator.validate(createWizardModel, bindingResult);
 			if (bindingResult.hasErrors()) {
+				reloadParticipantsIntoModel(createWizardModel, request, locale);
 				return getFullViewName(wizardViews.get(currentWizardView));
 			}
 
@@ -155,6 +154,17 @@ public class CreateWizardController extends AbstractBaseController {
 
 		// Advance to next view
 		return getFullViewName(wizardViews.get(targetView));
+	}
+
+	protected void reloadParticipantsIntoModel(CreateWizardModel createWizardModel, HttpServletRequest request, Locale locale) {
+		try {
+			List<Participant> participants = runningDinnerService.getParticipantListFromTempLocation(createWizardModel.getUploadedFileLocation());
+			setParticipantListViewAttributes(request, participants, createWizardModel.createRunningDinnerConfiguration(), locale);
+		}
+		catch (IOException ex) {
+			throw new IllegalStateException("Could not get participants list from location " + createWizardModel.getUploadedFileLocation(),
+					ex);
+		}
 	}
 
 	protected void prepareUploadView(Model model, CreateWizardModel createWizardModel) {

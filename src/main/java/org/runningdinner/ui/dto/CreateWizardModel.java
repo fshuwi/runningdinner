@@ -8,7 +8,6 @@ import java.util.Locale;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.RunningDinnerConfig;
-import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.ui.util.MealClassHelper;
 import org.springframework.context.MessageSource;
@@ -39,7 +38,7 @@ public class CreateWizardModel implements RunningDinnerInfo, Serializable {
 
 	private String email;
 
-	private ParsingConfiguration parsingConfiguration; // TODO: Maybe this isn't needed!
+	// private ParsingConfiguration parsingConfiguration; // TODO: Maybe this isn't needed!
 
 	protected CreateWizardModel() {
 	}

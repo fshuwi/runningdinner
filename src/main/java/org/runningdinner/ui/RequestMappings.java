@@ -15,6 +15,7 @@ public class RequestMappings {
 	public static final String SHOW_PARTICIPANTS = ADMIN_URL_PATTERN + "/participants";
 	public static final String EDIT_MEALTIMES = ADMIN_URL_PATTERN + "/mealtimes";
 	public static final String EDIT_PARTICIPANT = ADMIN_URL_PATTERN + "/participant/{key}/edit";
+	public static final String EXCHANGE_TEAM = ADMIN_URL_PATTERN + "/teams/exchange";
 
 	public static final String AJAX_SAVE_HOSTS = ADMIN_URL_PATTERN + "/teams/savehosts";
 	public static final String AJAX_SWITCH_TEAMMEMBERS = ADMIN_URL_PATTERN + "/teams/switchmembers";
@@ -26,4 +27,8 @@ public class RequestMappings {
 
 	// *************** Private Team request mappings ****************** //
 	public static final String TEAM_DINNER_ROUTE = "/team/{key}/route";
+
+	// *************** Request Parameters ********************* //
+	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";
+
 }
