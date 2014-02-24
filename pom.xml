@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.runningdinner</groupId>
 			<artifactId>runningdinner-core</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
+			<version>0.0.1</version>
 		</dependency>
 			
 		<dependency>
