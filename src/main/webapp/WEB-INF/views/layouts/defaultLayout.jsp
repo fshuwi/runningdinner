@@ -13,17 +13,8 @@
 	  
 	<body>
   		  
-  		<tiles:insertAttribute name="menu" />
-  			
   		<div class="my-fluid-container">
   		 	
-  		 	<%--
-  			<div class="row">
-  				<div clasS="col-xs-12">
-  					<tiles:insertDefinition name="view-admin-menu" />
-  				</div>
-  			</div>
-  			--%>
   			<div class="row">
   				<div class="col-sm-3 col-md-2" style="margin-top:15px;">
   					<tiles:useAttribute name="currentView" id="currentView" classname="java.lang.String" ignore="true"/>

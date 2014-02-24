@@ -1,3 +1,5 @@
-<h1>Fehler</h1>
-<h2>Unerwarteter Fehler</h2>
-<div class="error-details">Es ist leider ein Fehler aufgetreten TODO</div>
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
+<h1><spring:message code="error.page.default.headline" /></h1>
+<h2><spring:message code="error.page.default.subheadline" /></h2>
+<div class="error-details"><spring:message code="error.page.default.details" /></div>

@@ -9,7 +9,7 @@
 
 <img src="<c:url value="/resources/images/ajax-loader.gif" />" id="dragdrop-ajax-loader" style="display:none;position:absolute;left:-10px;top:-10px;" />
 
-<spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="teamsFinalizeUrl" htmlEscape="true">
+<spring:url value="<%=RequestMappings.SEND_TEAM_MAILS%>" var="sendMessagesUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 <spring:url value="<%=RequestMappings.EXPORT_TEAMS%>" var="teamsExportUrl" htmlEscape="true">
@@ -119,9 +119,10 @@
 							<td colspan="2">
 								<spring:message code="tooltip.teams.sendmessage" var="sendMessagesTooltip"/>
 								<spring:message code="label.teams.sendmessage" var="sendMessagesLabel"/>
-								<a ${saveTeamsBtnStatus} class="btn btn-success btn-sm doTooltip" href="${teamsFinalizeUrl}" 
+								<a class="btn btn-success btn-sm doTooltip" href="${sendMessagesUrl}?<%=RequestMappings.SELECT_ALL_TEAMS_PARAMETER%>" 
 									data-placement="bottom" data-toggle="tooltip" data-original-title="${sendMessagesTooltip}">
-									<span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}</a>
+									<span class="glyphicon glyphicon-play"></span> ${sendMessagesLabel}
+								</a>
 							</td>
 						</tr>
 					</tbody>

@@ -11,13 +11,15 @@
 
 <tiles:insertDefinition name="view-status-info" />
 
-<div class="jumbotron" style="padding-top:17px;padding-bottom:20px;">
-	<h2>${runningDinner.title}</h2>
-	<c:if test="${not empty runningDinner.city}">
-		<p>Wo: <span class="text-success"><strong>${runningDinner.city}</strong></span></p>
-	</c:if>
-	<p>Wann: <span class="text-success"><strong><fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${runningDinner.date}" /></strong></span></p>
+<div class="jumbotron well" style="padding-top:17px;padding-bottom:20px;">
+	<h3>${runningDinner.title}</h3>
 	<div class="row">
+		<div class="col-xs-4">
+			<c:if test="${not empty runningDinner.city}">
+				<p>Wo: <span class="text-success"><strong>${runningDinner.city}</strong></span></p>
+			</c:if>
+			<p>Wann: <span class="text-success"><strong><fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${runningDinner.date}" /></strong></span></p>
+		</div>
 		<div class="col-xs-4">
 			<c:forEach items="${runningDinner.configuration.mealClasses}" var="meal">
 				<span class="label label-primary"><fmt:formatDate value="${meal.time}" pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" /> Uhr</span> <span class="badge">${meal.label}</span><br/>
@@ -25,16 +27,3 @@
 		</div>
 	</div>
 </div>
-
-<div class="row">
-	<div class="col-xs-12">
-		<div class="well">
-			<p>TODO: Aktivitäten</p>
-		</div>
-	</div>
-</div>
-
-
-
-
-

@@ -22,10 +22,6 @@
 		setUpDragDrop();
 	});
 	
-	function toggleTeamSelection() {
-		checked = $('#allTeamsSelectedBox').is(":checked");
-		$('.teamSelectionBox').prop("checked", checked);
-	}
 	
 	function setUpDragDrop() {
 		 $(".draggableTeamMember").draggable({ revert: "invalid" });

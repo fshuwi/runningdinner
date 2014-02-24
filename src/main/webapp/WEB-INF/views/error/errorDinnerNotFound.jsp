@@ -1,3 +1,5 @@
+<%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+
 <h1>Oops!</h1>
-<h2>Dinner nicht gefunden</h2>
-<div class="error-details">Das von dir zu öffnende Running Dinner scheint nicht (mehr) zu existieren</div>
+<h2><spring:message code="error.page.dinner.notfound" /></h2>
+<div class="error-details"><spring:message code="error.page.dinner.notfound.details" /></div>

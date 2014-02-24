@@ -15,9 +15,6 @@
 <spring:url value="<%= RequestMappings.EDIT_MEALTIMES %>" var="mealtimesUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/options" var="optionsUrl" htmlEscape="true">
-	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
-</spring:url>
 
 <spring:url value="<%=RequestMappings.SHOW_PARTICIPANTS%>" var="participantsUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
@@ -25,7 +22,7 @@
 <spring:url value="/event/{uuid}/admin/participants/upload" var="participantsUploadUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="/event/{uuid}/admin/teams/exchange" var="teamsExchangeUrl" htmlEscape="true">
+<spring:url value="<%=RequestMappings.EXCHANGE_TEAM%>" var="teamsExchangeUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 

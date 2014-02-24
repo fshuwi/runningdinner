@@ -8,7 +8,6 @@
 	<definition name="template-basis">
 		<put-attribute name="pageTitle" value="Run Your Dinner" />
   		<put-attribute name="htmlHeader" value="/WEB-INF/views/defaultHtmlHeader.jsp"/>
-  		<put-attribute name="menu" value="/WEB-INF/views/menu.jsp" />
   		<put-attribute name="content" value="" />
   		<put-attribute name="footer" value="/WEB-INF/views/footer.jsp"/>
   		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>

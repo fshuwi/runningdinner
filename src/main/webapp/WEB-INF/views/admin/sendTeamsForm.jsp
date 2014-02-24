@@ -5,71 +5,77 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@page import="org.runningdinner.core.CoreUtil" %>
 
+<h3 class="contentheadline"><spring:message code="headline.teams.sendmessage" /></h3>
 
-<h3 class="contentheadline">Mail-Benachrichtigung über Teameinteilungen</h3>
+<div class="alert alert-info"><spring:message code="text.teams.sendmessage.info" /></div>
 
-<div class="row well">
-	<div class="col-xs-12">
+<c:choose>
+	<c:when test="${not empty sendTeamsModel.lastMailSendingStatus}">
+		<fmt:formatDate dateStyle="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" timeStyle="HH:mm:ss" type="BOTH" value="${sendTeamsModel.lastMailSendingStatus.sendingStartDate}" var="startDate"/>
 		<c:choose>
-			<c:when test="${teamAdministration.teamsAlreadySaved}">
-				Teams wurden bereits gespeichert, es koennen nur noch Mails versandt werden
+			<c:when test="${sendTeamsModel.lastMailSendingStatus.sending}">
+				<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}"/></div>
 			</c:when>
 			<c:otherwise>
-				Die Teameinteilung kann im Nachhinein nicht mehr veraendert werden (es koennen nur einzelne Teilnehmer innerhalb eines Teams ausgetauscht werden bzw. das gastgebende Mitglied kann getauscht werden).
-				Wenn gewuenscht, wird (durch Ausfuellen des Formulars) jedem Teilnehmer eine Mail geschickt, in welcher er erfaehrt wer sein(e) Teampartner ist/sind und welche Speise zubereitet werden soll.
+				<div class="alert alert-info"><strong>Info</strong><br/>
+					<spring:message code="text.teams.sendmessage.alreadysent" arguments="${startDate}"/>
+					<c:if test="sendTeamsModel.lastMailSendingStatus.">
+					</c:if>
+				</div>
 			</c:otherwise>
 		</c:choose>
-	</div>
-</div>
+	</c:when>
+</c:choose>
 
-<c:if test="${teamAdministration.mailsAlreadySent}">
-	<div class="alert alert-info"><strong>Info</strong><br/>
-		Du hast schon einmal Benachrichtigungen an alle Teilnehmer versandt.
-	</div>
-</c:if>
+<script>
+	var charCounters = {};
+	charCounters["message"] = 3000;
+	charCounters["hostMessagePartTemplate"] = 300;
+	charCounters["nonHostMessagePartTemplate"] = 300;
+</script>
 
 <div>	
 	<form:form method="POST" commandName="sendTeamsModel" htmlEscape="true" role="form">
 		<div class="well">
 			<spring:message code="label.subject" var="subjectLabel" />
 			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
-			
+						
 			<div class="form-group">
 				<label for="message"><spring:message code="label.message" /></label>
-				<span class="help-block">Benutze folgende Templates: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}</span>
+				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="counter">3000 characters remaining</h6>
+				<h6 class="pull-right" id="message_counter">3000 characters remaining</h6>
 				<form:errors path="message"/>
 			</div>
 			
 			<div class="form-group">
-				<label for="hostMessagePartTemplate">Nachricht für Gastgeber</label>
-				<span class="help-block">Dieser Block wird weiter oben unter {host} eingefügt</span>
-				<form:textarea path="hostMessagePartTemplate" id="hostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control" />
-				<h6 class="pull-right" id="hostMessageTemplateCounter">200 characters remaining</h6>
+				<label for="hostMessagePartTemplate"><spring:message code="label.message.sendteams.host" /></label>
+				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{host}" /></span>
+				<form:textarea path="hostMessagePartTemplate" id="hostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
+				<h6 class="pull-right" id="hostMessagePartTemplate_counter">300 characters remaining</h6>
 				<form:errors path="hostMessagePartTemplate"/>
 			</div>
 			
 			<div class="form-group">
-				<label for="nonHostMessagePartTemplate">Nachricht für Nicht-Gastgeber</label>
-				<span class="help-block">Dieser Block wird weiter oben unter {host} eingefügt</span>
-				<form:textarea path="nonHostMessagePartTemplate" id="nonHostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control" />
-				<h6 class="pull-right" id="nonHostMessageTemplateCounter">200 characters remaining</h6>
+				<label for="nonHostMessagePartTemplate"><spring:message code="label.message.sendteams.nonhost" /></label>
+				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{host}" /></span>
+				<form:textarea path="nonHostMessagePartTemplate" id="nonHostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
+				<h6 class="pull-right" id="nonHostMessagePartTemplate_counter">300 characters remaining</h6>
 				<form:errors path="nonHostMessagePartTemplate"/>
 			</div>
 		</div>
 		
+		<input type="submit" class="btn btn-primary" value="<spring:message code="label.teams.sendmessage"/>" name="sendTeamMessages" />
 		
-		<div>
+		<div style="margin-top:20px;">
 			<h4><spring:message code="label.teams.selection" /></h4>
 			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
-			<ul>
+			<ul class="teamSelection">
 				<form:checkboxes element="li" items="${sendTeamsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
 			</ul>
 		</div>
 		
-		<input type="submit" class="btn btn-primary" value="Teameinteilungen verschicken" name="sendTeamMessages" />
-	
 	</form:form>		
 </div>

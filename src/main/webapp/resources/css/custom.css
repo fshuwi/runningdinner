@@ -27,6 +27,12 @@ h3 .contentheadline {
 	margin-top:0 ! important;
 }
 
+.teamSelection {
+    list-style-type: none ! important;
+    margin: 0 0 0 15px;
+    padding: 0;
+}
+
 /*
 .container {
 	padding: 0;
