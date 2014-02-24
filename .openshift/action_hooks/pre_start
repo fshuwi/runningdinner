@@ -1,2 +1,3 @@
 export _JAVA_OPTIONS="-Dspring.profiles.active=prod"
 export _JAVA_OPTIONS="-DMYLOGDIR=/var/lib/openshift/530475c04382ec3535000060/jbossews/logs/"
+export _JAVA_OPTIONS="-Drd.config.file=$OPENSHIFT_DATA_DIR/config/config_prod.properties"
