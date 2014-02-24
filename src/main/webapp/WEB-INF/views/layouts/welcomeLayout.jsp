@@ -12,9 +12,7 @@
 	<tiles:insertAttribute name="htmlHeader" />
 	  
 	<body>
-  		  
-  		<tiles:insertAttribute name="menu" />
-  		
+	  		
   		<div class="container">
   		
   			<div class="jumbotron" style="padding-top:17px;padding-bottom:20px;">

@@ -4,8 +4,10 @@
 	xmlns:beans="http://www.springframework.org/schema/beans"
 	xmlns:context="http://www.springframework.org/schema/context"
 	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<beans:import resource="property-configuration.xml"/>
@@ -60,5 +62,11 @@
 		<beans:property name="exceptionAttribute" value="ex" />
 		<beans:property name="warnLogCategory" value="dummy"/>		
 	</beans:bean>
+	
+	<!-- Used for accessing some configuration stuff in an easy way in footer.jsp -->
+	<util:map id="globalProperties" value-type="java.lang.String" key-type="java.lang.String">
+		<beans:entry key="contact.mail" value="${contact.mail}" />
+		<beans:entry key="github.repo.url" value="${github.repo.url}" />
+	</util:map>
 	
 </beans:beans>

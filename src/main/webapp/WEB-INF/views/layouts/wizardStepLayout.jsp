@@ -12,8 +12,6 @@
 	<tiles:insertAttribute name="htmlHeader" />
 	  
 	<body>
-  		  
-  		<tiles:insertAttribute name="menu" />
   		
   		<%-- Use current view name for determining the current highlighted breadcrumb element --%>	
   		<tiles:useAttribute name="currentView" id="currentStep" classname="java.lang.String" />
