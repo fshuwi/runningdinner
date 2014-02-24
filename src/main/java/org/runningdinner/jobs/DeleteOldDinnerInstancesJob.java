@@ -2,12 +2,9 @@ package org.runningdinner.jobs;
 
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
-import org.joda.time.DateTime;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.model.RunningDinner;
-import org.runningdinner.service.RunningDinnerService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,13 +17,7 @@ import org.springframework.scheduling.annotation.Scheduled;
  * @author Clemens Stich
  * 
  */
-public class DeleteOldDinnerInstancesJob {
-
-	private TimeUnit timeUnit;
-
-	private long maxLifeTime;
-
-	private RunningDinnerService runningDinnerService;
+public class DeleteOldDinnerInstancesJob extends AbstractDeleteDbInstancesJob {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(DeleteOldDinnerInstancesJob.class);
 
@@ -39,7 +30,7 @@ public class DeleteOldDinnerInstancesJob {
 			LOGGER.warn("maxLifeTime ({}) is negative. Nothing will be done.", maxLifeTime);
 		}
 
-		Date creationDateLimit = calculateCreationDateLimit();
+		Date creationDateLimit = calculateMaxLifeTimeDateLimit();
 
 		List<RunningDinner> dinners = null;
 		try {
@@ -62,38 +53,6 @@ public class DeleteOldDinnerInstancesJob {
 				LOGGER.error("Failed to delete dinner {}", dinner.getUuid(), ex);
 			}
 		}
-	}
-
-	private Date calculateCreationDateLimit() {
-		DateTime now = DateTime.now();
-		long lifeTimeMillis = TimeUnit.MILLISECONDS.convert(maxLifeTime, timeUnit);
-
-		DateTime creationDateLimit = now.minus(lifeTimeMillis);
-		return creationDateLimit.toDate();
-	}
-
-	public TimeUnit getTimeUnit() {
-		return timeUnit;
-	}
-
-	public void setTimeUnit(TimeUnit timeUnit) {
-		this.timeUnit = timeUnit;
-	}
-
-	public void setTimeUnitAsString(final String timeUnitStr) {
-		this.timeUnit = TimeUnit.valueOf(timeUnitStr.trim());
-	}
-
-	public long getMaxLifeTime() {
-		return maxLifeTime;
-	}
-
-	public void setMaxLifeTime(long maxLifeTime) {
-		this.maxLifeTime = maxLifeTime;
-	}
-
-	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
-		this.runningDinnerService = runningDinnerService;
 	}
 
 }
