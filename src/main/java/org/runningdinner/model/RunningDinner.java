@@ -64,9 +64,6 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	@Embedded
 	private RunningDinnerConfig configuration;
 
-	@Embedded
-	private AdministrationActivities activities;
-
 	@OneToMany(cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
 	@JoinColumn(name = "dinner_id")
 	@OrderBy(value = "participantNumber")
@@ -84,7 +81,6 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	public RunningDinner() {
 		super();
-		this.activities = new AdministrationActivities();
 	}
 
 	/**
@@ -160,10 +156,6 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		this.participants = new HashSet<Participant>(participants);
 	}
 
-	public AdministrationActivities getActivities() {
-		return activities;
-	}
-
 	/**
 	 * Retrieves all regular teams of this dinner.<br>
 	 * The result may be empty (e.g. if there exist no teams yet)
@@ -179,10 +171,6 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	public void setTeams(Collection<Team> teams) {
 		this.teams = new HashSet<Team>(teams);
-	}
-
-	public void setActivities(AdministrationActivities activities) {
-		this.activities = activities;
 	}
 
 	/**
