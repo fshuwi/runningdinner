@@ -4,5 +4,5 @@
 	<!--  Disable serialization of Session objects during Tomcat shutdown -->
 	<Manager pathname=""/> 
 	
-	<ResourceLink name="jdbc/runningdinner" global="jdbc/runningdinner" type="javax.sql.DataSource" />
+	<ResourceLink name="jdbc/runningdinner" global="jdbc/MysqlDS" type="javax.sql.DataSource" />
 </Context>
