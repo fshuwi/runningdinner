@@ -39,7 +39,7 @@
               <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter" p:database="${jpa.database}" p:showSql="${jpa.showSql}"/>
           </property>
           <property name="persistenceUnitName" value="runningdinner"/>
-          <property  name="loadTimeWeaver">
+          <property name="loadTimeWeaver">
                   <bean class="org.springframework.instrument.classloading.InstrumentationLoadTimeWeaver" />
           </property>
           <!-- <property name="packagesToScan" value="org.runningdinner.core.model"/>-->
@@ -73,7 +73,7 @@
 	</bean>
 
 	<!-- Enable Spring's task scheduling support -->
-	<task:scheduler id="scheduler" pool-size="2"/>
+	<task:scheduler id="scheduler" pool-size="3"/>
 	<task:annotation-driven scheduler="scheduler"/>
 	
 	<!-- Periodically check for uploaded temporary files to be deleted -->
@@ -84,6 +84,10 @@
     	  p:maxLifeTime="${dinner.instance.lifetime}" p:timeUnitAsString="${dinner.instance.lifetime.timeunit}"
     	  p:runningDinnerService-ref="runningDinnerService" />
 
+	<bean id="deletePendingMailReportsJob" class="org.runningdinner.jobs.DeletePendingMailReportsJob" 
+    	  p:maxLifeTime="${mail.reports.pending.lifetime}" p:timeUnitAsString="${mail.reports.pending.lifetime.timeunit}"
+    	  p:runningDinnerService-ref="runningDinnerService" />
+ 
  	<!--
  		Enabled usage of EntityManager during whole http request. 
  		Not needed currently.
