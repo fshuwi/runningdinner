@@ -71,6 +71,7 @@ public class ColumnMappingOption {
 	 * @return
 	 */
 	public static List<ColumnMappingOption> generateColumnMappingOptions(final MessageSource messages, final Locale locale) {
+		// TODO: Read out message bundles
 		List<ColumnMappingOption> result = new ArrayList<ColumnMappingOption>();
 		result.add(new ColumnMappingOption(StringUtils.EMPTY, "Keine Auswahl"));
 		result.add(new ColumnMappingOption(FULLNAME, "Kompletter Name"));
@@ -83,8 +84,8 @@ public class ColumnMappingOption {
 		result.add(new ColumnMappingOption(ZIP, "PLZ"));
 		result.add(new ColumnMappingOption(CITY, "Stadt"));
 		result.add(new ColumnMappingOption(COMPLETE_ADDRESS, "Komplette Adresse"));
-		result.add(new ColumnMappingOption(NUMBER_OF_SEATS, "Anzahl Plätze (Zahl)"));
-		result.add(new ColumnMappingOption(CAN_HOST, "Genügend Anzahl Plätze vorhanden"));
+		result.add(new ColumnMappingOption(NUMBER_OF_SEATS, "Anzahl Plaetze (Zahl)"));
+		result.add(new ColumnMappingOption(CAN_HOST, "Genuegend Anzahl Plaetze vorhanden"));
 		result.add(new ColumnMappingOption(GENDER, "Geschlecht"));
 		result.add(new ColumnMappingOption(AGE, "Alter"));
 		result.add(new ColumnMappingOption(EMAIL, "Email"));

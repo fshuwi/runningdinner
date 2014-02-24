@@ -158,7 +158,7 @@ public class AdminController extends AbstractBaseController {
 	private Map<String, String> getTeamsToSelect(final String uuid) {
 		List<Team> regularTeams = runningDinnerService.loadRegularTeamsFromDinner(uuid);
 		if (CoreUtil.isEmpty(regularTeams)) {
-			throw new RuntimeException("Keine Teams für dinner " + uuid);
+			throw new IllegalStateException("No teams for dinner " + uuid);
 		}
 
 		Map<String, String> teamDisplayMap = new LinkedHashMap<String, String>();
