@@ -1,2 +1,2 @@
 mvn install:install-file -Dfile=../../app-root/repo/runningdinner-core-0.0.1.jar -DgroupId=org.runningdinner -DartifactId=runningdinner-core -Dversion=0.0.1 -Dpackaging=jar
-mvn install:install-file -Dclassifier=tests -Dfile=../../app-root/repo/runningdinner-core-0.0.1-tests.jar -DgroupId=org.runningdinner -DartifactId=runningdinner-core -Dversion=0.0.1 -Dpackaging=jar
+mvn install:install-file -Dclassifier=tests -Dfile=../../app-root/repo/runningdinner-core-0.0.1-tests.jar -DgroupId=org.runningdinner -DartifactId=runningdinner-core -Dversion=0.0.1 -Dpackaging=jar -Dfoo=bar
