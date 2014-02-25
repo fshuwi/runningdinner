@@ -92,7 +92,7 @@ public class CreateWizardController extends AbstractBaseController {
 		return getFullViewName("finish");
 	}
 
-	@RequestMapping(value = "/")
+	@RequestMapping(value = "/", method = RequestMethod.GET)
 	public String index() {
 		return "redirect:/wizard";
 	}
