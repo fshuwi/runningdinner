@@ -25,7 +25,7 @@
             <div class="carousel-description step2Bg">
         		<div class="carousel-headline"><h3>Schritt 2: Dinner verwalten</h3></div>
         		<div><p><spring:message code="text.runningdinner.explanation" /></p></div>
-        	</div>   
+        	</div>
         </div>
     </div>
 
