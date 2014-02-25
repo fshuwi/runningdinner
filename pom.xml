@@ -283,6 +283,43 @@
 					</plugin>
 				</plugins>
 			</build>
+			
+			<!-- We need to manually insert all transitive dependencies from runningdinner-core for openshift, as we cannot use it directly in build -->
+			<!-- Luckily these are currently only the POI dependnecies as all other dependencies are also needed from runningdinner project -->
+			<dependencies>
+			   	<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi</artifactId>
+					<version>3.8</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml</artifactId>
+					<version>3.8</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-scratchpad</artifactId>
+					<version>3.8</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>poi-ooxml-schemas</artifactId>
+					<version>3.8</version>
+				</dependency>
+				<dependency>
+					<groupId>org.apache.poi</groupId>
+					<artifactId>openxml4j</artifactId>
+					<version>1.0-beta</version>
+					<exclusions>
+						<exclusion>
+							<groupId>log4j</groupId>
+							<artifactId>log4j</artifactId>
+						</exclusion>
+					</exclusions>
+				</dependency>
+			</dependencies>
+			
 		</profile>
 	</profiles>
   
