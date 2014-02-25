@@ -37,7 +37,7 @@
 </script>
 
 <div>	
-	<form:form method="POST" commandName="sendTeamsModel" htmlEscape="true" role="form">
+	<form:form method="POST" commandName="sendTeamsModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreTeamsSelected()">
 		<div class="well">
 			<spring:message code="label.subject" var="subjectLabel" />
 			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>

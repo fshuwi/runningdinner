@@ -398,7 +398,6 @@ public class AdminController extends AbstractBaseController {
 					teamHostMappings.size(), ex);
 			return SaveTeamHostsResponse.createErrorResponse(ex.getMessage());
 		}
-
 	}
 
 	/**

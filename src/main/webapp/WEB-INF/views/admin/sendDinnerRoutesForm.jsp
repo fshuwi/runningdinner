@@ -21,7 +21,7 @@
 		charCounters["hostsTemplate"] = 300;
 	</script>
 	
-	<form:form method="POST" commandName="sendDinnerRoutesModel" htmlEscape="true" role="form">
+	<form:form method="POST" commandName="sendDinnerRoutesModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreTeamsSelected()">
 		<div class="well">
 			<spring:message code="label.subject" var="subjectLabel" />
 			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
@@ -52,8 +52,7 @@
 		</div>
 		
 		<input type="submit" class="btn btn-primary" value="<spring:message code="label.dinnerroutes.sendmessage" />!" name="sendDinnerRoutes" />
-		<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="cancel" />
-				
+
 		<div style="margin-top:20px;">
 			<h4><spring:message code="label.teams.selection" /></h4>
 			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
