@@ -48,7 +48,7 @@ h3 .contentheadline {
 }
 
 
-/** Used for carousel in landing page **/
+/** ****************** CAROUSEL STYLES ******************* **/
 #myCarousel .nav a small
 {
     display: block;
@@ -62,7 +62,6 @@ h3 .contentheadline {
     border-radius: 0px;
 }
 
-
 .explanationBg, .nav-pills>li[data-slide-to="0"].active a { background-color: #2980b9; }
 .organizeBg, .nav-pills>li[data-slide-to="1"].active a { background-color: #999; }
 .step1Bg, .nav-pills>li[data-slide-to="2"].active a { background-color: #e67e22; }
@@ -74,6 +73,7 @@ h3 .contentheadline {
 	color: #fff;
 	/*position:absolute;*/
 	padding: 20px;
+	height:320px;
 }
 
 .carousel-description a, .carousel-description a:hover, .carousel-description a:visited, .carousel-description a:active {
@@ -86,4 +86,4 @@ h3 .contentheadline {
 .carousel-headline h3 {
 	margin-top:0 ! important;
 }
-/** End carousel styles **/
+/** ****************** END CAROUSEL STYLES ******************* **/
