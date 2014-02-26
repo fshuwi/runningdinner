@@ -23,6 +23,7 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 
+import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.model.AbstractEntity;
 
@@ -127,10 +128,41 @@ public abstract class BaseMailReport extends AbstractEntity {
 		return mailAddressStatusMapping;
 	}
 
+	/**
+	 * Gets all mail addresses that could not be sent
+	 * 
+	 * @return
+	 */
 	public Set<String> getFailedMails() {
 		return filterMails(false);
 	}
 
+	/**
+	 * Returns a comma separated string containing all mail address that could not be sent
+	 * 
+	 * @return
+	 */
+	public String getFailedMailsAsString() {
+		Set<String> failedMails = filterMails(false);
+		if (CoreUtil.isEmpty(failedMails)) {
+			return StringUtils.EMPTY;
+		}
+		StringBuilder result = new StringBuilder();
+		int cnt = 0;
+		for (String failedMail : failedMails) {
+			if (cnt++ > 0) {
+				result.append(", ");
+			}
+			result.append(failedMail);
+		}
+		return result.toString();
+	}
+
+	/**
+	 * Gets all mail addresses that could successfully be sent
+	 * 
+	 * @return
+	 */
 	public Set<String> getSucceededMails() {
 		return filterMails(true);
 	}

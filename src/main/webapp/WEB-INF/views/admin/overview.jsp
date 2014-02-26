@@ -7,22 +7,28 @@
 <%@page import="org.runningdinner.service.email.FormatterUtil" %>
 <%@page import="org.runningdinner.core.CoreUtil" %>
 
+
+<spring:message code="label.where" var="whereLabel" />
+<spring:message code="label.when" var="whenLabel" />
+
+
 <h3 class="contentheadline"><spring:message code="headline.overview" /></h3>
 
 <tiles:insertDefinition name="view-status-info" />
 
 <div class="jumbotron well" style="padding-top:17px;padding-bottom:20px;">
-	<h3>${runningDinner.title}</h3>
+	<h3 style="text-align:center;">${runningDinner.title}</h3>
 	<div class="row">
 		<div class="col-xs-4">
 			<c:if test="${not empty runningDinner.city}">
-				<p>Wo: <span class="text-success"><strong>${runningDinner.city}</strong></span></p>
+				<p>${whereLabel}: <span class="text-success"><strong>${runningDinner.city}</strong></span></p>
 			</c:if>
-			<p>Wann: <span class="text-success"><strong><fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${runningDinner.date}" /></strong></span></p>
+			<p>${whenLabel}: <span class="text-success"><strong><fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${runningDinner.date}" /></strong></span></p>
 		</div>
 		<div class="col-xs-4">
 			<c:forEach items="${runningDinner.configuration.mealClasses}" var="meal">
-				<span class="label label-primary"><fmt:formatDate value="${meal.time}" pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" /> Uhr</span> <span class="badge">${meal.label}</span><br/>
+				<fmt:formatDate value="${meal.time}" pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" var="mealTime"/>
+				<span class="label label-primary"><spring:message code="time.display" arguments="${mealTime}"/></span> <span class="badge">${meal.label}</span><br/>
 			</c:forEach>
 		</div>
 	</div>

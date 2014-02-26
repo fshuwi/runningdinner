@@ -13,12 +13,13 @@
 
 <spring:message code="label.email" var="emailLabel"/>
 <spring:message code="label.adminlink.email.help" var="labelEmailHelp" />
+<spring:message code="tooltip.createwizard.finish" var="finishTooltip"/>
 
 <form:form class="well" method="post" action="wizard" commandName="createWizardModel" htmlEscape="true" role="form">
 
 	<bs:inputField name="email" label="${emailLabel}" placeholder="${emailLabel}" type="email" helpForInput="${labelEmailHelp}" inputColClass="col-xs-6" />
 	
 	<input type="hidden" value="3" name="_page" />
-	<input type="submit" class="btn btn-success" value="<spring:message code="label.finalize" />" name="_finish" data-placement="bottom" data-toggle="tooltip" data-original-title="tooltip.createwizared.finish" />
+	<input type="submit" class="btn btn-success" value="<spring:message code="label.finalize" />" name="_finish" data-placement="bottom" data-toggle="tooltip" data-original-title="${finishTooltip}" />
 	<input type="submit" class="btn btn-danger" value="<spring:message code="label.cancel" />" name="_cancel" />
 </form:form>

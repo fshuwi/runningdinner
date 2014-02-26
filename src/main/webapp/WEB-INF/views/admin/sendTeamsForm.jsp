@@ -12,20 +12,26 @@
 
 <tiles:insertDefinition name="view-status-info" />
 
-<div class="alert alert-info"><spring:message code="text.teams.sendmessage.info" /></div>
+<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.teams.sendmessage.info" /></div>
 
 <c:choose>
 	<c:when test="${not empty sendTeamsModel.lastMailSendingStatus}">
-		<fmt:formatDate dateStyle="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" timeStyle="HH:mm:ss" type="BOTH" value="${sendTeamsModel.lastMailSendingStatus.sendingStartDate}" var="startDate"/>
+		<%--HH:mm:ss --%>
+		<fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${sendTeamsModel.lastMailSendingStatus.sendingStartDate}" var="startDate"/>
 		<c:choose>
 			<c:when test="${sendTeamsModel.lastMailSendingStatus.sending}">
-				<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}"/></div>
+				<div class="alert alert-info"><strong>Mail-Report</strong><br/><spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}"/></div>
 			</c:when>
 			<c:otherwise>
-				<div class="alert alert-info"><strong>Info</strong><br/>
-					<spring:message code="text.teams.sendmessage.alreadysent" arguments="${startDate}"/>
-					<c:if test="sendTeamsModel.lastMailSendingStatus.">
-					</c:if>
+				<div class="alert alert-info"><strong>Mail-Report</strong><br/>
+					<c:set var="succeededMailsSize" value="${fn:length(sendTeamsModel.lastMailSendingStatus.succeededMails)}" />
+					<c:set var="failedMailsSize" value="${fn:length(sendTeamsModel.lastMailSendingStatus.failedMails)}" />
+					<spring:message code="text.teams.sendmessage.alreadysent" arguments="${startDate}"/>:
+					<p>${succeededMailsSize} Mail(s) wurden erfolgreich versendet.
+						<c:if test="${failedMailsSize gt 0}">
+							<br/><strong>Folgende Mail-Adressen schlugen fehl</strong>: <span class="label label-danger">${sendTeamsModel.lastMailSendingStatus.failedMailsAsString}</span>	
+						</c:if>
+					</p>
 				</div>
 			</c:otherwise>
 		</c:choose>

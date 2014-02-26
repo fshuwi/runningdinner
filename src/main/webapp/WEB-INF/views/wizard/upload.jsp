@@ -7,6 +7,10 @@
 
 <spring:message code="label.upload.file" var="fileLabel"/>
 <spring:message code="label.upload.file.help" var="fileHelpText" />
+<spring:message code="tooltip.upload.parse.startrow" var="startRowTooltip" />
+
+<spring:message code="label.upload.parse.row.active" var="rowActiveLabel" />
+<spring:message code="label.upload.parse.row.inactive" var="rowInactiveLabel" />
 
 <h2><spring:message code="label.runningdinner.upload.headline"/></h2>
 <div class="well">
@@ -16,17 +20,17 @@
 		<bs:inputField name="file" label="${fileLabel}" type="file" helpForInput="${fileHelpText}" inputColClass="col-xs-6"/>
 				
 		<div class="panel panel-primary">
-			<div class="panel-heading"><h4 class="panel-title">Einstellungen zum Einlesen der Datei</h4></div>
+			<div class="panel-heading"><h4 class="panel-title"><spring:message code="headline.upload.parse.settings" /></h4></div>
 			
 			<div class="panel-body">
-				<p class="help-block">Hier kann das Format der Datei mit den Teilnehmern an die eigenen Beduerfnisse angepasst werden.</p>
+				<p class="help-block"><spring:message code="text.upload.parse.settings" /></p>
 			
-				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-1" inputTooltip="Ab welcher Zeile beginnen die 'eigentlichen' Daten" />
+				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-1" inputTooltip="${startRowTooltip}" />
 			
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
-							<th>Spalte</th>
+							<th><spring:message code="label.upload.parse.row" /></th>
 							<th>Information</th>
 							<th class="td-actions"></th>
 						</tr>
@@ -46,10 +50,10 @@
 						 		<td>
 						 			<c:choose>
 						 				<c:when test="${not empty columnMapping.value}">
-						 					<span id="status_${columnMapping.key}" class="label label-success">Spalte aktiv</span>
+						 					<span id="status_${columnMapping.key}" class="label label-success">${rowActiveLabel}</span>
 						 				</c:when>
 						 				<c:otherwise>
-						 					<span  id="status_${columnMapping.key}" class="label label-danger">Spalte deaktiviert</span>
+						 					<span  id="status_${columnMapping.key}" class="label label-danger">${rowInactiveLabel}</span>
 						 				</c:otherwise>
 						 			</c:choose>
 						 		</td>
@@ -58,7 +62,9 @@
 					</tbody>
 				</table>
 				
-				<p class="help-block"><a href="#">Nichts kapiert? Hilfe!</a></p>
+				<p class="help-block">
+					<a class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadHelp"><spring:message code="label.upload.parse.help"/></a>
+				</p>
 				
 			</div>
 		</div>
@@ -69,4 +75,21 @@
 			
 	</form:form>
 		
+</div>
+
+<div class="modal fade" id="uploadHelp" tabindex="-1" role="dialog" aria-labelledby="#uploadHelpLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="uploadHelpLabel"><spring:message code="headline.upload.parse.settings" /></h4>
+      </div>
+      <div class="modal-body">
+      		<spring:message code="label.upload.parse.help.explanation" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
 </div>

@@ -140,7 +140,7 @@ public class AdminController extends AbstractBaseController {
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
 		if (teamDisplayMap.size() == 0) {
-			return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
 					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
 		}
 
@@ -218,7 +218,7 @@ public class AdminController extends AbstractBaseController {
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
 		if (teamDisplayMap.size() == 0) {
-			return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
 					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
 		}
 

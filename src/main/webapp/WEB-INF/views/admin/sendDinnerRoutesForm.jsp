@@ -12,9 +12,7 @@
 <tiles:insertDefinition name="view-status-info" />
 
 <div>
-	<div class="alert alert-info"><strong>Info</strong><br/>
-		<spring:message code="text.dinnerroutes.message.info" />
-	</div>
+	<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.dinnerroutes.message.info" /></div>
 	
 	<script>
 		var charCounters = {};

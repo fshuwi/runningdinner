@@ -8,8 +8,17 @@
 <spring:message code="label.title" text="Titel" var="titleLabel" />
 <spring:message code="label.date" text="Datum" var="dateLabel" />
 <spring:message code="label.city" text="Stadt" var="cityLabel" />
+<spring:message code="label.teamsize" var="teamsizeLabel" />
 <spring:message code="label.teamdistribution.host" var="teamDistributionText" />
 <spring:message code="label.teamdistribution.gender.help" var="genderHelpText"/>
+<spring:message code="label.teamdistribution" var="teamdistributionLabel" />
+
+<spring:message code="tooltip.title" var="titleTooltip" />
+<spring:message code="tooltip.date" var="dateTooltip" />
+<spring:message code="tooltip.city" var="cityTooltip" />
+<spring:message code="tooltip.teamsize" var="teamsizeTooltip" />
+<spring:message code="tooltip.teamdistribution" var="teamdistributionTooltip" />
+<spring:message code="tooltip.teamdistribution.gender" var="teamdistributionGenderTooltip" />
 
 <h2><spring:message code="label.runningdinner.new"/></h2>
 
@@ -17,17 +26,17 @@
 	
 	<form:form method="post" commandName="createWizardModel" htmlEscape="true" onsubmit="saveMealsToModel()" role="form"> 
 			
-		<bs:inputField name="title" label="${titleLabel}" placeholder="${titleLabel}" />
+		<bs:inputField name="title" label="${titleLabel}" placeholder="${titleLabel}" inputTooltip="${titleTooltip}"/>
 		
-		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" inputColClass="col-xs-2" />
+		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" inputColClass="col-xs-2" inputTooltip="${dateTooltip}"/>
 		
-		<bs:inputField name="city" label="${cityLabel}" placeholder="${cityLabel}" helpForLabelInline="(optional)"/>
+		<bs:inputField name="city" label="${cityLabel}" placeholder="${cityLabel}" helpForLabelInline="(optional)" inputTooltip="${cityTooltip}"/>
  	  
 		<div class="panel panel-primary">
-  			<div class="panel-heading"><h4 class="panel-title">Erweiterte Dinner Optionen</h4></div>
+  			<div class="panel-heading"><h4 class="panel-title"><spring:message code="label.dinneroptions.advanced" /></h4></div>
   			<div class="panel-body">
   
-  				<bs:inputField name="teamSize" label="Teamgröße" inputColClass="col-xs-1" />
+  				<bs:inputField name="teamSize" label="${teamsizeLabel}" inputColClass="col-xs-1" inputTooltip="${teamsizeTooltip}" />
 
 				<label><spring:message code="label.meals" /></label>
 				<span class="help-block"><spring:message code="label.mealsinfo" /></span>
@@ -48,10 +57,10 @@
 					<a href="javascript:addMeal()" class="btn btn-success"><span class="glyphicon glyphicon-plus"></span> <spring:message code="label.add"/></a>
 				</div>
 			
-				<bs:singleCheckbox name="equalTeamDistribution" checkboxText="${teamDistributionText}" label="Aufteilung der Teams"></bs:singleCheckbox>
+				<bs:singleCheckbox name="equalTeamDistribution" checkboxText="${teamDistributionText}" label="${teamdistributionLabel}" inputTooltip="${teamdistributionTooltip}"/>
 				
 				<bs:selectField name="genderTeamDistribution" itemLabel="label" itemValue="value" items="${genderAspects}" 
-								label="Geschlechter-Aspekte" helpForLabel="${genderHelpText}"/>					
+								label="Geschlechter-Aspekte" helpForLabel="${genderHelpText}" inputTooltip="${teamdistributionGenderTooltip}"/>					
 	  		</div>
 		</div><%-- End panel --%>
 	

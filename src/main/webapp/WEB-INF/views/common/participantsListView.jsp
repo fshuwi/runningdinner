@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@page import="org.runningdinner.core.Gender" %>
 
 <table class="table well table-condensed">
 	<thead>
@@ -30,7 +31,13 @@
 				<td>${participant.numSeats}</td>
 				<td>${participant.email}</td>
 				<td>${participant.mobileNumber}</td>
-				<td>${participant.gender}</td>
+				<td>
+					<c:choose>
+						<c:when test="${participant.gender eq Gender.MALE}"><spring:message code="label.gender.male" /></c:when>
+						<c:when test="${participant.gender eq Gender.FEMALE}"><spring:message code="label.gender.female" /></c:when>
+						<c:otherwise>-</c:otherwise>
+					</c:choose>
+				</td>
 				<td>${participant.age}</td>
 			</tr>
 		</c:forEach>

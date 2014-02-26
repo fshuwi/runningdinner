@@ -16,7 +16,10 @@
 
 	<!-- landing page (with first wizard step) -->
  	<definition name="template-welcome" extends="template-basis" template="/WEB-INF/views/layouts/welcomeLayout.jsp">
- 		<put-attribute name="customScripts" value="/WEB-INF/views/wizard/js/wizard-scripts.jsp" />
+ 		<put-list-attribute name="customScripts">
+ 			<add-attribute value="/WEB-INF/views/wizard/js/wizard-scripts.jsp" />
+    		<add-attribute value="/WEB-INF/views/wizard/js/welcome-scripts.jsp" />
+  		</put-list-attribute>
  	</definition>
  	
  	<!-- create dinner wizard steps -->
@@ -28,7 +31,6 @@
  	<!-- default layouts (used e.g. for single admin views) -->
  	 <definition name="template-default" extends="template-basis" template="/WEB-INF/views/layouts/defaultLayout.jsp">
  	 	<put-attribute name="pageTitle" value="Run Your Dinner - Administration" />
- 	 	<!-- <put-attribute name="customScripts" value="/WEB-INF/views/admin/admin-scripts.jsp" /> -->
  	 	<put-list-attribute name="customScripts">
     		<add-attribute value="/WEB-INF/views/admin/js/admin-scripts.jsp" />
   		</put-list-attribute>
