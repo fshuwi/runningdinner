@@ -1,13 +1,3 @@
-    drop table if exists GuestTeamMapping;
-    drop table if exists HostTeamMapping;
-    drop table if exists MailAddressStatusMapping;
-    drop table if exists MailReport;
-    drop table if exists MealClass;
-    drop table if exists NotAssignedParticipant;
-    drop table if exists Participant;
-    drop table if exists RunningDinner;
-    drop table if exists Team;
-    
     create table GuestTeamMapping (
         guest_team_id bigint not null,
         parent_team_id bigint not null,
