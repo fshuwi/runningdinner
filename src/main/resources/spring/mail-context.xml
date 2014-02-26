@@ -30,7 +30,8 @@
     
     <beans profile="prod">	
 		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl" 
-	    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" p:username="${mail.smtp.username}" p:password="${mail.smtp.password}">
+	    	 p:host="${mail.smtp.host}" p:port="${mail.smtp.port}" 
+	    	 p:username="${mail.smtp.username}" p:password="${mail.smtp.password}" p:defaultEncoding="UTF-8">
 			    <property name="javaMailProperties">
 			        <props>
 			            <!-- Use SMTP-AUTH to authenticate to SMTP server -->

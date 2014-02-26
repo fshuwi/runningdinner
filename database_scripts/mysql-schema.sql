@@ -24,9 +24,8 @@
         interrupted bit not null,
         sending bit not null,
         sendingStartDate datetime,
-        dinner_id bigint not null,
-        primary key (id),
-        unique (dinner_id)
+        dinner_id bigint,
+        primary key (id)
     );
     create table MealClass (
         id bigint not null auto_increment,

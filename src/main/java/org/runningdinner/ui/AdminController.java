@@ -141,6 +141,7 @@ public class AdminController extends AbstractBaseController {
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
 		if (teamDisplayMap.size() == 0) {
+			LOGGER.warn("Tried to call send team mails for dinner {} without any existing teams", uuid);
 			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
 					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
 		}
@@ -219,6 +220,7 @@ public class AdminController extends AbstractBaseController {
 
 		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
 		if (teamDisplayMap.size() == 0) {
+			LOGGER.warn("Tried to call send dinner route mails for dinner {} without any existing teams", uuid);
 			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
 					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
 		}
@@ -348,7 +350,7 @@ public class AdminController extends AbstractBaseController {
 		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
 
 		if (request.getParameter("cancel") != null) {
-			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage());
+			return generateStatusPageRedirect(RequestMappings.SHOW_TEAMS, uuid, redirectAttributes, new SimpleStatusMessage());
 		}
 
 		adminValidator.validateParticipant(participant, bindingResult);
