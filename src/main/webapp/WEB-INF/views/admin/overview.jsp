@@ -11,10 +11,9 @@
 <spring:message code="label.where" var="whereLabel" />
 <spring:message code="label.when" var="whenLabel" />
 
-
 <h3 class="contentheadline"><spring:message code="headline.overview" /></h3>
 
-<tiles:insertDefinition name="view-status-info" />
+<tiles:insertDefinition name="view-status-info" flush="true" />
 
 <div class="jumbotron well" style="padding-top:17px;padding-bottom:20px;">
 	<h3 style="text-align:center;">${runningDinner.title}</h3>

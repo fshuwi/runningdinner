@@ -10,7 +10,7 @@
 
 <h3 class="contentheadline"><spring:message code="headline.teams.sendmessage" /></h3>
 
-<tiles:insertDefinition name="view-status-info" />
+<tiles:insertDefinition name="view-status-info" flush="true" />
 
 <div class="alert alert-info alert-dismissable">
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>

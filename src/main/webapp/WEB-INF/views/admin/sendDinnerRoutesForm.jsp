@@ -9,7 +9,7 @@
 
 <h3 class="contentheadline"><spring:message code="label.dinnerroutes.sendmessage" /></h3>
 
-<tiles:insertDefinition name="view-status-info" />
+<tiles:insertDefinition name="view-status-info" flush="true" />
 
 <div>
 	<div class="alert alert-info alert-dismissable">
