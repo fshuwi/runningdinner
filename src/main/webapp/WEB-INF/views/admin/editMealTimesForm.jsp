@@ -7,7 +7,7 @@
 
 <h3 class="contentheadline"><spring:message code="headline.mealtimes" /></h3>
 
-<tiles:insertDefinition name="view-status-info" />
+<tiles:insertDefinition name="view-status-info" flush="true" />
 
 <div class="well">
 	<form:form method="post" id="editMealTimesForm" commandName="editMealTimesModel" htmlEscape="true" onsubmit="saveMealTimesToModel()" role="form">

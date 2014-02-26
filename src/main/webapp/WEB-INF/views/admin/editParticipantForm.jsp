@@ -9,7 +9,7 @@
 
 <h3 class="contentheadline">${participant.name.fullnameFirstnameFirst} (Nr: ${participant.participantNumber})</h3>
 
-<tiles:insertDefinition name="view-status-info" />
+<tiles:insertDefinition name="view-status-info" flush="true"/>
 
 <spring:message code="label.firstname" var="firstnameLabel"/>
 <spring:message code="label.lastname" var="lastnameLabel"/>
