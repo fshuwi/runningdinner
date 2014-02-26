@@ -132,12 +132,17 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
 	public String showSendTeamArrangementsForm(HttpServletRequest request,
-			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model, Locale locale) {
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model, RedirectAttributes redirectAttributes,
+			Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate(messages, locale);
 
-		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
+		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
+		if (teamDisplayMap.size() == 0) {
+			return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
+					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
+		}
 
 		sendTeamsModel.setTeamDisplayMap(teamDisplayMap);
 
@@ -155,10 +160,24 @@ public class AdminController extends AbstractBaseController {
 		return getFullViewName("sendTeamsForm");
 	}
 
-	private Map<String, String> getTeamsToSelect(final String uuid) {
+	/**
+	 * Retrieves a map which contains every team of a running dinner as map-key (backed by the naturalKey of a team). The map-value
+	 * represents a human readable label for the team used for display.
+	 * 
+	 * @param uuid
+	 * @param throwExceptionOnNoTeams If set to true, then an exception will be thrown if no teams exist yet (they need maybe first
+	 *            generated). Otherwise the method returns just an empty map.
+	 * @return
+	 */
+	private Map<String, String> getTeamsToSelect(final String uuid, boolean throwExceptionOnNoTeams) {
 		List<Team> regularTeams = runningDinnerService.loadRegularTeamsFromDinner(uuid);
 		if (CoreUtil.isEmpty(regularTeams)) {
-			throw new IllegalStateException("No teams for dinner " + uuid);
+			if (throwExceptionOnNoTeams) {
+				throw new IllegalStateException("No teams for dinner " + uuid);
+			}
+			else {
+				return Collections.emptyMap();
+			}
 		}
 
 		Map<String, String> teamDisplayMap = new LinkedHashMap<String, String>();
@@ -176,7 +195,7 @@ public class AdminController extends AbstractBaseController {
 
 		adminValidator.validateSendMessagesModel(sendTeamsModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			sendTeamsModel.setTeamDisplayMap(getTeamsToSelect(uuid)); // Reload teams for display
+			sendTeamsModel.setTeamDisplayMap(getTeamsToSelect(uuid, true)); // Reload teams for display
 			model.addAttribute("sendTeamsModel", sendTeamsModel);
 			model.addAttribute("uuid", uuid);
 			// Team-Status not included here currently...
@@ -187,17 +206,21 @@ public class AdminController extends AbstractBaseController {
 				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale));
 
 		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
+				SimpleStatusMessage.SUCCESS_STATUS, "Sending emails for " + numTeams + " teams!"));
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.GET)
 	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
-			Model model, Locale locale) {
+			Model model, RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate(messages, locale);
 
-		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid);
+		Map<String, String> teamDisplayMap = getTeamsToSelect(uuid, false);
+		if (teamDisplayMap.size() == 0) {
+			return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
+					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.teams", null, locale)));
+		}
 
 		// Select all Teams:
 		ArrayList<String> selectedTeams = new ArrayList<String>(teamDisplayMap.keySet());
@@ -222,7 +245,7 @@ public class AdminController extends AbstractBaseController {
 
 		adminValidator.validateSendMessagesModel(sendDinnerRoutesModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			sendDinnerRoutesModel.setTeamDisplayMap(getTeamsToSelect(uuid)); // Reload teams for display
+			sendDinnerRoutesModel.setTeamDisplayMap(getTeamsToSelect(uuid, true)); // Reload teams for display
 			model.addAttribute("sendDinnerRoutesModel", sendDinnerRoutesModel);
 			model.addAttribute("uuid", uuid);
 			return getFullViewName("sendDinnerRoutesForm");

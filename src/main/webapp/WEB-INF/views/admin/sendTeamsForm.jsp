@@ -6,8 +6,11 @@
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 <%@page import="org.runningdinner.core.CoreUtil" %>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
 <h3 class="contentheadline"><spring:message code="headline.teams.sendmessage" /></h3>
+
+<tiles:insertDefinition name="view-status-info" />
 
 <div class="alert alert-info"><spring:message code="text.teams.sendmessage.info" /></div>
 

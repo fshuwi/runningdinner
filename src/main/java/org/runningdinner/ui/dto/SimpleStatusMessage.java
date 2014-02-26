@@ -13,6 +13,7 @@ public class SimpleStatusMessage {
 
 	public static final String ERROR_STATUS = "danger";
 	public static final String INFO_STATUS = "info";
+	public static final String WARN_STATUS = "warn";
 	public static final String SUCCESS_STATUS = "success";
 
 	public SimpleStatusMessage() {

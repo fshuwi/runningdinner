@@ -5,11 +5,13 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
+<%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 
 <h3 class="contentheadline"><spring:message code="label.dinnerroutes.sendmessage" /></h3>
 
-<div>
+<tiles:insertDefinition name="view-status-info" />
 
+<div>
 	<div class="alert alert-info"><strong>Info</strong><br/>
 		<spring:message code="text.dinnerroutes.message.info" />
 	</div>
