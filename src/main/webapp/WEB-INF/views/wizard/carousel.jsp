@@ -24,7 +24,7 @@
         <div class="item">
             <div class="carousel-description step2Bg">
         		<div class="carousel-headline"><h3><spring:message code="text.runningdinner.explanation.step2.subheadline" /></h3></div>
-        		<div><p><spring:message code="text.runningdinner.explanation" /></p></div>
+        		<div><p><spring:message code="text.runningdinner.explanation.step2" /></p></div>
         	</div>
         </div>
     </div>

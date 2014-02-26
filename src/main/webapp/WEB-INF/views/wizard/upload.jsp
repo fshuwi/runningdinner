@@ -63,7 +63,7 @@
 				</table>
 				
 				<p class="help-block">
-					<a class="btn btn-primary btn-lg" data-toggle="modal" data-target="#uploadHelp"><spring:message code="label.upload.parse.help"/></a>
+					<a data-toggle="modal" data-target="#uploadHelp" style="cursor:pointer;"><spring:message code="label.upload.parse.help"/></a>
 				</p>
 				
 			</div>
@@ -85,10 +85,12 @@
         <h4 class="modal-title" id="uploadHelpLabel"><spring:message code="headline.upload.parse.settings" /></h4>
       </div>
       <div class="modal-body">
-      		<spring:message code="label.upload.parse.help.explanation" />
+      		<c:url value="/resources/images/demo.png" var="demoImageUrl" />
+      		<c:url value="/resources/files/demo.xls" var="demoFileUrl" />
+      		<spring:message code="label.upload.parse.help.explanation" arguments="<img src='${demoImageUrl}'/>,<a href='${demoFileUrl}' target='_blank'>Download</a>"/>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" data-dismiss="modal"><spring:message code="label.close"/></button>
       </div>
     </div>
   </div>

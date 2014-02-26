@@ -63,9 +63,9 @@ h3 .contentheadline {
 }
 
 .explanationBg, .nav-pills>li[data-slide-to="0"].active a { background-color: #2980b9; }
-.organizeBg, .nav-pills>li[data-slide-to="1"].active a { background-color: #999; }
-.step1Bg, .nav-pills>li[data-slide-to="2"].active a { background-color: #e67e22; }
-.step2Bg, .nav-pills>li[data-slide-to="3"].active a { background-color: #16a085; }
+.organizeBg, .nav-pills>li[data-slide-to="1"].active a { background-color:#16a085; }
+.step1Bg, .nav-pills>li[data-slide-to="2"].active a { background-color: #8e44ad; }
+.step2Bg, .nav-pills>li[data-slide-to="3"].active a { background-color: #999; }
 
 .carousel-description {
 	z-index:10;

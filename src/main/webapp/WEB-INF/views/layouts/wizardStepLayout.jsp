@@ -36,10 +36,10 @@
 	  			<div class="row">
 	  				<div class="col-xs-12">
 			  			<ol class="breadcrumb">
-			  				<li class="inactiveWizardStep">1. Allgemein</li>
-			  				<li class="${timesClass}">2. Zeiten festlegen</li>
-			  				<li class="${uploadClass}">3. Teilnehmerliste hochladen</li>
-			  				<li class="${finishClass}">4. Fertigstellen</li>
+			  				<li class="inactiveWizardStep"><spring:message code="label.wizard.breadcrumb.1"/></li>
+			  				<li class="${timesClass}"><spring:message code="label.wizard.breadcrumb.2"/></li>
+			  				<li class="${uploadClass}"><spring:message code="label.wizard.breadcrumb.3"/></li>
+			  				<li class="${finishClass}"><spring:message code="label.wizard.breadcrumb.4"/></li>
 						</ol>
 					</div>
 				</div>

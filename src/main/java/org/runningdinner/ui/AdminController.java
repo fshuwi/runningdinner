@@ -240,7 +240,8 @@ public class AdminController extends AbstractBaseController {
 		adminValidator.validateUuid(uuid);
 
 		if (request.getParameter("cancel") != null) {
-			return adminOverview(uuid, model);
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage());
+			// return adminOverview(uuid, model);
 		}
 
 		adminValidator.validateSendMessagesModel(sendDinnerRoutesModel, bindingResult);
@@ -294,12 +295,13 @@ public class AdminController extends AbstractBaseController {
 	@RequestMapping(value = RequestMappings.EDIT_MEALTIMES, method = RequestMethod.POST)
 	public String editMealTimes(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@ModelAttribute("editMealTimesModel") EditMealTimesModel editMealTimesModel, HttpServletRequest request,
-			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes) {
+			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes, Locale locale) {
 
 		adminValidator.validateUuid(uuid);
 
 		if (request.getParameter("cancel") != null) {
-			return adminOverview(uuid, model);
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage());
+			// return adminOverview(uuid, model);
 		}
 
 		adminValidator.validateMealTimes(editMealTimesModel.getMeals(), bindingResult);
@@ -316,7 +318,7 @@ public class AdminController extends AbstractBaseController {
 		runningDinnerService.updateMealTimes(uuid, new HashSet<MealClass>(editMealTimesModel.getMeals()));
 
 		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, "Meal-Times successfully edited!"));
+				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.meals.edit.success", null, locale)));
 	}
 
 	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.GET)
@@ -336,15 +338,12 @@ public class AdminController extends AbstractBaseController {
 	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.POST)
 	public String editParticipant(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
 			@PathVariable("key") String participantKey, @ModelAttribute("participant") Participant participant, HttpServletRequest request,
-			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes) {
+			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes, Locale locale) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(participantKey));
 
-		String redirectUrl = RequestMappings.EDIT_PARTICIPANT;
-		redirectUrl = redirectUrl.replaceFirst("\\{key\\}", participantKey);
 		if (request.getParameter("cancel") != null) {
-			return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
-					SimpleStatusMessage.INFO_STATUS, "Action cancelled"));
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage());
 		}
 
 		adminValidator.validateParticipant(participant, bindingResult);
@@ -356,8 +355,10 @@ public class AdminController extends AbstractBaseController {
 		}
 		runningDinnerService.updateParticipant(participantKey, participant);
 
+		String redirectUrl = RequestMappings.EDIT_PARTICIPANT;
+		redirectUrl = redirectUrl.replaceFirst("\\{key\\}", participantKey);
 		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, "Participant successfully edited!"));
+				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.participant.edit.success", null, locale)));
 	}
 
 	@RequestMapping(value = RequestMappings.EXPORT_TEAMS, method = RequestMethod.GET)

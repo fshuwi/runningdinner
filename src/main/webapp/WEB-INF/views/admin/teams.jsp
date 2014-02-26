@@ -29,6 +29,9 @@
 	<div class="tab-pane fade in active" id="regular">
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
+
+				<div class="alert alert-info" style="margin-top:30px;"><spring:message code="text.teamarrangement.help" /></div>
+			
 				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
 					<a class="btn btn-info btn-sm" href="${teamsExportUrl}" target="_blank"><spring:message code="label.export" /></a>
 				</div>
