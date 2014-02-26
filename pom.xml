@@ -364,7 +364,30 @@
         		<artifactId>maven-surefire-report-plugin</artifactId>
         		<version>2.16</version>
       		</plugin>
-        </plugins>
+      		
+      		<!-- Needed for standalone run 
+      		<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<configuration>
+					<descriptorRefs>
+						<descriptorRef>jar-with-dependencies</descriptorRef>
+					</descriptorRefs>
+				</configuration>
+			</plugin>
+      		<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<server>tomcat-development-server</server>
+					<port>9966</port>
+					<path>/petclinic</path>
+				</configuration>
+			</plugin>
+      		-->
+        </plugins>        
     </build>
     
     <reporting>
