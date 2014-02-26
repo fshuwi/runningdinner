@@ -12,7 +12,18 @@
 <tiles:insertDefinition name="view-status-info" />
 
 <div>
-	<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.dinnerroutes.message.info" /></div>
+	<div class="alert alert-info alert-dismissable">
+		<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+		<strong>Info</strong><br/><spring:message code="text.dinnerroutes.message.info" />
+		<br/><strong><spring:message code="label.important"/></strong>: <spring:message code="text.sendmessage.info" />
+	</div>
+	
+	<c:if test="${not empty sendDinnerRoutesModel.lastMailReport}">
+		<tiles:insertDefinition name="view-mailreport">
+			<tiles:putAttribute name="lastMailReport" value="${sendDinnerRoutesModel.lastMailReport}" />
+			<tiles:putAttribute name="mailType" value="Dinner-Route Emails" />
+		</tiles:insertDefinition>
+	</c:if>
 	
 	<script>
 		var charCounters = {};

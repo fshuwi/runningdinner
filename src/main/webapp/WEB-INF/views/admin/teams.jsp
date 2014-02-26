@@ -16,7 +16,6 @@
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
-
 <h3 class="contentheadline"><spring:message code="headline.teams"/></h3>
 
 <ul class="nav nav-tabs">
@@ -30,7 +29,10 @@
 		<c:choose>
 			<c:when test="${not empty regularTeams}">
 
-				<div class="alert alert-info" style="margin-top:30px;"><spring:message code="text.teamarrangement.help" /></div>
+				<div class="alert alert-info alert-dismissable" style="margin-top:30px;">
+					<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+					<spring:message code="text.teamarrangement.help" />
+				</div>
 			
 				<div class="btn-toolbar" style="margin-top:30px;margin-bottom:15px;">
 					<a class="btn btn-info btn-sm" href="${teamsExportUrl}" target="_blank"><spring:message code="label.export" /></a>

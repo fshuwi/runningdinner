@@ -5,38 +5,25 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
-<%@page import="org.runningdinner.core.CoreUtil" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
+<%@page import="org.runningdinner.core.CoreUtil" %>
 
 <h3 class="contentheadline"><spring:message code="headline.teams.sendmessage" /></h3>
 
 <tiles:insertDefinition name="view-status-info" />
 
-<div class="alert alert-info"><strong>Info</strong><br/><spring:message code="text.teams.sendmessage.info" /></div>
+<div class="alert alert-info alert-dismissable">
+	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+	<strong>Info</strong><br/><spring:message code="text.teams.sendmessage.info" />
+	<br/><strong><spring:message code="label.important"/></strong>: <spring:message code="text.sendmessage.info" />
+</div>
 
-<c:choose>
-	<c:when test="${not empty sendTeamsModel.lastMailSendingStatus}">
-		<%--HH:mm:ss --%>
-		<fmt:formatDate pattern="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" value="${sendTeamsModel.lastMailSendingStatus.sendingStartDate}" var="startDate"/>
-		<c:choose>
-			<c:when test="${sendTeamsModel.lastMailSendingStatus.sending}">
-				<div class="alert alert-info"><strong>Mail-Report</strong><br/><spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}"/></div>
-			</c:when>
-			<c:otherwise>
-				<div class="alert alert-info"><strong>Mail-Report</strong><br/>
-					<c:set var="succeededMailsSize" value="${fn:length(sendTeamsModel.lastMailSendingStatus.succeededMails)}" />
-					<c:set var="failedMailsSize" value="${fn:length(sendTeamsModel.lastMailSendingStatus.failedMails)}" />
-					<spring:message code="text.teams.sendmessage.alreadysent" arguments="${startDate}"/>:
-					<p>${succeededMailsSize} Mail(s) wurden erfolgreich versendet.
-						<c:if test="${failedMailsSize gt 0}">
-							<br/><strong>Folgende Mail-Adressen schlugen fehl</strong>: <span class="label label-danger">${sendTeamsModel.lastMailSendingStatus.failedMailsAsString}</span>	
-						</c:if>
-					</p>
-				</div>
-			</c:otherwise>
-		</c:choose>
-	</c:when>
-</c:choose>
+<c:if test="${not empty sendTeamsModel.lastMailReport}">
+	<tiles:insertDefinition name="view-mailreport">
+		<tiles:putAttribute name="lastMailReport" value="${sendTeamsModel.lastMailReport}" />
+		<tiles:putAttribute name="mailType" value="Team Emails" />
+	</tiles:insertDefinition>
+</c:if>
 
 <script>
 	var charCounters = {};
