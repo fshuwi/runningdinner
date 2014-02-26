@@ -11,6 +11,7 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.springframework.context.MessageSource;
 
+// TODO: Refactor common methods to interface or abstract class
 public class DinnerRouteMessageFormatter {
 
 	private String messageTemplate;
@@ -108,6 +109,10 @@ public class DinnerRouteMessageFormatter {
 
 	public void setSubject(String subject) {
 		this.subject = subject;
+	}
+
+	public Locale getLocale() {
+		return locale;
 	}
 
 }

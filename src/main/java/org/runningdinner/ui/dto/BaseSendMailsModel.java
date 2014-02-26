@@ -15,7 +15,7 @@ public abstract class BaseSendMailsModel {
 	protected List<String> selectedTeams = new ArrayList<String>();
 	protected Map<String, String> teamDisplayMap;
 
-	protected BaseMailReport lastMailSendingStatus;
+	protected BaseMailReport lastMailReport;
 
 	public String getSubject() {
 		return subject;
@@ -49,16 +49,16 @@ public abstract class BaseSendMailsModel {
 		this.teamDisplayMap = teamDisplayMap;
 	}
 
-	public BaseMailReport getLastMailSendingStatus() {
-		return lastMailSendingStatus;
+	public BaseMailReport getLastMailReport() {
+		return lastMailReport;
 	}
 
 	public boolean isCurrentlySending() {
-		return lastMailSendingStatus != null && lastMailSendingStatus.isSending();
+		return lastMailReport != null && lastMailReport.isSending();
 	}
 
-	public void setLastMailSendingStatus(BaseMailReport lastMailSendingStatus) {
-		this.lastMailSendingStatus = lastMailSendingStatus;
+	public void setLastMailReport(BaseMailReport lastMailReport) {
+		this.lastMailReport = lastMailReport;
 	}
 
 	@Override

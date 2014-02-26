@@ -75,7 +75,7 @@ public class EmailService {
 
 				final String teamMemberMail = teamMember.getEmail();
 				if (!isEmailValid(teamMemberMail)) {
-					sendingResults.put(teamMemberMail, false);
+					putInvalidMailToResults(sendingResults, teamMember, teamMemberMail, formatter.getLocale());
 					continue;
 				}
 
@@ -118,7 +118,7 @@ public class EmailService {
 
 				final String teamMemberEmail = teamMember.getEmail();
 				if (!isEmailValid(teamMemberEmail)) {
-					sendingResults.put(teamMemberEmail, false);
+					putInvalidMailToResults(sendingResults, teamMember, teamMemberEmail, formatter.getLocale());
 					continue;
 				}
 
@@ -145,6 +145,16 @@ public class EmailService {
 		}
 
 		return sendingResults;
+	}
+
+	protected void putInvalidMailToResults(final Map<String, Boolean> sendingResults, final Participant teamMember,
+			final String teamMemberEmail, Locale locale) {
+		String failedMail = teamMemberEmail;
+		if (StringUtils.isEmpty(teamMemberEmail)) {
+			failedMail = teamMember.getName().getFullnameFirstnameFirst() + " ("
+					+ messageSource.getMessage("message.template.no.email", null, locale) + ")";
+		}
+		sendingResults.put(failedMail, false);
 	}
 
 	public void sendMessageToParticipants(final Collection<Participant> participants, final String subject, final String message) {

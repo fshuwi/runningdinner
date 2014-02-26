@@ -22,6 +22,7 @@ import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
+import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.RunningDinnerService;
@@ -151,8 +152,8 @@ public class AdminController extends AbstractBaseController {
 			sendTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
 		}
 
-		TeamMailReport teamMailStatusInfo = runningDinnerService.findLastTeamMailReport(uuid);
-		sendTeamsModel.setLastMailSendingStatus(teamMailStatusInfo);
+		TeamMailReport teamMailReport = runningDinnerService.findLastTeamMailReport(uuid);
+		sendTeamsModel.setLastMailReport(teamMailReport);
 
 		model.addAttribute("uuid", uuid);
 		model.addAttribute("sendTeamsModel", sendTeamsModel);
@@ -226,6 +227,10 @@ public class AdminController extends AbstractBaseController {
 		ArrayList<String> selectedTeams = new ArrayList<String>(teamDisplayMap.keySet());
 		sendDinnerRoutesModel.setTeamDisplayMap(teamDisplayMap);
 		sendDinnerRoutesModel.setSelectedTeams(selectedTeams);
+
+		// Add last mail report
+		DinnerRouteMailReport dinnerRouteMailReport = runningDinnerService.findLastDinnerRouteMailReport(uuid);
+		sendDinnerRoutesModel.setLastMailReport(dinnerRouteMailReport);
 
 		model.addAttribute("uuid", uuid);
 		model.addAttribute("sendDinnerRoutesModel", sendDinnerRoutesModel);
