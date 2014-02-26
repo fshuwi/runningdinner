@@ -18,7 +18,7 @@ import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
@@ -57,8 +57,10 @@ public abstract class BaseMailReport extends AbstractEntity {
 	@JoinTable(name = "MailAddressStatusMapping")
 	protected Map<String, Boolean> mailAddressStatusMapping;
 
-	@OneToOne(fetch = FetchType.LAZY, optional = false)
-	@JoinColumn(name = "dinner_id")
+	// @OneToOne(fetch = FetchType.LAZY, optional = false)
+	// @JoinColumn(name = "dinner_id", unique = false)
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "dinner_id", unique = false)
 	protected RunningDinner runningDinner;
 
 	protected BaseMailReport() {

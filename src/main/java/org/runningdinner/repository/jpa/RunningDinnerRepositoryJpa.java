@@ -158,7 +158,7 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 	@Transactional
 	public List<Team> loadTeamsWithVisitationPlan(Set<String> teamKeys, boolean fetchTeamMembersOfReferencedTeams) {
 		TypedQuery<Team> query = em.createQuery(
-				"SELECT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey IN :teamKeys",
+				"SELECT DISTINCT t FROM Team t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass LEFT JOIN FETCH t.visitationPlan.hostTeams LEFT JOIN FETCH t.visitationPlan.guestTeams WHERE t.naturalKey IN :teamKeys",
 				Team.class);
 		query.setParameter("teamKeys", teamKeys);
 		List<Team> result = query.getResultList();

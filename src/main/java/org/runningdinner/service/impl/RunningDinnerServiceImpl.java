@@ -735,6 +735,15 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	@Override
+	public DinnerRouteMailReport findLastDinnerRouteMailReport(String dinnerUuid) {
+		List<DinnerRouteMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, DinnerRouteMailReport.class);
+		if (CoreUtil.isEmpty(tmpResult)) {
+			return null;
+		}
+		return tmpResult.iterator().next();
+	}
+
+	@Override
 	@Transactional
 	public void deleteMailReport(BaseMailReport mailReport) {
 		BaseMailReport mergedReport = repository.saveOrMerge(mailReport);

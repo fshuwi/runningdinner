@@ -17,6 +17,7 @@ import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;
+import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.model.TeamMailReport;
@@ -267,9 +268,17 @@ public interface RunningDinnerService {
 	 * Finds the last mail report about sending team arrangements for the dinner identified by the passed uuid.
 	 * 
 	 * @param dinnerUuid
-	 * @return The found report or null if e.g. there was never send a team arrangment mail
+	 * @return The found report or null if e.g. there was never sent a team arrangment mail
 	 */
 	TeamMailReport findLastTeamMailReport(final String dinnerUuid);
+
+	/**
+	 * Finds the last mail report about sending dinner-route messages for the dinner identified by the passed uuid.
+	 * 
+	 * @param dinnerUuid
+	 * @return The found report or null if e.g. there was never sent a dinner route mail
+	 */
+	DinnerRouteMailReport findLastDinnerRouteMailReport(String dinnerUuid);
 
 	/**
 	 * Finds all mail reports that are pending. Pending means that a report is still in "sending"-state, but it seems to never complete (may
@@ -287,4 +296,5 @@ public interface RunningDinnerService {
 	 * @param mailReport
 	 */
 	void deleteMailReport(BaseMailReport mailReport);
+
 }
