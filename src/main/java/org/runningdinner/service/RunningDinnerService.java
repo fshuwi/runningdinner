@@ -142,10 +142,10 @@ public interface RunningDinnerService {
 	/**
 	 * Finds all dinners that have been created before the passed date.
 	 * 
-	 * @param creationDate The max. creation date of the dinners to retrieve
+	 * @param startDate The max. creation date of the dinners to retrieve
 	 * @return
 	 */
-	List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate);
+	List<RunningDinner> findDinnersWithEarlierStartDate(Date startDate);
 
 	/**
 	 * See loadDinnerWithBasicDetails, but fetches also all participants of the dinner.

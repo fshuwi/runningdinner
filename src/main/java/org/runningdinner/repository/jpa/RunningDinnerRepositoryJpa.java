@@ -37,10 +37,9 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		return getSingleResult(query);
 	}
 
-	public List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate) {
-		TypedQuery<RunningDinner> query = em.createQuery("SELECT r FROM RunningDinner r WHERE r.createdAt < :creationDate",
-				RunningDinner.class);
-		query.setParameter("creationDate", creationDate, TemporalType.TIMESTAMP);
+	public List<RunningDinner> findDinnersWithEarlierStartDate(Date startDate) {
+		TypedQuery<RunningDinner> query = em.createQuery("SELECT r FROM RunningDinner r WHERE r.date < :startDate", RunningDinner.class);
+		query.setParameter("startDate", startDate, TemporalType.TIMESTAMP);
 		return query.getResultList();
 	}
 

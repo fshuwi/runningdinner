@@ -30,13 +30,13 @@ public class DeleteOldDinnerInstancesJob extends AbstractDeleteDbInstancesJob {
 			LOGGER.warn("maxLifeTime ({}) is negative. Nothing will be done.", maxLifeTime);
 		}
 
-		Date creationDateLimit = calculateMaxLifeTimeDateLimit();
+		Date startDateLimit = calculateMaxLifeTimeDateLimit();
 
 		List<RunningDinner> dinners = null;
 		try {
-			dinners = runningDinnerService.findDinnersWithEarlierCreationDate(creationDateLimit);
+			dinners = runningDinnerService.findDinnersWithEarlierStartDate(startDateLimit);
 			LOGGER.info("Found {} dinners with creation date older as {}", dinners.size(),
-					CoreUtil.getFormattedTime(creationDateLimit, CoreUtil.getDefaultDateFormat(), "Unknown"));
+					CoreUtil.getFormattedTime(startDateLimit, CoreUtil.getDefaultDateFormat(), "Unknown"));
 		}
 		catch (Exception ex) {
 			LOGGER.error("Failed to retrieve dinners to delete", ex);

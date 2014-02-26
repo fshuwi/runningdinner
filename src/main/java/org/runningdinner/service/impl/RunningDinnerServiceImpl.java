@@ -533,8 +533,8 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	@Override
-	public List<RunningDinner> findDinnersWithEarlierCreationDate(Date creationDate) {
-		return repository.findDinnersWithEarlierCreationDate(creationDate);
+	public List<RunningDinner> findDinnersWithEarlierStartDate(Date startDate) {
+		return repository.findDinnersWithEarlierStartDate(startDate);
 	}
 
 	/**
