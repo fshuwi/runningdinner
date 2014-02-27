@@ -1,12 +1,16 @@
 package org.runningdinner.ui.dto;
 
+import java.io.Serializable;
+
 /**
  * Used for displaying the result of a request (e.g. in page header)
  * 
  * @author Clemens Stich
  * 
  */
-public class SimpleStatusMessage {
+public class SimpleStatusMessage implements Serializable {
+
+	private static final long serialVersionUID = 825053797057214647L;
 
 	protected String status;
 	protected String message;
