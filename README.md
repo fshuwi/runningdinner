@@ -2,7 +2,7 @@ Run Your Dinner
 =============
 
 Web layer (persistence, service, UI) for runningdinner scenarios:<br/>
-<a href="http://runyourdinner-clemens.rhcloud.com/">Hosted Application on Openshift (currently only German)</a>
+<a href="http://runyourdinner-clemens.rhcloud.com/" target="_blank">Hosted Application on Openshift (currently only German)</a>
 
 ## Running locally with standalone database / tomcat
 
