@@ -34,11 +34,9 @@
 		        <list>
 		            <value>classpath:config.properties</value>
 		           	<value>${rd.config.file}</value>
-		           <!-- <value>file:${OPENSHIFT_DATA_DIR}/config/config_prod.properties</value> -->
 		         </list>
 		    </property>
 		    <property name="ignoreUnresolvablePlaceholders" value="true" />
-		    <!-- <property name="searchSystemEnvironment" value="true"/> -->
 		</bean>
 	</beans>
 
