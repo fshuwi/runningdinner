@@ -18,9 +18,7 @@
 			<tiles:insertTemplate template="/WEB-INF/views/wizard/carousel.jsp" />
   		
   			<div class="row">
-				<div class="col-xs-12">
-  					<tiles:insertAttribute name="content" />
-  				</div>
+				<div class="col-xs-12"><tiles:insertAttribute name="content" /></div>
   			</div>
   			
   			<tiles:insertAttribute name="footer" />	

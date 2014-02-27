@@ -49,7 +49,12 @@
 		<put-attribute name="content" value="" />
 		<put-attribute name="htmlFooter" value="/WEB-INF/views/defaultHtmlFooter.jsp"/>	
  	</definition>
- 	
+
+	<!-- for displaying 'static' contents -->
+ 	 <definition name="template-static" template="/WEB-INF/views/layouts/staticLayout.jsp">
+		<put-attribute name="content" value="" />
+ 	</definition>
+
  	<!-- Single views(tiles) definitions -->
  	<definition name="view-participants" template="/WEB-INF/views/common/participantsListView.jsp" />
  	<definition name="view-admin-menu" template="/WEB-INF/views/admin/adminMenu.jsp" />
@@ -68,7 +73,7 @@
 		<put-attribute name="currentView" value="{1}" />
  	</definition>
  	
- 	 	 <definition name="admin/teams" extends="template-default">
+ 	 <definition name="admin/teams" extends="template-default">
   		<put-attribute name="content" value="/WEB-INF/views/admin/teams.jsp" />
   		 <!-- pass current view name for menu highlighting -->
   		<put-attribute name="currentView" value="teams" />
@@ -101,6 +106,10 @@
  	
  	 <definition name="error/*" extends="template-error">
   		<put-attribute name="content" value="/WEB-INF/views/error/{1}.jsp" />
+ 	</definition>
+ 	
+ 	 <definition name="static/*" extends="template-static">
+  		<put-attribute name="content" value="/WEB-INF/views/static/{1}.jsp" />
  	</definition>
  	
 </tiles-definitions>

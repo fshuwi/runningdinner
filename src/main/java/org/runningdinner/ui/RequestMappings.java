@@ -31,4 +31,9 @@ public class RequestMappings {
 	// *************** Request Parameters ********************* //
 	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";
 
+	// ************** Static request mappings **************** //
+	public static final String PRIVACY = "/privacy";
+	public static final String IMPRESSUM = "/impressum";
+	public static final String ABOUT = "/about";
+
 }

@@ -1,9 +1,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
-
-<script src='<c:url value="/resources/js/common.js"/>'></script>
-
 <spring:message code="label.upload.parse.row.active" var="rowActiveLabel" />
 <spring:message code="label.upload.parse.row.inactive" var="rowInactiveLabel" />
 
