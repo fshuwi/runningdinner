@@ -1,44 +1,35 @@
 package org.runningdinner.service.email;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.springframework.context.MessageSource;
+import org.springframework.util.Assert;
 
-// TODO: Refactor common methods to interface or abstract class
-public class DinnerRouteMessageFormatter {
+public class DinnerRouteMessageFormatter extends AbstractMessageFormatter {
 
-	private String messageTemplate;
-	private String selfTemplate;
-	private String hostsTemplate;
-
-	private DateFormat timeFormat;
-
-	private String subject;
-
-	private MessageSource messageSource;
-	private Locale locale;
+	protected String selfTemplate;
+	protected String hostsTemplate;
 
 	public DinnerRouteMessageFormatter(final MessageSource messageSource, final Locale locale) {
-		this(messageSource, locale, null);
+		super(messageSource, locale, null);
 	}
 
 	public DinnerRouteMessageFormatter(final MessageSource messageSource, final Locale locale, final DateFormat timeFormat) {
-		this.timeFormat = timeFormat;
-		this.messageSource = messageSource;
-		this.locale = locale;
-		if (timeFormat == null) {
-			this.timeFormat = new SimpleDateFormat(FormatterUtil.DEFAULT_TIME_FORMAT, Locale.GERMAN); // Fallback
-		}
+		super(messageSource, locale, timeFormat);
 	}
 
 	public String formatDinnerRouteMessage(final Participant teamMember, final Team parentTeam, final List<Team> dinnerRoute) {
+
+		Assert.state(StringUtils.isNotEmpty(messageTemplate), "Message template must not be empty!");
+		Assert.state(StringUtils.isNotEmpty(selfTemplate), "Self part template must not be empty!");
+		Assert.state(StringUtils.isNotEmpty(hostsTemplate), "Hosts part template must not be empty!");
 
 		final String noTimeText = messageSource.getMessage("message.template.no.time", null, locale);
 
@@ -87,32 +78,12 @@ public class DinnerRouteMessageFormatter {
 
 	}
 
-	public void setMessageTemplate(String messageTemplate) {
-		this.messageTemplate = messageTemplate;
-	}
-
 	public void setSelfTemplate(String selfTemplate) {
 		this.selfTemplate = selfTemplate;
 	}
 
 	public void setHostsTemplate(String hostsTemplate) {
 		this.hostsTemplate = hostsTemplate;
-	}
-
-	public void setTimeFormat(DateFormat timeFormat) {
-		this.timeFormat = timeFormat;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public Locale getLocale() {
-		return locale;
 	}
 
 }

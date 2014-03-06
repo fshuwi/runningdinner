@@ -18,9 +18,9 @@
 		<br/><strong><spring:message code="label.important"/></strong>: <spring:message code="text.sendmessage.info" />
 	</div>
 	
-	<c:if test="${not empty sendDinnerRoutesModel.lastMailReport}">
+	<c:if test="${not empty sendMailsModel.lastMailReport}">
 		<tiles:insertDefinition name="view-mailreport">
-			<tiles:putAttribute name="lastMailReport" value="${sendDinnerRoutesModel.lastMailReport}" />
+			<tiles:putAttribute name="lastMailReport" value="${sendMailsModel.lastMailReport}" />
 			<tiles:putAttribute name="mailType" value="Dinner-Route Emails" />
 		</tiles:insertDefinition>
 	</c:if>
@@ -32,7 +32,7 @@
 		charCounters["hostsTemplate"] = 300;
 	</script>
 	
-	<form:form method="POST" commandName="sendDinnerRoutesModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreTeamsSelected()">
+	<form:form method="POST" commandName="sendMailsModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreTeamsSelected()">
 		<div class="well">
 			<spring:message code="label.subject" var="subjectLabel" />
 			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
@@ -63,14 +63,21 @@
 		</div>
 		
 		<input type="submit" class="btn btn-primary" value="<spring:message code="label.dinnerroutes.sendmessage" />!" name="sendDinnerRoutes" />
+		<input type="submit" class='btn btn-info' value="<spring:message code="label.preview" />" name="preview" />
 
 		<div style="margin-top:20px;">
 			<h4><spring:message code="label.teams.selection" /></h4>
 			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
 			<ul class="teamSelection">
-				<form:checkboxes element="li" items="${sendDinnerRoutesModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
+				<form:checkboxes element="li" items="${sendMailsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
 			</ul>
 		</div>
 			
 	</form:form>		
 </div>
+
+<c:if test="${not empty sendMailsPreviewModel}">
+	<tiles:insertDefinition name="view-mailpreview" flush="true">
+		<tiles:putAttribute name="previewModel" value="${sendMailsPreviewModel}" />
+	</tiles:insertDefinition>
+</c:if>

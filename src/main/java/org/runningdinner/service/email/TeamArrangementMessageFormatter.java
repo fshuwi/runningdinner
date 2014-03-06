@@ -1,7 +1,6 @@
 package org.runningdinner.service.email;
 
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.Locale;
 import java.util.Set;
 
@@ -10,35 +9,26 @@ import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.springframework.context.MessageSource;
+import org.springframework.util.Assert;
 
-// TODO: Refactor common methods to interface or abstract class
-public class TeamArrangementMessageFormatter {
+public class TeamArrangementMessageFormatter extends AbstractMessageFormatter {
 
-	private String messageTemplate;
-	private String hostMessagePartTemplate;
-	private String nonHostMessagePartTemplate;
-
-	private DateFormat timeFormat;
-
-	private String subject;
-
-	private MessageSource messageSource;
-	private Locale locale;
+	protected String hostMessagePartTemplate;
+	protected String nonHostMessagePartTemplate;
 
 	public TeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale) {
-		this(messageSource, locale, null);
+		super(messageSource, locale, null);
 	}
 
 	public TeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale, final DateFormat timeFormat) {
-		this.timeFormat = timeFormat;
-		this.messageSource = messageSource;
-		this.locale = locale;
-		if (timeFormat == null) {
-			this.timeFormat = new SimpleDateFormat(FormatterUtil.DEFAULT_TIME_FORMAT, Locale.GERMAN); // Fallback
-		}
+		super(messageSource, locale, timeFormat);
 	}
 
 	public String formatTeamMemberMessage(final Participant teamMember, final Team parentTeam) {
+
+		Assert.state(StringUtils.isNotEmpty(messageTemplate), "Message template must not be empty!");
+		Assert.state(StringUtils.isNotEmpty(hostMessagePartTemplate), "Hosting part template must not be empty!");
+		Assert.state(StringUtils.isNotEmpty(nonHostMessagePartTemplate), "Non Hosting part template must not be empty!");
 
 		final String noTimeText = messageSource.getMessage("message.template.no.time", null, locale);
 		final String noEmailText = messageSource.getMessage("message.template.no.email", null, locale);
@@ -89,32 +79,12 @@ public class TeamArrangementMessageFormatter {
 		return theMessage;
 	}
 
-	public void setMessageTemplate(String messageTemplate) {
-		this.messageTemplate = messageTemplate;
-	}
-
 	public void setHostMessagePartTemplate(String hostMessagePartTemplate) {
 		this.hostMessagePartTemplate = hostMessagePartTemplate;
 	}
 
 	public void setNonHostMessagePartTemplate(String nonHostMessagePartTemplate) {
 		this.nonHostMessagePartTemplate = nonHostMessagePartTemplate;
-	}
-
-	public void setTimeFormat(DateFormat timeFormat) {
-		this.timeFormat = timeFormat;
-	}
-
-	public String getSubject() {
-		return subject;
-	}
-
-	public void setSubject(String subject) {
-		this.subject = subject;
-	}
-
-	public Locale getLocale() {
-		return locale;
 	}
 
 }

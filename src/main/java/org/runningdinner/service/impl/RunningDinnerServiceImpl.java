@@ -560,6 +560,14 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		return repository.loadRegularTeamsFromDinner(uuid);
 	}
 
+	@Override
+	public List<Team> loadTeamsFromDinnerByKeys(Set<String> teamKeys, String uuid) {
+		List<Team> result = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
+		Assert.state(result.size() == teamKeys.size(), "Expected " + teamKeys.size() + " teams to be found, but found " + result.size()
+				+ " teams");
+		return result;
+	}
+
 	/**
 	 * Detects how many teams have been built for the dinner identified by the passed uuid
 	 * 

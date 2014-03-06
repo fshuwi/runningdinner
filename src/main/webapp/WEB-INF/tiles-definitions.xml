@@ -61,6 +61,7 @@
  	<definition name="view-status-info" template="/WEB-INF/views/common/statusView.jsp" />
  	<definition name="view-mealtimes" template="/WEB-INF/views/common/mealTimes.jsp" />
  	<definition name="view-mailreport" template="/WEB-INF/views/common/mailReportView.jsp" />
+ 	<definition name="view-mailpreview" template="/WEB-INF/views/common/mailPreviewView.jsp" />
  	
  	<!-- Concrete template mappings -->
  	<definition name="wizard/wizard-start" extends="template-welcome">

@@ -81,8 +81,8 @@ public class SchemaTranslator {
 		Class<?>[] entityClasses = { MealClass.class, Participant.class, Team.class, VisitationPlan.class, RunningDinner.class,
 				TeamMailReport.class, DinnerRouteMailReport.class };
 
-		String dialect = "org.hibernate.dialect.MySQLDialect";
-		// String dialect = "org.hibernate.dialect.DerbyDialect";
+		// String dialect = "org.hibernate.dialect.MySQLDialect";
+		String dialect = "org.hibernate.dialect.DerbyDialect";
 		translator.setDialect(dialect).addAnnotatedClasses(entityClasses).translate(new FileOutputStream(new File("db-schema.sql")));
 
 	}

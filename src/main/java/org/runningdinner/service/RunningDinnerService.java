@@ -184,6 +184,17 @@ public interface RunningDinnerService {
 	List<Team> loadRegularTeamsFromDinner(String uuid);
 
 	/**
+	 * Loads the teams that are specified by the passed teamKeys from the dinner that is identified by the passed UUID.<br>
+	 * If the number of found teams doesn't match the passed teamKeys-size an IllegalStateException will be thrown.<br>
+	 * Note: The loaded teams do not contain their visitation plans.
+	 * 
+	 * @param teamKeys The naturalKeys of the teams to load
+	 * @param uuid The parent dinner of the teams to load
+	 * @return
+	 */
+	List<Team> loadTeamsFromDinnerByKeys(Set<String> teamKeys, String uuid);
+
+	/**
 	 * Detects how many teams have been built for the dinner identified by the passed uuid
 	 * 
 	 * @param uuid

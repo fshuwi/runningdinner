@@ -3,11 +3,16 @@
 
 <script>
 	$(document).ready(function() {
+		
 		if (typeof charCounters != 'undefined') {
 			for (var counterId in charCounters) {
 				var maxAllowedChars = charCounters[counterId];
 				$("#"+counterId).charCounter(maxAllowedChars,{container: "#"+counterId+"_counter"});
 			}
+		}
+		
+		if ($('#previewDialog').length) {
+			$('#previewDialog').modal();
 		}
 	});
 	

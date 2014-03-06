@@ -3,6 +3,7 @@ package org.runningdinner.ui.validator;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
+import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.model.AbstractEntity;
 import org.runningdinner.exceptions.InvalidUuidException;
@@ -57,6 +58,9 @@ public class AdminValidator extends CommonBaseValidator {
 	public void validateSendMessagesModel(BaseSendMailsModel sendMailsModel, Errors errors) {
 		ValidationUtils.rejectIfEmpty(errors, "subject", "error.required.subject");
 		ValidationUtils.rejectIfEmpty(errors, "message", "error.required.message");
+		if (CoreUtil.isEmpty(sendMailsModel.getSelectedTeams())) {
+			errors.rejectValue("selectedTeams", "error.required.teams.selection");
+		}
 	}
 
 	public void validateParticipant(Participant participant, Errors errors) {
