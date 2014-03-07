@@ -33,6 +33,7 @@ import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.model.TeamMailReport;
@@ -41,6 +42,7 @@ import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -419,7 +421,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 
 		LOGGER.info("Send team-arrangement email messages for {} teams for dinner {}", teamKeys.size(), uuid);
 
-		Set<String> teamKeysAsSet = convertTeamKeysToSet(teamKeys);
+		Set<String> teamKeysAsSet = convertTeamOrParticipantKeysToSet(teamKeys);
 
 		if (CoreUtil.isEmpty(teamKeysAsSet)) {
 			LOGGER.warn("No teams passed for sending messages!");
@@ -429,7 +431,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
 		final List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
 
-		checkLoadedTeamSize(teams, teamKeysAsSet.size());
+		checkLoadedTeamOrParticipantSize(teams, teamKeysAsSet.size());
 
 		final TeamMailReport teamMailStatusInfo = new TeamMailReport(dinner);
 		teamMailStatusInfo.applyNewSending();
@@ -453,7 +455,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 
 		LOGGER.info("Send final dinner-route email messages for {} teams for dinner {}", selectedTeamKeys.size(), uuid);
 
-		Set<String> teamKeys = convertTeamKeysToSet(selectedTeamKeys);
+		Set<String> teamKeys = convertTeamOrParticipantKeysToSet(selectedTeamKeys);
 
 		if (CoreUtil.isEmpty(teamKeys)) {
 			LOGGER.warn("No teams passed for sending dinner route messages!");
@@ -463,7 +465,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		final List<Team> teams = repository.loadTeamsWithVisitationPlan(teamKeys, true);
 		final RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
 
-		checkLoadedTeamSize(teams, teamKeys.size());
+		checkLoadedTeamOrParticipantSize(teams, teamKeys.size());
 
 		final DinnerRouteMailReport dinnerRouteMailReport = new DinnerRouteMailReport(dinner);
 		dinnerRouteMailReport.applyNewSending();
@@ -478,6 +480,37 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		});
 
 		return teams.size();
+	}
+
+	@Override
+	@Transactional
+	public int sendParticipantMessages(String uuid, List<String> participantKeys, final ParticipantMessageFormatter participantFormatter) {
+		LOGGER.info("Send participant email messages for {} participants for dinner {}", participantKeys.size(), uuid);
+
+		Set<String> participantKeysAsSet = convertTeamOrParticipantKeysToSet(participantKeys);
+
+		if (CoreUtil.isEmpty(participantKeysAsSet)) {
+			LOGGER.warn("No participants passed for sending messages!");
+			return 0;
+		}
+
+		final List<Participant> participants = repository.loadAllParticipantsOfDinner(uuid); // TODO: Only selected participants!
+		checkLoadedTeamOrParticipantSize(participants, participantKeysAsSet.size());
+		final RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
+
+		final ParticipantMailReport mailReport = new ParticipantMailReport(dinner);
+		mailReport.applyNewSending();
+		repository.saveOrMerge(mailReport);
+
+		// Publish event only after transaction is successfully committed:
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				eventPublisher.publishParticipantMessages(participants, participantFormatter, mailReport);
+			}
+		});
+
+		return participants.size();
 	}
 
 	@Override
@@ -696,12 +729,12 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	/**
-	 * Simple helper method for checking for duplicates in a passed team key list
+	 * Simple helper method for checking for duplicates in a passed team/participant key list
 	 * 
 	 * @param teamKeysList
 	 * @return
 	 */
-	protected Set<String> convertTeamKeysToSet(final List<String> teamKeysList) {
+	protected Set<String> convertTeamOrParticipantKeysToSet(final List<String> teamKeysList) {
 		Set<String> teamKeys = new HashSet<String>(teamKeysList);
 		if (teamKeys.size() != teamKeysList.size()) {
 			throw new IllegalStateException("Passed team key list contained some duplicates!");
@@ -710,17 +743,18 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	/**
-	 * Asserts that the size of loaded teams is the same as the passed expectedSize.<br>
+	 * Asserts that the size of loaded teams and/or participants is the same as the passed expectedSize.<br>
 	 * 
-	 * @param loadedTeams
+	 * @param loadedEntities
 	 * @param expectedSize
 	 */
-	protected void checkLoadedTeamSize(final List<Team> loadedTeams, final int expectedSize) {
-		if (CoreUtil.isEmpty(loadedTeams) && expectedSize > 0) {
-			throw new IllegalStateException("No teams available => Impossible to finalize and/or send messages");
+	protected <T> void checkLoadedTeamOrParticipantSize(final List<T> loadedEntities, final int expectedSize) {
+		if (CoreUtil.isEmpty(loadedEntities) && expectedSize > 0) {
+			throw new IllegalStateException("No teams/participants available => Impossible to finalize and/or send messages");
 		}
-		if (loadedTeams.size() != expectedSize) {
-			throw new IllegalStateException("Expected " + expectedSize + " teams to be found, but there were " + loadedTeams.size());
+		if (loadedEntities.size() != expectedSize) {
+			throw new IllegalStateException("Expected " + expectedSize + " teams/participants to be found, but there were "
+					+ loadedEntities.size());
 		}
 	}
 
@@ -745,6 +779,15 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	public DinnerRouteMailReport findLastDinnerRouteMailReport(String dinnerUuid) {
 		List<DinnerRouteMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, DinnerRouteMailReport.class);
+		if (CoreUtil.isEmpty(tmpResult)) {
+			return null;
+		}
+		return tmpResult.iterator().next();
+	}
+
+	@Override
+	public ParticipantMailReport findLastParticipantMailReport(final String dinnerUuid) {
+		List<ParticipantMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, ParticipantMailReport.class);
 		if (CoreUtil.isEmpty(tmpResult)) {
 			return null;
 		}

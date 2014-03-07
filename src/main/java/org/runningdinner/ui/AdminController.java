@@ -23,11 +23,13 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.model.BaseMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TeamRouteBuilder;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.runningdinner.service.email.FormatterUtil;
+import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
 import org.runningdinner.ui.dto.EditMealTimesModel;
@@ -62,7 +64,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
  * Provides all methods for managing a created running dinner.<br>
@@ -145,7 +146,7 @@ public class AdminController extends AbstractBaseController {
 		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate(messages, locale);
 
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, runningDinnerService.findLastTeamMailReport(uuid));
-		Map<String, String> teamDisplayMap = sendTeamsModel.getTeamDisplayMap();
+		Map<String, String> teamDisplayMap = sendTeamsModel.getEntityDisplayMap();
 
 		if (teamDisplayMap.size() == 0) {
 			LOGGER.warn("Tried to call send team mails for dinner {} without any existing teams", uuid);
@@ -155,7 +156,7 @@ public class AdminController extends AbstractBaseController {
 
 		// Select all Teams:
 		if (request.getParameter(RequestMappings.SELECT_ALL_TEAMS_PARAMETER) != null) {
-			sendTeamsModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
+			sendTeamsModel.setSelectedEntities(new ArrayList<String>(teamDisplayMap.keySet()));
 		}
 
 		return getFullViewName("sendTeamsForm");
@@ -202,14 +203,15 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		if (request.getParameter("preview") != null) {
-			return doSendTeamArrangementsPreview(request, uuid, sendTeamsModel, bindingResult, model, redirectAttributes, locale);
+			return doSendTeamArrangementsPreview(uuid, sendTeamsModel, model, locale);
 		}
 
-		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedTeams(),
+		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedEntities(),
 				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale));
 
+		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, "Sending emails for " + numTeams + " teams!"));
+				SimpleStatusMessage.SUCCESS_STATUS, messageText));
 	}
 
 	/**
@@ -225,8 +227,7 @@ public class AdminController extends AbstractBaseController {
 	 * @param locale
 	 * @return
 	 */
-	protected String doSendTeamArrangementsPreview(HttpServletRequest request, String uuid, SendTeamArrangementsModel sendTeamsModel,
-			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes, Locale locale) {
+	protected String doSendTeamArrangementsPreview(String uuid, SendTeamArrangementsModel sendTeamsModel, Model model, Locale locale) {
 
 		// Construct preview object
 		SendMailsPreviewModel sendMailsPreviewModel = createSendMailsPreviewModel(sendTeamsModel, uuid, false);
@@ -258,7 +259,7 @@ public class AdminController extends AbstractBaseController {
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendDinnerRoutesModel, uuid,
 				runningDinnerService.findLastDinnerRouteMailReport(uuid));
 
-		Map<String, String> teamDisplayMap = sendDinnerRoutesModel.getTeamDisplayMap();
+		Map<String, String> teamDisplayMap = sendDinnerRoutesModel.getEntityDisplayMap();
 		if (teamDisplayMap.size() == 0) {
 			LOGGER.warn("Tried to call send dinner route mails for dinner {} without any existing teams", uuid);
 			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -266,7 +267,7 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		// Select all Teams:
-		sendDinnerRoutesModel.setSelectedTeams(new ArrayList<String>(teamDisplayMap.keySet()));
+		sendDinnerRoutesModel.setSelectedEntities(new ArrayList<String>(teamDisplayMap.keySet()));
 
 		return getFullViewName("sendDinnerRoutesForm");
 	}
@@ -286,18 +287,18 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		if (request.getParameter("preview") != null) {
-			return doSendDinnerRoutesPreview(request, uuid, sendDinnerRoutesModel, bindingResult, model, redirectAttributes, locale);
+			return doSendDinnerRoutesPreview(uuid, sendDinnerRoutesModel, model, locale);
 		}
 
-		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedTeams(),
+		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedEntities(),
 				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN));
 
+		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, "Sent emails for " + numTeams + " teams!"));
+				SimpleStatusMessage.SUCCESS_STATUS, messageText));
 	}
 
-	protected String doSendDinnerRoutesPreview(HttpServletRequest request, String uuid, SendDinnerRoutesModel sendDinnerRoutesModel,
-			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes, Locale locale) {
+	protected String doSendDinnerRoutesPreview(String uuid, SendDinnerRoutesModel sendDinnerRoutesModel, Model model, Locale locale) {
 
 		// Construct preview object ...
 		SendMailsPreviewModel sendMailsPreviewModel = createSendMailsPreviewModel(sendDinnerRoutesModel, uuid, true);
@@ -334,7 +335,7 @@ public class AdminController extends AbstractBaseController {
 	protected SendMailsPreviewModel createSendMailsPreviewModel(final BaseSendMailsModel sendMailsModel, final String uuid,
 			boolean fetchVisitationPlan) {
 		// Load first team of selection:
-		List<String> selectedTeamKeys = sendMailsModel.getSelectedTeams();
+		List<String> selectedTeamKeys = sendMailsModel.getSelectedEntities();
 		String firstTeamKey = selectedTeamKeys.iterator().next();
 
 		Team firstTeam = null;
@@ -366,10 +367,100 @@ public class AdminController extends AbstractBaseController {
 	 */
 	protected void bindCommonMailAttributesAndLoadTeamDisplayMap(Model model, BaseSendMailsModel sendMailsModel, final String uuid,
 			BaseMailReport lastMailReport) {
-		sendMailsModel.setTeamDisplayMap(getTeamsToSelect(uuid, true)); // Reload teams for display
+		sendMailsModel.setEntityDisplayMap(getTeamsToSelect(uuid, false)); // Reload teams for display
 		sendMailsModel.setLastMailReport(lastMailReport);
 		model.addAttribute("sendMailsModel", sendMailsModel);
 		model.addAttribute("uuid", uuid);
+	}
+
+	@RequestMapping(value = RequestMappings.SEND_PARTICIPANT_MAILS, method = RequestMethod.GET)
+	public String showSendParticipantsForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			Model model, RedirectAttributes redirectAttributes, Locale locale) {
+		adminValidator.validateUuid(uuid);
+
+		BaseSendMailsModel sendMailsModel = new BaseSendMailsModel();
+		sendMailsModel.setMessage(messages.getMessage("message.template.participants", null, locale));
+
+		bindAndSetupParticipantMailAttributes(model, sendMailsModel, uuid, locale);
+
+		Map<String, String> participantDisplayMap = sendMailsModel.getEntityDisplayMap();
+		if (participantDisplayMap.size() == 0) {
+			LOGGER.warn("Tried to call send participant mails for dinner {} without any existing participants", uuid);
+			return generateStatusPageRedirect(RequestMappings.ADMIN_OVERVIEW, uuid, redirectAttributes, new SimpleStatusMessage(
+					SimpleStatusMessage.WARN_STATUS, messages.getMessage("error.no.participants", null, locale)));
+		}
+
+		// Select all participants:
+		sendMailsModel.setSelectedEntities(new ArrayList<String>(participantDisplayMap.keySet()));
+
+		return getFullViewName("sendParticipantsForm");
+	}
+
+	@RequestMapping(value = RequestMappings.SEND_PARTICIPANT_MAILS, method = RequestMethod.POST)
+	public String doSendParticipants(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@ModelAttribute("sendMailsModel") BaseSendMailsModel sendMailsModel, BindingResult bindingResult, Model model,
+			final RedirectAttributes redirectAttributes, Locale locale) {
+
+		adminValidator.validateUuid(uuid);
+
+		adminValidator.validateSendMessagesModel(sendMailsModel, bindingResult);
+		if (bindingResult.hasErrors()) {
+			bindAndSetupParticipantMailAttributes(model, sendMailsModel, uuid, locale);
+			return getFullViewName("sendParticipantsForm");
+		}
+
+		// Create Formatter...
+		ParticipantMessageFormatter messageFormatter = new ParticipantMessageFormatter(messages, locale);
+		messageFormatter.setMessageTemplate(sendMailsModel.getMessage());
+		messageFormatter.setSubject(sendMailsModel.getSubject());
+
+		if (request.getParameter("preview") != null) {
+			return doSendParticipantsPreview(uuid, sendMailsModel, messageFormatter, model, locale);
+		}
+
+		// ... And send mails (if not ran into preview above):
+		int numParticipants = runningDinnerService.sendParticipantMessages(uuid, sendMailsModel.getSelectedEntities(), messageFormatter);
+
+		String messageText = messages.getMessage("text.sendmessage.notification.participants", new Object[] { numParticipants }, locale);
+		return generateStatusPageRedirect(RequestMappings.SEND_PARTICIPANT_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
+				SimpleStatusMessage.SUCCESS_STATUS, messageText));
+	}
+
+	protected String doSendParticipantsPreview(String uuid, BaseSendMailsModel sendMailsModel,
+			ParticipantMessageFormatter messageFormatter, Model model, Locale locale) {
+
+		List<String> selectedParticipantKeys = sendMailsModel.getSelectedEntities();
+		String firstParticipantKey = selectedParticipantKeys.iterator().next();
+		final Participant firstParticipant = runningDinnerService.loadParticipant(firstParticipantKey);
+
+		// Construct preview object ...
+		SendMailsPreviewModel sendMailsPreviewModel = new SendMailsPreviewModel();
+		sendMailsPreviewModel.setSubject(sendMailsModel.getSubject());
+		sendMailsPreviewModel.setParticipantNames(firstParticipant.getName().getFullnameFirstnameFirst());
+
+		String message = messageFormatter.formatParticipantMessage(firstParticipant);
+		sendMailsPreviewModel.addMessage(messageFormatter.getHtmlFormattedMessage(message));
+
+		model.addAttribute("sendMailsPreviewModel", sendMailsPreviewModel);
+		bindAndSetupParticipantMailAttributes(model, sendMailsModel, uuid, locale);
+
+		return getFullViewName("sendParticipantsForm");
+	}
+
+	protected void bindAndSetupParticipantMailAttributes(Model model, BaseSendMailsModel sendMailsModel, String uuid, Locale locale) {
+		List<Participant> allParticipants = runningDinnerService.loadAllParticipantsOfDinner(uuid);
+
+		Map<String, String> participantDisplayMap = new LinkedHashMap<String, String>();
+		for (Participant participant : allParticipants) {
+			participantDisplayMap.put(participant.getNaturalKey(), participant.getName().getFullnameFirstnameFirst());
+		}
+
+		sendMailsModel.setEntityDisplayMap(participantDisplayMap);
+		model.addAttribute("sendMailsModel", sendMailsModel);
+		model.addAttribute("uuid", uuid);
+
+		ParticipantMailReport lastMailReport = runningDinnerService.findLastParticipantMailReport(uuid);
+		sendMailsModel.setLastMailReport(lastMailReport);
 	}
 
 	@RequestMapping(value = RequestMappings.SHOW_PARTICIPANTS, method = RequestMethod.GET)
@@ -402,15 +493,6 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("editMealTimesModel", editMealTimesModel);
 		model.addAttribute("uuid", uuid);
 
-		// *** Test for OPENSHIFT *** //
-		Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
-		LOGGER.warn("Receive flash map with {} elements", (map != null ? map.size() : 0));
-		if (map != null) {
-			Object statusMessage = map.get("statusMessage");
-			LOGGER.warn("Received statusMessage attribute {}", statusMessage);
-		}
-		// *** END Test for Openshift *** //
-
 		return getFullViewName("editMealTimesForm");
 	}
 
@@ -440,11 +522,6 @@ public class AdminController extends AbstractBaseController {
 
 		SimpleStatusMessage statusMessage = new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage(
 				"label.meals.edit.success", null, locale));
-		// redirectAttributes.addFlashAttribute("statusMessage", statusMessage);
-		// String redirectUrl = RequestMappings.EDIT_MEALTIMES.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
-		// LOGGER.warn("Redirecting to {} with statusMessage {}", redirectUrl, statusMessage);
-		// return "redirect:" + redirectUrl;
-
 		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, statusMessage);
 	}
 
@@ -490,12 +567,6 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.EXPORT_TEAMS, method = RequestMethod.GET)
 	public String exportTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
-		adminValidator.validateUuid(uuid);
-		throw new UnsupportedOperationException("not yet implemented");
-	}
-
-	@RequestMapping(value = RequestMappings.SEND_PARTICIPANT_MAILS, method = RequestMethod.GET)
-	public String sendParticipantMails(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 		throw new UnsupportedOperationException("not yet implemented");
 	}

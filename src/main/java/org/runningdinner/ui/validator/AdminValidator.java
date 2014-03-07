@@ -58,8 +58,8 @@ public class AdminValidator extends CommonBaseValidator {
 	public void validateSendMessagesModel(BaseSendMailsModel sendMailsModel, Errors errors) {
 		ValidationUtils.rejectIfEmpty(errors, "subject", "error.required.subject");
 		ValidationUtils.rejectIfEmpty(errors, "message", "error.required.message");
-		if (CoreUtil.isEmpty(sendMailsModel.getSelectedTeams())) {
-			errors.rejectValue("selectedTeams", "error.required.teams.selection");
+		if (CoreUtil.isEmpty(sendMailsModel.getSelectedEntities())) {
+			errors.rejectValue("selectedEntities", "error.required.teams_participants.selection");
 		}
 	}
 

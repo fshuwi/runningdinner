@@ -18,10 +18,12 @@ import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -119,7 +121,9 @@ public interface RunningDinnerService {
 	 */
 	int sendTeamMessages(String uuid, List<String> teamKeys, TeamArrangementMessageFormatter messageFormatter);
 
-	int sendDinnerRouteMessages(String uuid, List<String> selectedTeamKeys, DinnerRouteMessageFormatter dinnerRouteFormatter);
+	int sendDinnerRouteMessages(String uuid, List<String> teamKeys, DinnerRouteMessageFormatter dinnerRouteFormatter);
+
+	int sendParticipantMessages(String uuid, List<String> participantKeys, ParticipantMessageFormatter participantFormatter);
 
 	/**
 	 * Loads all teams of a running dinner with their complete dinner-routes
@@ -290,6 +294,14 @@ public interface RunningDinnerService {
 	 * @return The found report or null if e.g. there was never sent a dinner route mail
 	 */
 	DinnerRouteMailReport findLastDinnerRouteMailReport(String dinnerUuid);
+
+	/**
+	 * Finds the last mail report about sending messages to (all) participants for the dinner identified by the passed uuid.
+	 * 
+	 * @param dinnerUuid
+	 * @return The found report or null if e.g. there was never sent participant mails
+	 */
+	ParticipantMailReport findLastParticipantMailReport(final String dinnerUuid);
 
 	/**
 	 * Finds all mail reports that are pending. Pending means that a report is still in "sending"-state, but it seems to never complete (may

@@ -11,12 +11,15 @@ import java.util.concurrent.TimeUnit;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 
+import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.events.NewRunningDinnerEvent;
 import org.runningdinner.events.SendDinnerRoutesEvent;
+import org.runningdinner.events.SendParticipantsEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.impl.AdminUrlGenerator;
@@ -156,6 +159,11 @@ public class MailQueue {
 					if (event instanceof SendDinnerRoutesEvent) {
 						sendDinnerRouteMails((SendDinnerRoutesEvent)event);
 					}
+
+					if (event instanceof SendParticipantsEvent) {
+						sendParticipantMails((SendParticipantsEvent)event);
+					}
+
 				}
 				catch (Exception ex) {
 					LOGGER.error("Fatal error while processing event {}", event, ex);
@@ -190,6 +198,16 @@ public class MailQueue {
 			Map<String, Boolean> sendingResults = emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter);
 
 			eventPublisher.notifySendDinnerRouteMailsFinished(dinnerRouteMailReport, sendingResults);
+		}
+
+		private void sendParticipantMails(SendParticipantsEvent event) {
+			List<Participant> participants = event.getParticipants();
+			ParticipantMessageFormatter participantMessageFormatter = event.getParticipantMessageFormatter();
+			ParticipantMailReport participantMailReport = event.getParticipantMailReport();
+
+			Map<String, Boolean> sendingResults = emailService.sendMessageToParticipants(participants, participantMessageFormatter);
+
+			eventPublisher.notifySendParticipantMailsFinished(participantMailReport, sendingResults);
 		}
 	}
 

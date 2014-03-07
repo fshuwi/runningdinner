@@ -13,6 +13,7 @@
 		<class>org.runningdinner.model.RunningDinner</class>
 		<class>org.runningdinner.model.TeamMailReport</class>
 		<class>org.runningdinner.model.DinnerRouteMailReport</class>
+		<class>org.runningdinner.model.ParticipantMailReport</class>
 	</persistence-unit>
 
 </persistence>

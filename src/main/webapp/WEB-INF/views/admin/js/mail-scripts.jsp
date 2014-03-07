@@ -16,14 +16,14 @@
 		}
 	});
 	
-	function toggleTeamSelection() {
-		checked = $('#allTeamsSelectedBox').is(":checked");
-		$('.teamSelectionBox').prop("checked", checked);
+	function toggleEntitySelection() {
+		checked = $('#allEntitiesSelectedBox').is(":checked");
+		$('.entitySelectionBox').prop("checked", checked);
 	}
 	
-	function isOneOrMoreTeamsSelected() {
+	function isOneOrMoreEntitiesSelected() {
 		result = false;
-		$('.teamSelectionBox').each(function() {
+		$('.entitySelectionBox').each(function() {
 			if ($(this).is(":checked")) {
 				result = true;
 				return;

@@ -32,7 +32,7 @@
 		charCounters["hostsTemplate"] = 300;
 	</script>
 	
-	<form:form method="POST" commandName="sendMailsModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreTeamsSelected()">
+	<form:form method="POST" commandName="sendMailsModel" htmlEscape="true" role="form" onsubmit="return isOneOrMoreEntitiesSelected()">
 		<div class="well">
 			<spring:message code="label.subject" var="subjectLabel" />
 			<bs:inputField name="subject" label="${subjectLabel}" inputColClass="col-xs-6" placeholder="${subjectLabel}"/>
@@ -67,9 +67,10 @@
 
 		<div style="margin-top:20px;">
 			<h4><spring:message code="label.teams.selection" /></h4>
-			<span><input type="checkbox" id="allTeamsSelectedBox" onchange="toggleTeamSelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
+			<form:errors path="selectedEntities" />
+			<span><input type="checkbox" id="allEntitiesSelectedBox" onchange="toggleEntitySelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
 			<ul class="teamSelection">
-				<form:checkboxes element="li" items="${sendMailsModel.teamDisplayMap}" path="selectedTeams" cssClass="teamSelectionBox"/>
+				<form:checkboxes element="li" items="${sendMailsModel.entityDisplayMap}" path="selectedEntities" cssClass="entitySelectionBox"/>
 			</ul>
 		</div>
 			

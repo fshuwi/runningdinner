@@ -7,13 +7,13 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.runningdinner.model.BaseMailReport;
 
-public abstract class BaseSendMailsModel {
+public class BaseSendMailsModel {
 
 	protected String subject = StringUtils.EMPTY;
 	protected String message = StringUtils.EMPTY;
 
-	protected List<String> selectedTeams = new ArrayList<String>();
-	protected Map<String, String> teamDisplayMap;
+	protected List<String> selectedEntities = new ArrayList<String>();
+	protected Map<String, String> entityDisplayMap;
 
 	protected BaseMailReport lastMailReport;
 
@@ -33,20 +33,31 @@ public abstract class BaseSendMailsModel {
 		this.message = message;
 	}
 
-	public List<String> getSelectedTeams() {
-		return selectedTeams;
+	/**
+	 * Returns the natural keys of all selected entities for sending mails (this can either be participants or teams)
+	 * 
+	 * @return
+	 */
+	public List<String> getSelectedEntities() {
+		return selectedEntities;
 	}
 
-	public void setSelectedTeams(List<String> selectedTeams) {
-		this.selectedTeams = selectedTeams;
+	public void setSelectedEntities(List<String> selectedEntities) {
+		this.selectedEntities = selectedEntities;
 	}
 
-	public Map<String, String> getTeamDisplayMap() {
-		return teamDisplayMap;
+	/**
+	 * Holds all entities that are capable for sending mails (which can be either participants or teams).<br>
+	 * The keys of the map holds the natural key whereas the value holds a human readable label of the entity
+	 * 
+	 * @return
+	 */
+	public Map<String, String> getEntityDisplayMap() {
+		return entityDisplayMap;
 	}
 
-	public void setTeamDisplayMap(Map<String, String> teamDisplayMap) {
-		this.teamDisplayMap = teamDisplayMap;
+	public void setEntityDisplayMap(Map<String, String> entityDisplayMap) {
+		this.entityDisplayMap = entityDisplayMap;
 	}
 
 	public BaseMailReport getLastMailReport() {
@@ -63,7 +74,7 @@ public abstract class BaseSendMailsModel {
 
 	@Override
 	public String toString() {
-		return "BaseSendMailsModel [subject=" + subject + ", message=" + message + ", selectedTeams=" + selectedTeams + "]";
+		return "subject=" + subject + ", message=" + message + ", selectedEntities=" + selectedEntities;
 	}
 
 }

@@ -89,7 +89,7 @@
 
 <hr/>
 <ul class="nav nav-pills nav-stacked">
-    <%--<li class="${participantsMailClass}"><a href="${participantsMailUrl}"><spring:message code="label.participants.sendmessage"/></a></li>--%>
     <li class="${teamsMailClass}"><a href="${teamsMailUrl}?<%=RequestMappings.SELECT_ALL_TEAMS_PARAMETER%>"><spring:message code="label.teams.sendmessage"/></a></li>
     <li class="${dinnerRoutesMailClass}"><a href="${dinnerRouteMailUrl}"><spring:message code="label.dinnerroutes.sendmessage"/></a></li>
+    <li class="${participantsMailClass}"><a href="${participantsMailUrl}"><spring:message code="label.participants.sendmessage"/></a></li>
 </ul>

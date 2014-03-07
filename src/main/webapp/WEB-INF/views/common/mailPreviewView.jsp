@@ -15,8 +15,16 @@
    			</div>
    			<div class="modal-body">
 				<p>
-					<spring:message code="text.preview.mail.teams" />:<br/>
-					<span class="help-block">Team ${previewModel.team.teamNumber}: ${previewModel.participantNames}</span>
+					<c:choose>
+						<c:when test="${previewModel.team != null}">
+							<spring:message code="text.preview.mail.teams" />:<br/>
+							<span class="help-block">Team ${previewModel.team.teamNumber}: ${previewModel.participantNames}</span>
+						</c:when>
+						<c:otherwise>
+							<spring:message code="text.preview.mail.participants" />:<br/>
+							<span class="help-block"><spring:message code="label.participant"/>: ${previewModel.participantNames}</span>
+						</c:otherwise>
+					</c:choose>
 				</p>
 				
 				<c:forEach items="${previewModel.messages}" var="message" varStatus="counter">

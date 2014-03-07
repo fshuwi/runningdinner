@@ -157,7 +157,11 @@ public class EmailService {
 		sendingResults.put(failedMail, false);
 	}
 
-	public void sendMessageToParticipants(final Collection<Participant> participants, final String subject, final String message) {
+	public Map<String, Boolean> sendMessageToParticipants(final List<Participant> participants, final ParticipantMessageFormatter formatter) {
+
+		final Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+
+		final String subject = formatter.getSubject();
 
 		for (Participant participant : participants) {
 
@@ -165,12 +169,13 @@ public class EmailService {
 
 			final String participantEmail = participant.getEmail();
 			if (!isEmailValid(participantEmail)) {
+				putInvalidMailToResults(sendingResults, participant, participantEmail, formatter.getLocale());
 				continue;
 			}
 
 			final String email = getMailAddress(participantEmail);
 
-			String messageText = message; // TODO: Use formatter to replace some templates
+			String messageText = formatter.formatParticipantMessage(participant);
 
 			SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
 			mailMessage.setSubject(subject);
@@ -181,11 +186,15 @@ public class EmailService {
 
 			try {
 				mailSender.send(mailMessage);
+				sendingResults.put(email, true);
 			}
 			catch (Exception ex) {
+				sendingResults.put(email, false);
 				LOGGER.error("Failed to send mail to {}", email, ex);
 			}
 		}
+
+		return sendingResults;
 	}
 
 	protected boolean isEmailValid(final String email) {

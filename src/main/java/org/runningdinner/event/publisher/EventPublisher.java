@@ -3,16 +3,21 @@ package org.runningdinner.event.publisher;
 import java.util.List;
 import java.util.Map;
 
+import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.events.NewRunningDinnerEvent;
 import org.runningdinner.events.SendDinnerRouteMailsFinishedEvent;
 import org.runningdinner.events.SendDinnerRoutesEvent;
+import org.runningdinner.events.SendParticipantMailsFinishedEvent;
+import org.runningdinner.events.SendParticipantsEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.events.SendTeamMailsFinishedEvent;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.ApplicationEventPublisherAware;
@@ -66,11 +71,28 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 		applicationEventPublisher.publishEvent(new SendDinnerRoutesEvent(this, teams, dinnerRouteMessageFormatter, dinnerRouteMailReport));
 	}
 
-	public void notifySendTeamMailsFinished(TeamMailReport teamMailStatusInfo, Map<String, Boolean> sendingResults) {
-		applicationEventPublisher.publishEvent(new SendTeamMailsFinishedEvent(this, teamMailStatusInfo, sendingResults));
+	/**
+	 * Publish the event for sending messages to participants
+	 * 
+	 * @param participants
+	 * @param participantMessageFormatter
+	 * @param participantMailReport
+	 */
+	public void publishParticipantMessages(List<Participant> participants, ParticipantMessageFormatter participantMessageFormatter,
+			ParticipantMailReport participantMailReport) {
+		applicationEventPublisher.publishEvent(new SendParticipantsEvent(this, participants, participantMessageFormatter,
+				participantMailReport));
+	}
+
+	public void notifySendTeamMailsFinished(TeamMailReport teamMailReport, Map<String, Boolean> sendingResults) {
+		applicationEventPublisher.publishEvent(new SendTeamMailsFinishedEvent(this, teamMailReport, sendingResults));
 	}
 
 	public void notifySendDinnerRouteMailsFinished(DinnerRouteMailReport dinnerRouteMailReport, Map<String, Boolean> sendingResults) {
 		applicationEventPublisher.publishEvent(new SendDinnerRouteMailsFinishedEvent(this, dinnerRouteMailReport, sendingResults));
+	}
+
+	public void notifySendParticipantMailsFinished(ParticipantMailReport participantMailReport, Map<String, Boolean> sendingResults) {
+		applicationEventPublisher.publishEvent(new SendParticipantMailsFinishedEvent(this, participantMailReport, sendingResults));
 	}
 }

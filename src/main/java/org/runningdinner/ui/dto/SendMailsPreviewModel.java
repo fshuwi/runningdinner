@@ -5,9 +5,23 @@ import java.util.List;
 
 import org.runningdinner.core.Team;
 
+/**
+ * Preview object that can act for previews when sending mails (both team and participant mails)
+ * 
+ * @author Clemens Stich
+ * 
+ */
 public class SendMailsPreviewModel {
 
+	/**
+	 * Used only when sending mails to teams. If mails are sent to participants then team is null.
+	 */
 	protected Team team;
+
+	/**
+	 * Holds either the human readable information about all team members of a team, or holds the human readable name of a single
+	 * participant (when no team is used)
+	 */
 	protected String participantNames;
 
 	protected String subject;
