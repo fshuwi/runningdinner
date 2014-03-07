@@ -62,6 +62,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.support.RequestContextUtils;
 
 /**
  * Provides all methods for managing a created running dinner.<br>
@@ -402,12 +403,12 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("uuid", uuid);
 
 		// *** Test for OPENSHIFT *** //
-		// Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
-		// LOGGER.warn("Receive flash map with {} elements", (map != null ? map.size() : 0));
-		// if (map != null) {
-		// Object statusMessage = map.get("statusMessage");
-		// LOGGER.warn("Received statusMessage attribute {}", statusMessage);
-		// }
+		Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
+		LOGGER.warn("Receive flash map with {} elements", (map != null ? map.size() : 0));
+		if (map != null) {
+			Object statusMessage = map.get("statusMessage");
+			LOGGER.warn("Received statusMessage attribute {}", statusMessage);
+		}
 		// *** END Test for Openshift *** //
 
 		return getFullViewName("editMealTimesForm");
