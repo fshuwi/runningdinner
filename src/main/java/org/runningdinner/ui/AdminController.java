@@ -440,14 +440,12 @@ public class AdminController extends AbstractBaseController {
 
 		SimpleStatusMessage statusMessage = new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage(
 				"label.meals.edit.success", null, locale));
-		redirectAttributes.addFlashAttribute("statusMessage", statusMessage);
+		// redirectAttributes.addFlashAttribute("statusMessage", statusMessage);
+		// String redirectUrl = RequestMappings.EDIT_MEALTIMES.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
+		// LOGGER.warn("Redirecting to {} with statusMessage {}", redirectUrl, statusMessage);
+		// return "redirect:" + redirectUrl;
 
-		String redirectUrl = RequestMappings.EDIT_MEALTIMES.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
-		LOGGER.warn("Redirecting to {} with statusMessage {}", redirectUrl, statusMessage);
-		return "redirect:" + redirectUrl;
-
-		// return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
-		// SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.meals.edit.success", null, locale)));
+		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, statusMessage);
 	}
 
 	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.GET)
@@ -593,12 +591,14 @@ public class AdminController extends AbstractBaseController {
 		return "admin/" + viewName;
 	}
 
-	protected String generateStatusPageRedirect(final String redirectUrl, final String uuid, final RedirectAttributes redirectAttributes,
-			final SimpleStatusMessage simpleStatusMessage) {
-		redirectAttributes.addFlashAttribute("statusMessage", simpleStatusMessage);
-		String theRedirectUrl = "redirect:/" + redirectUrl;
-		theRedirectUrl = theRedirectUrl.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
-		return theRedirectUrl;
+	protected String generateStatusPageRedirect(String redirectUrl, String uuid, RedirectAttributes redirectAttributes,
+			SimpleStatusMessage statusMessage) {
+
+		redirectAttributes.addFlashAttribute("statusMessage", statusMessage);
+
+		String theRedirectUrl = redirectUrl.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
+
+		return "redirect:" + theRedirectUrl;
 	}
 
 	@Autowired
