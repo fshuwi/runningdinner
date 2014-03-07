@@ -50,49 +50,6 @@ public class StaticController {
 		return getFullViewName("about");
 	}
 
-	// @RequestMapping(value = "/simpleflash", method = RequestMethod.GET)
-	// public String testGetSimpleFlash(Model model, final RedirectAttributes redirectAttributes) {
-	// redirectAttributes.addFlashAttribute("simpleMessage", "Hello World!");
-	// return "redirect:/simpleflash-redirect";
-	// }
-	//
-	// @RequestMapping(value = "/simpleflash-redirect", method = RequestMethod.GET)
-	// public String testRedirectedSimpleFlash(HttpServletRequest request, Model model, final RedirectAttributes redirectAttributes) {
-	// // *** Test for OPENSHIFT *** //
-	// Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
-	// LOGGER.warn("Receive flash map with {} elements", (map != null ? map.size() : 0));
-	// if (map != null) {
-	// Object simpleMessage = map.get("simpleMessage");
-	// LOGGER.warn("Received statusMessage attribute {}", simpleMessage);
-	// }
-	// // *** END Test for Openshift *** //
-	// return getFullViewName("redirectview_simple");
-	// }
-	//
-	// @RequestMapping(value = "/simpleflashform", method = RequestMethod.GET)
-	// public String testGetSimpleFlashForm(Model model) {
-	// return getFullViewName("simpleflashform");
-	// }
-	//
-	// @RequestMapping(value = "/simpleflashform", method = RequestMethod.POST)
-	// public String testPostSimpleFlashForm(Model model, final RedirectAttributes redirectAttributes) {
-	// redirectAttributes.addFlashAttribute("simpleMessage", "Hello World!");
-	// return "redirect:/simpleflash-redirect";
-	// }
-
-	// @RequestMapping(value = "/statusflash-redirect", method = RequestMethod.GET)
-	// public String testRedirectedStatusFlash(HttpServletRequest request, Model model, final RedirectAttributes redirectAttributes) {
-	// // *** Test for OPENSHIFT *** //
-	// Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
-	// LOGGER.warn("Receive flash map with {} elements", (map != null ? map.size() : 0));
-	// if (map != null) {
-	// Object statusMessage = map.get("statusMessage");
-	// LOGGER.warn("Received statusMessage attribute {}", statusMessage);
-	// }
-	// // *** END Test for Openshift *** //
-	// return getFullViewName("redirectview_status");
-	// }
-
 	@RequestMapping(value = "/statusflash/{id}/form", method = RequestMethod.GET)
 	public String testGetStatusFlashForm(@PathVariable("id") String id, HttpServletRequest request, Model model, Locale locale) {
 

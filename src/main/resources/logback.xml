@@ -56,9 +56,13 @@
 		<appender-ref ref="MAIN_FILE" />
 	</logger>
 	
-	<logger name="org.springframework.web" level="DEBUG"  additivity="false">
+	<logger name="org.springframework.web.servlet.support.SessionFlashMapManager" level="DEBUG"  additivity="false">
 		<appender-ref ref="MAIN_FILE" />
 	</logger>
+	<logger name="org.springframework.web.servlet.view.tiles2.TilesView" level="DEBUG"  additivity="false">
+		<appender-ref ref="MAIN_FILE" />
+	</logger>
+	
 		
 	<root level="WARN">
 	  <appender-ref ref="MAIN_FILE" />

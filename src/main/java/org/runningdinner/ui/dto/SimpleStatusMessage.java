@@ -56,7 +56,7 @@ public class SimpleStatusMessage implements Serializable {
 
 	@Override
 	public String toString() {
-		return "SimpleStatusMessage [status=" + status + ", message=" + message + "]";
+		return "status=" + status + ", message=" + message;
 	}
 
 }

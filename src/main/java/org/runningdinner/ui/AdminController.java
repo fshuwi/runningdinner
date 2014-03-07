@@ -416,8 +416,8 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.EDIT_MEALTIMES, method = RequestMethod.POST)
 	public String editMealTimes(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
-			@ModelAttribute("editMealTimesModel") EditMealTimesModel editMealTimesModel, HttpServletRequest request,
-			BindingResult bindingResult, Model model, final RedirectAttributes redirectAttributes, Locale locale) {
+			@ModelAttribute("editMealTimesModel") EditMealTimesModel editMealTimesModel, BindingResult bindingResult,
+			HttpServletRequest request, Model model, RedirectAttributes redirectAttributes, Locale locale) {
 
 		adminValidator.validateUuid(uuid);
 
@@ -438,8 +438,16 @@ public class AdminController extends AbstractBaseController {
 
 		runningDinnerService.updateMealTimes(uuid, new HashSet<MealClass>(editMealTimesModel.getMeals()));
 
-		return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
-				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.meals.edit.success", null, locale)));
+		SimpleStatusMessage statusMessage = new SimpleStatusMessage(SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage(
+				"label.meals.edit.success", null, locale));
+		redirectAttributes.addFlashAttribute("statusMessage", statusMessage);
+
+		String redirectUrl = RequestMappings.EDIT_MEALTIMES.replaceFirst("\\{" + RequestMappings.ADMIN_URL_UUID_MARKER + "\\}", uuid);
+		LOGGER.warn("Redirecting to {} with statusMessage {}", redirectUrl, statusMessage);
+		return "redirect:" + redirectUrl;
+
+		// return generateStatusPageRedirect(RequestMappings.EDIT_MEALTIMES, uuid, redirectAttributes, new SimpleStatusMessage(
+		// SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.meals.edit.success", null, locale)));
 	}
 
 	@RequestMapping(value = RequestMappings.EDIT_PARTICIPANT, method = RequestMethod.GET)
