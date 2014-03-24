@@ -1,7 +1,7 @@
 <script>
 	$(document).ready(function() {		
 	    $('#myCarousel').carousel({
-	    	interval: 6700
+	    	interval: 13000
 		});
 		
 		var clickEvent = false;
