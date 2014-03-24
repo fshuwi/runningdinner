@@ -193,7 +193,7 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 
 	@Override
 	public int hashCode() {
-		return new HashCodeBuilder(11, 31).append(getUuid()).hashCode();
+		return new HashCodeBuilder(11, 31).append(getUuid()).toHashCode();
 	}
 
 	@Override
