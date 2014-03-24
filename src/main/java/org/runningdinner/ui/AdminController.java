@@ -351,7 +351,7 @@ public class AdminController extends AbstractBaseController {
 		// And construct preview object:
 		SendMailsPreviewModel sendMailsPreviewModel = new SendMailsPreviewModel(firstTeam);
 		sendMailsPreviewModel.setSubject(sendMailsModel.getSubject());
-		sendMailsPreviewModel.setParticipantNames(FormatterUtil.generateParticipantNames(firstTeam));
+		sendMailsPreviewModel.setParticipantNames(FormatterUtil.generateParticipantNamesWithCommas(firstTeam));
 
 		return sendMailsPreviewModel;
 	}
@@ -563,12 +563,6 @@ public class AdminController extends AbstractBaseController {
 		redirectUrl = redirectUrl.replaceFirst("\\{key\\}", participantKey);
 		return generateStatusPageRedirect(redirectUrl, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.participant.edit.success", null, locale)));
-	}
-
-	@RequestMapping(value = RequestMappings.EXPORT_TEAMS, method = RequestMethod.GET)
-	public String exportTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
-		adminValidator.validateUuid(uuid);
-		throw new UnsupportedOperationException("not yet implemented");
 	}
 
 	@RequestMapping(value = RequestMappings.EXCHANGE_TEAM, method = RequestMethod.GET)
