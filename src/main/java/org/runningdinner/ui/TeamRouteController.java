@@ -29,7 +29,7 @@ public class TeamRouteController {
 
 		Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
 
-		String participantNames = FormatterUtil.generateParticipantNames(team);
+		String participantNames = FormatterUtil.generateParticipantNamesWithCommas(team);
 
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
