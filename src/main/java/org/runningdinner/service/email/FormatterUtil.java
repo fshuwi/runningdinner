@@ -37,12 +37,20 @@ public class FormatterUtil {
 	 * @param team
 	 * @return
 	 */
-	public static String generateParticipantNames(Team team) {
+	public static String generateParticipantNamesWithCommas(Team team) {
+		return generateParticipantNames(team, ", ");
+	}
+
+	public static String generateParticipantNamesWithNewlines(Team team) {
+		return generateParticipantNames(team, "\n");
+	}
+
+	public static String generateParticipantNames(Team team, String delimiter) {
 		StringBuilder result = new StringBuilder();
 		int cnt = 0;
 		for (Participant teamMember : team.getTeamMembers()) {
 			if (cnt++ > 0) {
-				result.append(", ");
+				result.append(delimiter);
 			}
 			String fullname = teamMember.getName().getFullnameFirstnameFirst();
 			result.append(fullname);
@@ -63,7 +71,7 @@ public class FormatterUtil {
 			return result;
 		}
 		result += " (";
-		result += generateParticipantNames(team);
+		result += generateParticipantNamesWithCommas(team);
 		result += ")";
 		return result;
 	}
