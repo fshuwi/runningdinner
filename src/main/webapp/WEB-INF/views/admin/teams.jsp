@@ -44,8 +44,8 @@
 							<th><spring:message code="label.team" /></th>
 							<th><spring:message code="label.teammembers" /></th>
 							<th><spring:message code="label.meal" /></th>
-							<th><spring:message code="label.visits" /></th>
 							<th><spring:message code="label.receives" /></th>
+							<th><spring:message code="label.visits" /></th>
 							<th><spring:message code="label.host" /></th>
 							<th>&nbsp;</th>
 							<th>&nbsp;</th>
