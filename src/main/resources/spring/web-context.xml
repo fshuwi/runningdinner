@@ -7,25 +7,32 @@
 	xmlns:util="http://www.springframework.org/schema/util"
 	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
 		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
-		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.1.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-3.2.xsd
 		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
 	<beans:import resource="property-configuration.xml"/>
 
 	<!-- Enables the Spring MVC @Controller programming model -->
-	<annotation-driven />	
+	<annotation-driven content-negotiation-manager="cnManager" />	
 
 	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
 	<resources mapping="/resources/**" location="/resources/" />
 	
-	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="viewResolver">
-		<beans:property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
-		<beans:property name="prefix" value="/WEB-INF/views/"></beans:property>
-		<beans:property name="suffix" value=".jsp"></beans:property>
-		<beans:property name="order" value="10" />
+	<beans:bean id="cnManager" class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+		<beans:property name="defaultContentType" value="text/html" />
+		<beans:property name="useJaf" value="true" />
 	</beans:bean>
-
- 	<beans:bean id="tilesViewResolver" class="org.springframework.web.servlet.view.tiles2.TilesViewResolver" p:order="-1" />
+	
+	<beans:bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+		<beans:property name="contentNegotiationManager" ref="cnManager" />
+	</beans:bean>
+	
+	<beans:bean class="org.springframework.web.servlet.view.XmlViewResolver" p:order="1">
+		<beans:property name="location" value="classpath:spring/views-spreadsheet.xml" />
+	</beans:bean>
+	
+	<!-- p:order="-1" --> 
+ 	<beans:bean id="tilesViewResolver" class="org.springframework.web.servlet.view.tiles2.TilesViewResolver" p:order="5" />
 
 	<beans:bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
 		<beans:property name="definitions">
@@ -41,9 +48,7 @@
 	<beans:bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver" 
 					p:maxUploadSize="${upload.max.size}" />				
 	
-	<beans:bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
-	</beans:bean>
-	
+
 	<context:annotation-config />
 	<context:component-scan base-package="org.runningdinner.ui, org.runningdinner.ui.validator, org.runningdinner.ui.error" />
 	
