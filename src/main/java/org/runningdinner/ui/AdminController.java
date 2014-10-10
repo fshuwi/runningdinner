@@ -14,7 +14,6 @@ import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Gender;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
@@ -22,6 +21,7 @@ import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;

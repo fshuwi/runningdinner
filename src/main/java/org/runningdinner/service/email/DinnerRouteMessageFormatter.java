@@ -6,9 +6,9 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
+import org.runningdinner.core.util.CoreUtil;
 import org.springframework.context.MessageSource;
 import org.springframework.util.Assert;
 

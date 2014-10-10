@@ -10,8 +10,8 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.NonUniqueResultException;
 import javax.persistence.TypedQuery;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.model.AbstractEntity;
+import org.runningdinner.core.util.CoreUtil;
 
 /**
  * Contains some common methods for a JPA repository implementation class

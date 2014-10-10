@@ -2,9 +2,9 @@ package org.runningdinner.service.email;
 
 import java.util.Set;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
+import org.runningdinner.core.util.CoreUtil;
 
 /**
  * Util class that is used for formatting email messages

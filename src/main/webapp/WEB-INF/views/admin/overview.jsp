@@ -5,7 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 <%@page import="org.runningdinner.service.email.FormatterUtil" %>
-<%@page import="org.runningdinner.core.CoreUtil" %>
+<%@page import="org.runningdinner.core.util.CoreUtil" %>
 
 
 <spring:message code="label.where" var="whereLabel" />

@@ -3,7 +3,7 @@ package org.runningdinner.jobs;
 import java.util.Date;
 import java.util.List;
 
-import org.runningdinner.core.CoreUtil;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.model.RunningDinner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,9 +25,10 @@ public class DeleteOldDinnerInstancesJob extends AbstractDeleteDbInstancesJob {
 	@Scheduled(fixedRate = 60 * 1000 * 60 * 2)
 	public void deleteOldDinnerInstances() {
 
-		LOGGER.info("Check database for dinner instances with maxLifeTime = {} and timeUnit = {}", maxLifeTime, timeUnit);
-		if (maxLifeTime < 0) {
-			LOGGER.warn("maxLifeTime ({}) is negative. Nothing will be done.", maxLifeTime);
+		LOGGER.info("Check database for dinner instances with maxLifeTime = {} and timeUnit = {}", getMaxLifeTime(), getTimeUnit());
+		if (getMaxLifeTime() < 0) {
+			LOGGER.warn("maxLifeTime ({}) is negative. Nothing will be done.", getMaxLifeTime());
+			return;
 		}
 
 		Date startDateLimit = calculateMaxLifeTimeDateLimit();

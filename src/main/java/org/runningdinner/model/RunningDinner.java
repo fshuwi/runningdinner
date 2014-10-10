@@ -32,10 +32,12 @@ import org.runningdinner.core.model.AbstractEntity;
 /**
  * Central entity of application.<br>
  * User can create RunnignDinner instances and administrate them later.<br>
- * RunningDinner instance contains basic info details, the configuration options of the dinner and a very simple "workflow"-state about
- * administration activities.<br>
- * Furthermore it contains all participants and the team-arrangements of the participants including the visitation-plans (dinner-routes) for
- * each regular team.<br>
+ * RunningDinner instance contains basic info details, the configuration options
+ * of the dinner and a very simple "workflow"-state about administration
+ * activities.<br>
+ * Furthermore it contains all participants and the team-arrangements of the
+ * participants including the visitation-plans (dinner-routes) for each regular
+ * team.<br>
  * A dinner instance is identified by an (on creation) generated UUID.
  * 
  * @author i01002492
@@ -174,8 +176,10 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 	}
 
 	/**
-	 * Retrieves all participants that could not be assigned into teams of this dinner.<br>
-	 * The result may be empty (e.g. if there exist no teams yet or if all participants could successfully be assigned into teams)
+	 * Retrieves all participants that could not be assigned into teams of this
+	 * dinner.<br>
+	 * The result may be empty (e.g. if there exist no teams yet or if all
+	 * participants could successfully be assigned into teams)
 	 * 
 	 * @return
 	 */
@@ -183,12 +187,15 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 		if (notAssignedParticipants == null) {
 			return Collections.emptyList();
 		}
-		ArrayList<Participant> result = new ArrayList<Participant>(notAssignedParticipants);
+		ArrayList<Participant> result = new ArrayList<Participant>(
+				notAssignedParticipants);
 		return result;
 	}
 
-	public void setNotAssignedParticipants(List<Participant> notAssignedParticipants) {
-		this.notAssignedParticipants = new HashSet<Participant>(notAssignedParticipants);
+	public void setNotAssignedParticipants(
+			List<Participant> notAssignedParticipants) {
+		this.notAssignedParticipants = new HashSet<Participant>(
+				notAssignedParticipants);
 	}
 
 	@Override
@@ -208,8 +215,9 @@ public class RunningDinner extends AbstractEntity implements RunningDinnerInfo {
 			return false;
 		}
 
-		RunningDinner other = (RunningDinner)obj;
-		return new EqualsBuilder().append(getUuid(), other.getUuid()).isEquals();
+		RunningDinner other = (RunningDinner) obj;
+		return new EqualsBuilder().append(getUuid(), other.getUuid())
+				.isEquals();
 	}
 
 	@Override

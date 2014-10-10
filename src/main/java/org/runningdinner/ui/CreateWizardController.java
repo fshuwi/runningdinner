@@ -12,12 +12,12 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.GenderAspect;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.impl.AdminUrlGenerator;
 import org.runningdinner.ui.dto.ColumnMappingOption;

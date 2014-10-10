@@ -9,9 +9,9 @@ import java.util.Locale;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Team;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.runningdinner.test.util.TestUtil;

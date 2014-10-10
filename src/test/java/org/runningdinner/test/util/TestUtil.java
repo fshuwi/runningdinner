@@ -11,7 +11,7 @@ import java.util.List;
 import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
-import org.runningdinner.core.RunningDinnerCalculatorTest;
+import org.runningdinner.core.ParticipantGenerator;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
@@ -40,7 +40,7 @@ public class TestUtil {
 	 */
 	public static List<Participant> generateParticipants(int numParticipants) {
 		// Generate 22 dummy participants...
-		List<Participant> generatedParticipants = RunningDinnerCalculatorTest.generateParticipants(numParticipants, 0);
+		List<Participant> generatedParticipants = ParticipantGenerator.generateParticipants(numParticipants, 0);
 		// ... and add Adresses:
 		for (Participant generatedParticipant : generatedParticipants) {
 			generatedParticipant.setAddress(ParticipantAddress.parseFromString("MyStreet 1\n12345 MyCity"));

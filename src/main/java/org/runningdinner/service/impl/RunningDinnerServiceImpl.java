@@ -13,7 +13,6 @@ import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.FuzzyBoolean;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
@@ -29,6 +28,7 @@ import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;

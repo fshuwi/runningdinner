@@ -11,7 +11,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.runningdinner.core.Participant;
-import org.runningdinner.core.RunningDinnerCalculatorTest;
+import org.runningdinner.core.ParticipantGenerator;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.service.impl.SerializeToDirectoryHandler;
 import org.runningdinner.test.util.TestUtil;
@@ -41,7 +41,7 @@ public class TestSerializeToDirHandler {
 
 	protected String performSerialization() throws IOException {
 		// Generate 18 test participants
-		List<Participant> participants = RunningDinnerCalculatorTest.generateParticipants(18, 0);
+		List<Participant> participants = ParticipantGenerator.generateParticipants(18, 0);
 		String location = handler.pushToTempLocation(participants, "A");
 		return location;
 	}

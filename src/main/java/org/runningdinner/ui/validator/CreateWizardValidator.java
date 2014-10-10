@@ -6,11 +6,11 @@ import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.MealClass;
 import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.UploadFileModel;

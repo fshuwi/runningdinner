@@ -6,8 +6,8 @@ import java.util.List;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.type.TypeReference;
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.MealClass;
+import org.runningdinner.core.util.CoreUtil;
 
 /**
  * Provides the means to marshall/unmarshall a set of MealClass objects into/from JSON.<br>

@@ -6,8 +6,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

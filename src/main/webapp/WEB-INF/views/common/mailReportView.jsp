@@ -3,7 +3,7 @@
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
-<%@page import="org.runningdinner.core.CoreUtil" %>
+<%@page import="org.runningdinner.core.util.CoreUtil" %>
 
 <tiles:useAttribute name="lastMailReport" id="lastMailReport" classname="org.runningdinner.model.BaseMailReport" />
 <tiles:useAttribute name="mailType" id="mailType" classname="java.lang.String" ignore="true" />

@@ -3,9 +3,9 @@ package org.runningdinner.ui.validator;
 import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
-import org.runningdinner.core.CoreUtil;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.model.AbstractEntity;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.InvalidUuidException;
 import org.runningdinner.service.UuidGenerator;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
