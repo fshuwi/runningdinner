@@ -79,7 +79,7 @@ public class UploadFileModel {
 			if (checkAbstractColumnConfig(i, parsingConfiguration.getGenderColumnConfig(), ColumnMappingOption.GENDER)) {
 				continue;
 			}
-			if (checkAbstractColumnConfig(i, parsingConfiguration.getGenderColumnConfig(), ColumnMappingOption.AGE)) {
+			if (checkAbstractColumnConfig(i, parsingConfiguration.getAgeColumnConfig(), ColumnMappingOption.AGE)) {
 				continue;
 			}
 
