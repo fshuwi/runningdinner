@@ -61,8 +61,7 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	private UuidGenerator uuidGenerator;
 	private EventPublisher eventPublisher;
 
-	// Self managed dependency
-	private RunningDinnerCalculator runningDinnerCalculator = new RunningDinnerCalculator();
+	private RunningDinnerCalculator runningDinnerCalculator;
 
 	private static Logger LOGGER = LoggerFactory.getLogger(RunningDinnerServiceImpl.class);
 
@@ -824,6 +823,11 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Autowired
 	public void setEventPublisher(EventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
+	}
+
+	// Configured in beans configuration:
+	public void setRunningDinnerCalculator(RunningDinnerCalculator runningDinnerCalculator) {
+		this.runningDinnerCalculator = runningDinnerCalculator;
 	}
 
 }
