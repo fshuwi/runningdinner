@@ -28,7 +28,7 @@
 			
 		<bs:inputField name="title" label="${titleLabel}" placeholder="${titleLabel}" inputTooltip="${titleTooltip}" />
 		
-		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" inputColClass="col-xs-2" inputTooltip="${dateTooltip}" inputTooltipPosition="top" />
+		<bs:inputField name="date" label="${dateLabel}" placeholder="${dateLabel}" inputColClass="col-xs-2" inputTooltip="${dateTooltip}" inputTooltipPosition="bottom" />
 		
 		<bs:inputField name="city" label="${cityLabel}" placeholder="${cityLabel}" helpForLabelInline="(optional)" inputTooltip="${cityTooltip}"/>
  	  

@@ -7,6 +7,9 @@
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 <%@page import="org.runningdinner.core.Gender" %>
 
+<% pageContext.setAttribute("MALE_ENUM", Gender.MALE); %>
+<% pageContext.setAttribute("FEMALE_ENUM", Gender.FEMALE); %>
+
 <table class="table well table-condensed">
 	<thead>
 		<tr>
@@ -33,9 +36,15 @@
 				<td>${participant.mobileNumber}</td>
 				<td>
 					<c:choose>
-						<c:when test="${participant.gender eq Gender.MALE}"><spring:message code="label.gender.male" /></c:when>
-						<c:when test="${participant.gender eq Gender.FEMALE}"><spring:message code="label.gender.female" /></c:when>
-						<c:otherwise>-</c:otherwise>
+						<c:when test="${participant.gender == MALE_ENUM}">
+							<spring:message code="label.gender.male" />
+						</c:when>
+						<c:when test="${participant.gender == FEMALE_ENUM}">
+							<spring:message code="label.gender.female" />
+						</c:when>
+						<c:otherwise>
+							-
+						</c:otherwise>
 					</c:choose>
 				</td>
 				<td>${participant.age}</td>
