@@ -20,7 +20,7 @@
 
 	<!-- Configure services (respectively service implementations) manually -->
 
-	<bean id="dinnerPlanGenerator" class="org.runningdinner.core.dinnerplan.DynamicDinnerPlanGenerator" />
+	<bean id="dinnerPlanGenerator" class="org.runningdinner.core.dinnerplan.StaticTemplateDinnerPlanGenerator" />
 	<bean id="runningDinnerCalculator" class="org.runningdinner.core.RunningDinnerCalculator">
 		<constructor-arg ref="dinnerPlanGenerator" />
 	</bean>

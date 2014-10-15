@@ -8,3 +8,6 @@
 /.classpath
 /.project
 /.springBeans
+/src/main/resources/config_prod.properties
+startderby.bat
+snippets.txt
