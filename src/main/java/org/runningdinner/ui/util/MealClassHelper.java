@@ -28,7 +28,7 @@ public class MealClassHelper {
 			}
 		}
 
-		Collections.sort(meals, new MealClassSorter());
+		Collections.sort(meals, new MealClass.MealClassSorter());
 	}
 
 	/**
@@ -62,17 +62,5 @@ public class MealClassHelper {
 		result.add(new MealClass(messageSource.getMessage("label.maincourse", null, locale)));
 		result.add(new MealClass(messageSource.getMessage("label.dessert", null, locale)));
 		return result;
-	}
-
-	public static class MealClassSorter implements Comparator<MealClass> {
-
-		@Override
-		public int compare(MealClass mc1, MealClass mc2) {
-			if (mc1.getTime() != null && mc2.getTime() != null) {
-				return mc1.getTime().compareTo(mc2.getTime());
-			}
-			return 0;
-		}
-
 	}
 }

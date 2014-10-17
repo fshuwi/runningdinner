@@ -4,8 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.runningdinner.core.Team;
+import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
 import org.runningdinner.service.RunningDinnerService;
-import org.runningdinner.service.TeamRouteBuilder;
 import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -36,7 +36,7 @@
   			<div class="panel-heading"><h4 class="panel-title"><spring:message code="label.dinneroptions.advanced" /></h4></div>
   			<div class="panel-body">
   
-  				<bs:inputField name="teamSize" label="${teamsizeLabel}" inputColClass="col-xs-1" inputTooltip="${teamsizeTooltip}" />
+  				<bs:inputField name="teamSize" label="${teamsizeLabel}" inputColClass="col-xs-1" inputTooltip="${teamsizeTooltip}" readonly="true" cssStyle="cursor:default;" />
 
 				<label><spring:message code="label.meals" /></label>
 				<span class="help-block"><spring:message code="label.mealsinfo" /></span>
