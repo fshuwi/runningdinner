@@ -14,9 +14,9 @@
 	
 	function addMeal() {
 		var numMealInputs = $('.mealclass-input').length;
-		if (numMealInputs >= 6) {
-			// Max. 6 meals allowed
-			alert('<spring:message code="error.meals.invalidsize"/>');
+		if (numMealInputs >= 3) {
+			// Currently max. 3 meals allowed
+			alert('<spring:message code="error.meals.invalidsize" arguments="3"/>');
 			return;
 		}
 		
