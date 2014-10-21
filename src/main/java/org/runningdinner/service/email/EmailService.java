@@ -214,9 +214,9 @@ public class EmailService {
 	 */
 	protected String getMailAddress(final String mailAddress) {
 		if (StringUtils.isNotEmpty(testEmailRecipient)) {
-			return testEmailRecipient;
+			return testEmailRecipient.trim();
 		}
-		return mailAddress;
+		return mailAddress.trim();
 	}
 
 	public void setMailSender(MailSender mailSender) {

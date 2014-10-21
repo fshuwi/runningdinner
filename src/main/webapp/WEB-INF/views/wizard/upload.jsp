@@ -26,7 +26,19 @@
 				<p class="help-block"><spring:message code="text.upload.parse.settings" /></p>
 			
 				<bs:inputField name="startRow" label="Erste Zeile" inputColClass="col-xs-1" inputTooltip="${startRowTooltip}" />
-			
+						
+				<spring:bind path="columnMappings">
+					<c:if test="${status.error}">
+						<div class="form-group has-error">
+							<div class="row">
+								<div class="col-xs-12">
+									<span class="control-label">${status.errorMessage}</span>
+								</div>
+							</div>
+						</div>
+					</c:if>
+				</spring:bind>		
+							
 				<table class="table table-striped table-bordered">
 					<thead>
 						<tr>
@@ -61,7 +73,7 @@
 						 </c:forEach>
 					</tbody>
 				</table>
-				
+								
 				<p class="help-block">
 					<a data-toggle="modal" data-target="#uploadHelp" style="cursor:pointer;"><spring:message code="label.upload.parse.help"/></a>
 				</p>

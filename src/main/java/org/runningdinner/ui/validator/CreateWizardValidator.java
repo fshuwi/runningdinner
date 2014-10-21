@@ -3,6 +3,7 @@ package org.runningdinner.ui.validator;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -12,6 +13,7 @@ import org.runningdinner.core.converter.ConversionException.CONVERSION_ERROR;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.service.RunningDinnerService;
+import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.UploadFileModel;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -126,8 +128,7 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 			errors.rejectValue("startRow", "error.startRow.invalid");
 		}
 
-		Map<Integer, String> columnMappings = uploadFileModel.getColumnMappings();
-		// TODO Perform validation of column mapping stuff!
+		validateParsingConfiguration(uploadFileModel, errors);
 	}
 
 	public void validateMealTimes(CreateWizardModel createWizardModel, BindingResult bindingResult) {
@@ -159,6 +160,62 @@ public class CreateWizardValidator extends CommonBaseValidator implements Valida
 		}
 
 		errors.rejectValue(fieldName, errorCode, params, null);
+	}
+
+	private void validateParsingConfiguration(UploadFileModel uploadFileModel, Errors errors) {
+
+		boolean hasFullname = false;
+		boolean hasFirstname = false;
+		boolean hasLastname = false;
+
+		boolean hasCompleteAddress = false;
+		boolean hasZip = false;
+		boolean hasStreetAndStreetNr = false;
+		boolean hasStreet = false;
+		boolean hasStreetNr = false;
+
+		Map<Integer, String> columnMappings = uploadFileModel.getColumnMappings();
+		for (Entry<Integer, String> columnMapping : columnMappings.entrySet()) {
+
+			String columnMappingName = columnMapping.getValue();
+
+			if (ColumnMappingOption.FULLNAME.equals(columnMappingName)) {
+				hasFullname = true;
+			}
+			else if (ColumnMappingOption.FIRSTNAME.equals(columnMappingName)) {
+				hasFirstname = true;
+			}
+			else if (ColumnMappingOption.LASTNAME.equals(columnMappingName)) {
+				hasLastname = true;
+			}
+			else if (ColumnMappingOption.COMPLETE_ADDRESS.equals(columnMappingName)) {
+				hasCompleteAddress = true;
+			}
+			else if (ColumnMappingOption.ZIP.equals(columnMappingName) || ColumnMappingOption.ZIP_WITH_CITY.equals(columnMappingName)) {
+				hasZip = true;
+			}
+			else if (ColumnMappingOption.STREET_WITH_NR.equals(columnMappingName)) {
+				hasStreetAndStreetNr = true;
+			}
+			else if (ColumnMappingOption.STREET.equals(columnMappingName)) {
+				hasStreet = true;
+			}
+			else if (ColumnMappingOption.STREET_NR.equals(columnMappingName)) {
+				hasStreetNr = true;
+			}
+		}
+
+		if (!hasFullname && !(hasFirstname && hasLastname)) {
+			errors.rejectValue(UploadFileModel.COLUMN_MAPPING_VALIDATION_PATH, "error.parsing.configuration.name");
+			return;
+		}
+
+		if (hasStreet && hasStreetNr) {
+			hasStreetAndStreetNr = true;
+		}
+		if (!hasCompleteAddress && !(hasZip && hasStreetAndStreetNr)) {
+			errors.rejectValue(UploadFileModel.COLUMN_MAPPING_VALIDATION_PATH, "error.parsing.configuration.address");
+		}
 	}
 
 	@Autowired

@@ -226,9 +226,8 @@ public class CreateWizardController extends AbstractBaseController {
 			validator.rejectConversionUploadError(bindingResult, convEx, "file");
 			return renderUploadViewAgainAfterError(currentWizardView, uploadFileModel);
 		}
-		catch (Exception ex) {
-			// Technical error => Pass to global exception handler
-			throw new RuntimeException(ex.getMessage(), ex);
+		catch (IOException e) {
+			throw new RuntimeException(e.getMessage(), e);
 		}
 	}
 
@@ -267,6 +266,7 @@ public class CreateWizardController extends AbstractBaseController {
 	 * @param locale
 	 * @throws IOException
 	 * @throws ConversionException
+	 * @throws ParsingConfigurationException 
 	 */
 	private void handleFileUploadStep(UploadFileModel uploadFileModel, BindingResult bindingResult, HttpServletRequest request,
 			Locale locale) throws IOException, ConversionException {

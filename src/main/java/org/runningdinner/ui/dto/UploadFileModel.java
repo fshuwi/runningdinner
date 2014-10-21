@@ -35,12 +35,15 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public class UploadFileModel {
 
+	public static final String COLUMN_MAPPING_VALIDATION_PATH = "columnMappings";
+
 	private MultipartFile file;
 
 	/**
-	 * Stores the
+	 * Stores the mappings between the information in each column
 	 */
 	private Map<Integer, String> columnMappings;
+
 
 	private int startRow;
 
@@ -309,6 +312,8 @@ public class UploadFileModel {
 		}
 
 	}
+
+	
 
 	private static NameColumnConfig createNameColumnConfig(final Set<String> columnMappingNames, final BidiMap bidirectionalColumnMappings) {
 		if (columnMappingNames.contains(ColumnMappingOption.FULLNAME)) {
