@@ -11,11 +11,16 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
+import org.runningdinner.exceptions.MailServerConnectionFailedException;
+import org.runningdinner.exceptions.MailServerConnectionFailedException.MAIL_CONNECTION_ERROR;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
+import org.springframework.mail.MailAuthenticationException;
+import org.springframework.mail.MailSendException;
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 /**
  * Encapsulates the logic for sending emails
@@ -217,6 +222,68 @@ public class EmailService {
 			return testEmailRecipient.trim();
 		}
 		return mailAddress.trim();
+	}
+
+	/**
+	 * Tries to send a tets email to the passed testEmailAddress with using the passed subject and message.<br>
+	 * If sending succeeds then no exception will be thrown.
+	 * 
+	 * @param mailServerSettings The settings of the mail server on which it shall be tried to send the test mail
+	 * @param testEmailAddress
+	 * @param testSubject
+	 * @param testMessage
+	 * @throws MailServerConnectionFailedException Thrown when test email could not be sent
+	 */
+	public void checkEmailConnection(MailServerSettings mailServerSettings, String testEmailAddress, String testSubject, String testMessage)
+			throws MailServerConnectionFailedException {
+		MailSender customMailSender = createCustomMailSender(mailServerSettings);
+
+		SimpleMailMessage mailMessage = new SimpleMailMessage();
+		mailMessage.setSubject(testSubject);
+		mailMessage.setTo(testEmailAddress);
+		mailMessage.setText(testMessage);
+		mailMessage.setFrom(mailServerSettings.getFrom());
+
+		if (StringUtils.isNotEmpty(mailServerSettings.getReplyTo())) {
+			mailMessage.setReplyTo(mailServerSettings.getReplyTo());
+		}
+
+		try {
+			customMailSender.send(mailMessage);
+		}
+		catch (MailAuthenticationException authEx) {
+			throw new MailServerConnectionFailedException(authEx).setMailConnectionError(MAIL_CONNECTION_ERROR.AUTHENTICATION);
+		}
+		catch (MailSendException sendEx) {
+			throw new MailServerConnectionFailedException(sendEx).setMailConnectionError(MAIL_CONNECTION_ERROR.SEND);
+		}
+		catch (Exception ex) {
+			throw new MailServerConnectionFailedException(ex).setMailConnectionError(MAIL_CONNECTION_ERROR.UNKNOWN);
+		}
+	}
+
+	private MailSender createCustomMailSender(MailServerSettings mailServerSettings) {
+		JavaMailSenderImpl result = new JavaMailSenderImpl();
+		result.setHost(mailServerSettings.getMailServer());
+
+		if (mailServerSettings.hasMailServerPort()) {
+			result.setPort(mailServerSettings.getMailServerPort());
+		}
+
+		if (mailServerSettings.isUseAuth()) {
+			result.setUsername(mailServerSettings.getUsername());
+			result.setPassword(mailServerSettings.getPassword());
+			result.getJavaMailProperties().put("mail.smtp.auth", "true");
+		}
+		else {
+			result.getJavaMailProperties().put("mail.smtp.auth", "false");
+		}
+
+		boolean useTls = mailServerSettings.isUseTls();
+		result.getJavaMailProperties().put("mail.smtp.starttls.enable", String.valueOf(useTls));
+		result.setDefaultEncoding("UTF-8");
+
+		return result;
 	}
 
 	public void setMailSender(MailSender mailSender) {

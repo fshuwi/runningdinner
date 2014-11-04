@@ -8,6 +8,7 @@ import org.runningdinner.core.model.AbstractEntity;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.InvalidUuidException;
 import org.runningdinner.service.UuidGenerator;
+import org.runningdinner.service.email.MailServerSettingsImpl;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -72,11 +73,13 @@ public class AdminValidator extends CommonBaseValidator {
 		ValidationUtils.rejectIfEmpty(errors, "numSeats", "error.required.numseats");
 		ValidationUtils.rejectIfEmpty(errors, "email", "error.required.email");
 
-		if (StringUtils.isNotEmpty(participant.getEmail())) {
-			if (!participant.getEmail().contains("@")) {
-				errors.rejectValue("email", "error.invalid.email");
-			}
+		if (!isEmailValid(participant.getEmail())) {
+			errors.rejectValue("email", "error.invalid.email");
 		}
+	}
 
+	public void validateMailServerSettings(MailServerSettingsImpl mailServerSettings, Errors errors) {
+		ValidationUtils.rejectIfEmpty(errors,"mailServer", "error.required.mailserversettings.mailserver");
+		ValidationUtils.rejectIfEmpty(errors,"from", "error.required.mailserversettings.from");
 	}
 }

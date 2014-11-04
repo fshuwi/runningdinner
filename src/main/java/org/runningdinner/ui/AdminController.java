@@ -1,5 +1,6 @@
 package org.runningdinner.ui;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import org.runningdinner.core.Gender;
 import org.runningdinner.core.GeneratedTeamsResult;
@@ -23,12 +27,16 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
 import org.runningdinner.core.util.CoreUtil;
+import org.runningdinner.exceptions.MailServerConnectionFailedException;
+import org.runningdinner.exceptions.MailServerConnectionFailedException.MAIL_CONNECTION_ERROR;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.EmailService;
 import org.runningdinner.service.email.FormatterUtil;
+import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
@@ -40,9 +48,11 @@ import org.runningdinner.ui.dto.SendTeamArrangementsModel;
 import org.runningdinner.ui.dto.SimpleStatusMessage;
 import org.runningdinner.ui.json.SaveTeamHostsResponse;
 import org.runningdinner.ui.json.SingleTeamParticipantChange;
+import org.runningdinner.ui.json.StandardJsonResponse;
 import org.runningdinner.ui.json.SwitchTeamMembers;
 import org.runningdinner.ui.json.SwitchTeamMembersResponse;
 import org.runningdinner.ui.json.TeamHostChangeList;
+import org.runningdinner.ui.mail.MailServerSettingsTransformer;
 import org.runningdinner.ui.util.MealClassHelper;
 import org.runningdinner.ui.util.MealClassPropertyEditor;
 import org.runningdinner.ui.validator.AdminValidator;
@@ -56,12 +66,14 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -80,6 +92,10 @@ public class AdminController extends AbstractBaseController {
 	private RunningDinnerService runningDinnerService;
 
 	private AdminValidator adminValidator;
+
+	private EmailService emailService;
+
+	private MailServerSettingsTransformer mailServerSettingsTransformer;
 
 	private static Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
@@ -250,11 +266,15 @@ public class AdminController extends AbstractBaseController {
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.GET)
-	public String showSendDinnerRoutesForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+	public String showSendDinnerRoutesForm(
+			HttpServletRequest request,
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@CookieValue(value = MailServerSettingsTransformer.MAILSERVER_SETTINGS_COOKIE_NAME, required = false) String mailServerSettings,
 			Model model, RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		SendDinnerRoutesModel sendDinnerRoutesModel = SendDinnerRoutesModel.createWithDefaultMessageTemplate(messages, locale);
+		mailServerSettingsTransformer.enrichModelWithMailServerSettings(uuid, sendDinnerRoutesModel, mailServerSettings);
 
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendDinnerRoutesModel, uuid,
 				runningDinnerService.findLastDinnerRouteMailReport(uuid));
@@ -270,6 +290,56 @@ public class AdminController extends AbstractBaseController {
 		sendDinnerRoutesModel.setSelectedEntities(new ArrayList<String>(teamDisplayMap.keySet()));
 
 		return getFullViewName("sendDinnerRoutesForm");
+	}
+
+	@RequestMapping(value = RequestMappings.AJAX_CHECK_MAIL_CONNECTION, method = RequestMethod.POST)
+	@ResponseBody
+	public StandardJsonResponse checkMailConnection(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@RequestBody @Valid MailServerSettings mailServerSettings,
+			@RequestParam(value = "email", required = false) String testEmailAddress, Locale locale) {
+
+		adminValidator.validateUuid(uuid);
+
+		// Perform manual validation:
+		if (!adminValidator.isEmailValid(testEmailAddress)) {
+			return StandardJsonResponse.createErrorResponse(messages.getMessage("error.required.mailserversettings.testemail", null, locale));
+		}
+
+		String testSubject = messages.getMessage("text.mailserversettings.test.subject", null, locale);
+		String testMessage = messages.getMessage("text.mailserversettings.test.message", null, locale);
+
+		try {
+			emailService.checkEmailConnection(mailServerSettings, testEmailAddress, testSubject, testMessage);
+			return StandardJsonResponse.createSuccessResponse();
+		}
+		catch (MailServerConnectionFailedException e) {
+			String errorMessage = messages.getMessage("error.mailserversettings.unknown", null, locale);
+			if (e.getMailConnectionError() == MAIL_CONNECTION_ERROR.AUTHENTICATION) {
+				errorMessage = messages.getMessage("error.mailserversettings.authfailed", null, locale);
+			}
+			else if (e.getMailConnectionError() == MAIL_CONNECTION_ERROR.SEND) {
+				errorMessage = messages.getMessage("error.mailserversettings.sendfailed", null, locale);
+			}
+			return StandardJsonResponse.createErrorResponse(errorMessage);
+		}
+	}
+
+	@RequestMapping(value = RequestMappings.AJAX_SAVE_MAIL_SETTINGS, method = RequestMethod.POST)
+	@ResponseBody
+	public StandardJsonResponse saveMailSettings(HttpServletRequest request, HttpServletResponse response,
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, @RequestBody @Valid MailServerSettings mailServerSettings,
+			Locale locale) {
+
+		try {
+			Cookie mailServerSettingCookie = mailServerSettingsTransformer.transformToCookie(uuid, mailServerSettings, request.getCookies());
+			response.addCookie(mailServerSettingCookie);
+		}
+		catch (IOException e) {
+			LOGGER.error("Error during transforming mailserver settings to a cookie value", e);
+			return StandardJsonResponse.createErrorResponse(messages.getMessage("error.mailserversettings.save.cookie", null, locale));
+		}
+
+		return StandardJsonResponse.createSuccessResponse();
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_DINNERROUTES_MAIL, method = RequestMethod.POST)
@@ -679,6 +749,16 @@ public class AdminController extends AbstractBaseController {
 	@Autowired
 	public void setAdminValidator(AdminValidator adminValidator) {
 		this.adminValidator = adminValidator;
+	}
+
+	@Autowired
+	public void setMailServerSettingsTransformer(MailServerSettingsTransformer mailServerSettingsTransformer) {
+		this.mailServerSettingsTransformer = mailServerSettingsTransformer;
+	}
+
+	@Autowired
+	public void setEmailService(EmailService emailService) {
+		this.emailService = emailService;
 	}
 
 	@Override

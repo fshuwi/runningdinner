@@ -55,7 +55,11 @@
 	<logger name="org.runningdinner" level="INFO" additivity="false">
 		<appender-ref ref="MAIN_FILE" />
 	</logger>
-		
+
+	<logger name="org.springframework.http" level="DEBUG" additivity="false">
+		<appender-ref ref="MAIN_FILE" />
+	</logger>
+
 	<root level="WARN">
 	  <appender-ref ref="MAIN_FILE" />
 	</root>

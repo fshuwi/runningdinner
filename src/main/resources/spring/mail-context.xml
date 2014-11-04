@@ -44,7 +44,7 @@
    	</beans>
    	
    	
-   	<beans profile="dev, junit">
+   	<beans profile="dev,junit">
    		<bean id="mailSender" class="org.runningdinner.service.email.mock.MailSenderMockInMemory" />
    	</beans>
     

@@ -16,7 +16,10 @@ public class RequestMappings {
 	public static final String EDIT_MEALTIMES = ADMIN_URL_PATTERN + "/mealtimes";
 	public static final String EDIT_PARTICIPANT = ADMIN_URL_PATTERN + "/participant/{key}/edit";
 	public static final String EXCHANGE_TEAM = ADMIN_URL_PATTERN + "/teams/exchange";
-
+	
+	public static final String AJAX_CHECK_MAIL_CONNECTION = ADMIN_URL_PATTERN + "/checkMailConnection";
+	public static final String AJAX_SAVE_MAIL_SETTINGS = ADMIN_URL_PATTERN + "/saveMailSettings";
+	
 	public static final String AJAX_SAVE_HOSTS = ADMIN_URL_PATTERN + "/teams/savehosts";
 	public static final String AJAX_SWITCH_TEAMMEMBERS = ADMIN_URL_PATTERN + "/teams/switchmembers";
 

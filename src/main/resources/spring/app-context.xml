@@ -31,6 +31,8 @@
 	<bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
 
 	<bean id="adminUrlGenerator" class="org.runningdinner.service.impl.AdminUrlGenerator" />
+	
+	<bean id="mailServerSettingsTransformer" class="org.runningdinner.ui.mail.MailServerSettingsTransformer" />
 
 	<bean id="participantLocationHandlerFactory"
 		class="org.runningdinner.service.TempParticipantLocationHandlerFactory" />

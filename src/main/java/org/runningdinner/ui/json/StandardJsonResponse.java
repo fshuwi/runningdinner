@@ -1,5 +1,7 @@
 package org.runningdinner.ui.json;
 
+import java.io.Serializable;
+
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -9,7 +11,7 @@ import org.apache.commons.lang.StringUtils;
  * @author i01002492
  * 
  */
-public class StandardJsonResponse {
+public class StandardJsonResponse implements Serializable {
 
 	protected boolean success;
 

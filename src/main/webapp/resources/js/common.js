@@ -24,6 +24,23 @@ function saveMealTimesToModel() {
 }
 
 
+function getSuccessBox(successLabel, successMessage) {
+   var responseMessage = "<div class='alert alert-success alert-dismissable'>";
+   responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
+   responseMessage += "<strong>" + successLabel + "</strong> " + successMessage;
+   responseMessage += "</div>";
+   return responseMessage;
+}
+
+function getErrorBox(errorLabel, errorMessage) {
+    var responseMessage = "<div class='alert alert-danger alert-dismissable'>";
+    responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
+    responseMessage += "<strong>" + errorLabel + "</strong> " + errorMessage;
+    responseMessage += "</div>";
+    return responseMessage;
+ }
+
+
 (function($) {
 	/**
 	 * attaches a character counter to each textarea element in the jQuery object

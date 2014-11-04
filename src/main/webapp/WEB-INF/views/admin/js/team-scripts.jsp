@@ -240,10 +240,7 @@
        			$("span[teamKeyZip='" + savedTeam.naturalKey + "']").text(savedTeam.hostZip);
        		}
        		
-       		var responseMessage = "<div class='alert alert-success alert-dismissable'>";
-       		responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
-       		responseMessage += "<strong>${successLabel}</strong> ${hostsSavedLabel}";
-       		responseMessage += "</div>";
+       		var responseMessage = getSuccessBox("${successLabel}", "${hostsSavedLabel}");
        		$(responseMessage).appendTo($(responseContainer));
        	}
        	else {
