@@ -34,7 +34,7 @@ public class TestMailTransformer {
 
 		String dinnerUuid = "uuid";
 
-		MailServerSettings mailServerSettings = generateTestableMailServerSettings();
+		MailServerSettings mailServerSettings = TestUtil.generateTestableMailServerSettings();
 		MailServerSettingsDinnerTO mailServerSettingsTO = new MailServerSettingsDinnerTO(dinnerUuid, mailServerSettings);
 		MailServerSettingsDinnerListTO mailServerSettingsDinnerListTO = new MailServerSettingsDinnerListTO();
 		mailServerSettingsDinnerListTO.addOrReplace(mailServerSettingsTO);
@@ -52,13 +52,13 @@ public class TestMailTransformer {
 	public void testTransformToCookie() throws IOException {
 
 		// Test initial creation of cookie
-		MailServerSettings mailServerSettings = generateTestableMailServerSettings();
+		MailServerSettings mailServerSettings = TestUtil.generateTestableMailServerSettings();
 		String dinnerUuid = "uuid";
 		Cookie[] cookies = new Cookie[] { new Cookie("foo", "bar") };
 		verifyTransformToCookie(dinnerUuid, mailServerSettings, cookies);
 
 		// Test edit of already existing cookie
-		MailServerSettingsImpl oldMailServerSettings = generateTestableMailServerSettings();
+		MailServerSettingsImpl oldMailServerSettings = TestUtil.generateTestableMailServerSettings();
 		oldMailServerSettings.setMailServer("old");
 		oldMailServerSettings.setUsername("username_old");
 		MailServerSettingsDinnerTO oldMailServerSettingsTO = new MailServerSettingsDinnerTO(dinnerUuid, oldMailServerSettings);
@@ -85,17 +85,6 @@ public class TestMailTransformer {
 		assertEquals("password", mailServerSettingsUnderTest.getPassword());
 		assertEquals("from@from.de", mailServerSettingsUnderTest.getFrom());
 		assertEquals(587, mailServerSettingsUnderTest.getMailServerPort());
-	}
-
-	protected MailServerSettingsImpl generateTestableMailServerSettings() {
-		MailServerSettingsImpl result = new MailServerSettingsImpl();
-		result.setMailServer("smtp.gmx.de");
-		result.setMailServerPort(587);
-		result.setFrom("from@from.de");
-		result.setPassword("password");
-		result.setUsername("username");
-		result.setUseTls(true);
-		return result;
 	}
 
 	protected String toJson(Object object) throws JsonGenerationException, JsonMappingException, IOException {

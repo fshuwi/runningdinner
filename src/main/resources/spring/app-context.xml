@@ -27,12 +27,16 @@
 
 	<bean id="runningDinnerService" class="org.runningdinner.service.impl.RunningDinnerServiceImpl"
 		p:runningDinnerCalculator-ref="runningDinnerCalculator" />
+		
+	<bean id="communicationService" class="org.runningdinner.service.impl.CommunicationServiceImpl" />
 
 	<bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
 
 	<bean id="adminUrlGenerator" class="org.runningdinner.service.impl.AdminUrlGenerator" />
 	
 	<bean id="mailServerSettingsTransformer" class="org.runningdinner.ui.mail.MailServerSettingsTransformer" />
+	
+	<bean id="runningDinnerPreferences" class="org.runningdinner.model.RunningDinnerPreferences" scope="prototype" />
 
 	<bean id="participantLocationHandlerFactory"
 		class="org.runningdinner.service.TempParticipantLocationHandlerFactory" />

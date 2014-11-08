@@ -20,23 +20,23 @@
 			<h4 class="modal-title" id="myModalLabel"><spring:message code="label.mailserver.settings"/></h4>
 		</div>
         <div class="modal-body">
-        	<form class="form-horizontal">
+        	<form class="form-horizontal" autocomplete="off">
 				<div class="form-group">
 					<label for="mailServer_modal" class="control-label col-xs-4"><spring:message code="label.mailserver.host"/></label>
 					<div class="col-xs-8">
-						<input type="text" class="form-control" id="mailServer_modal" placeholder="<spring:message code="label.mailserver.host"/>">
+						<input type="text" class="form-control" id="mailServer_modal" placeholder="<spring:message code="label.mailserver.host"/>" autocomplete="off">
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="mailServerPort_modal" class="control-label col-xs-4"><spring:message code="label.mailserver.port"/></label>
 					<div class="col-xs-4">
-						<input type="text" class="form-control" id="mailServerPort_modal" placeholder="<spring:message code="label.mailserver.port"/>">
+						<input type="text" class="form-control" id="mailServerPort_modal" placeholder="<spring:message code="label.mailserver.port"/>" autocomplete="off">
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="username_modal" class="control-label col-xs-4"><spring:message code="label.username"/></label>
 					<div class="col-xs-8">
-						<input type="text" class="form-control" id="username_modal" placeholder="<spring:message code="label.username"/>">
+						<input type="text" class="form-control" id="username_modal" placeholder="<spring:message code="label.username"/>" autocomplete="off">
 					</div>
 				</div>
 				<div class="form-group">
@@ -48,7 +48,7 @@
 				<div class="form-group">
 					<label for="from_modal" class="control-label col-xs-4"><spring:message code="label.mailserver.from"/></label>
 					<div class="col-xs-8">
-						<input type="email" class="form-control" id="from_modal" placeholder="<spring:message code="label.mailserver.from"/>">
+						<input type="email" class="form-control" id="from_modal" placeholder="<spring:message code="label.mailserver.from"/>" autocomplete="off">
 					</div>
 				</div>
 				
@@ -71,6 +71,7 @@
 				<div class="form-group">
 					<div class="col-xs-offset-4 col-xs-8">
 						<button class="btn btn-success" onclick="checkMailConnection();return false"><spring:message code="label.mailserver.connection.test"/></button>
+						<img src="<c:url value="/resources/images/ajax-loader.gif" />" id="check-ajax-loader" style="display:none;" />
 					</div>
 					<div class="col-xs-12" id="mailSettingsResult" style="display:none;margin-top:5px;">
 					</div>
@@ -138,17 +139,20 @@
 			</div>
 		</div>
 		
+		<spring:eval expression="@globalProperties['mail.from']" var="standardMailSender"/>
+		<spring:message code="tooltip.mailserver.standard" var="standardMailServerTooltip" arguments="standardMailSender"/>
+		<spring:message code="tooltip.mailserver.custom" var="customMailServerTooltip"/>
 		<div class="well">
 			<div class="form-group">
 				<label><spring:message code="label.mailserver.settings"/></label><br/>
 				<div class="btn-group">
   					<button type="button" class="btn btn-success" id="mailStandardBtn" onclick="toggleMailServer('standard')"
   							data-toggle="popover" data-container="body" data-trigger="focus" 
-  							data-content="TODO: Explanation of standard" data-placement="left">
+  							data-content='${standardMailServerTooltip}' data-placement="left">
   							<spring:message code="text.mailserver.standard"/>
   					</button>
   					<button type="button" class="btn btn-default" id="mailCustomBtn" onclick="toggleMailServer('custom')"
-  							data-toggle="popover" data-container="body" data-trigger="focus" data-content="TODO: Explanation of custom" data-placement="right">
+  							data-toggle="popover" data-container="body" data-trigger="focus" data-content='${customMailServerTooltip}' data-placement="right">
   							<spring:message code="text.mailserver.custom"/>
   					</button>
 				</div>
@@ -166,7 +170,7 @@
 		<form:hidden path="from" id="from" />
 		<form:hidden path="useCustomMailServer" id="useCustomMailServer" />
 		
-		<input type="submit" class="btn btn-primary" value="<spring:message code="label.dinnerroutes.sendmessage" />!" name="sendDinnerRoutes" />
+		<input onclick="return onSendMailsSubmit()" type="submit" class="btn btn-primary" value="<spring:message code="label.dinnerroutes.sendmessage" />!" name="sendDinnerRoutes" />
 		<input type="submit" class='btn btn-info' value="<spring:message code="label.preview" />" name="preview" />
 
 		<div style="margin-top:20px;">

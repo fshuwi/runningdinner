@@ -16,6 +16,7 @@ import org.runningdinner.core.Team;
 import org.runningdinner.core.model.AbstractEntity;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.RunningDinnerPreference;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -55,6 +56,30 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		query.setParameter("uuid", uuid);
 		return getSingleResultMandatory(query);
 	}
+
+	/**
+	 * Loads all preferences of a running dinner instance
+	 * @param uuid
+	 * @return
+	 */
+	public List<RunningDinnerPreference> loadRunningDinnerPreferences(final String uuid) {
+		TypedQuery<RunningDinnerPreference> query = em.createQuery(
+				"SELECT pref FROM RunningDinnerPreference pref WHERE pref.runningDinner.uuid=:uuid ORDER BY pref.preferenceName ASC",
+				RunningDinnerPreference.class);
+		query.setParameter("uuid", uuid);
+		return (List<RunningDinnerPreference>)query.getResultList();
+	}
+	
+
+	public RunningDinnerPreference findPreference(String uuid, String name) {
+		TypedQuery<RunningDinnerPreference> query = em.createQuery(
+				"SELECT pref FROM RunningDinnerPreference pref WHERE pref.runningDinner.uuid=:uuid AND pref.preferenceName=:name",
+				RunningDinnerPreference.class);
+		query.setParameter("uuid", uuid);
+		query.setParameter("name", name);
+		return getSingleResult(query);
+	}
+	
 
 	/**
 	 * Fetches all participants of a running dinner
@@ -298,5 +323,6 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 	public <T extends AbstractEntity> void remove(final T entity) {
 		em.remove(entity);
 	}
+
 
 }

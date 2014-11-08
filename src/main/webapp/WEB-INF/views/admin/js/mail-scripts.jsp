@@ -15,6 +15,7 @@
 <spring:message code="label.success" var="successLabel"/>
 <spring:message code="text.mailserversettings.test.success" var="checkSuccessMessage"/>
 <spring:message code="text.mailserversettings.save.cookie.success" var="saveSuccessMessage" />
+<spring:message code="error.mailserversettings.submit" var="submitErrorMessage" />
 
 <script>
 	
@@ -71,7 +72,7 @@
 		
 		toastr.options.timeout = 4;
 		toastr.options.closeButton = true;
-		toastr.options.positionClass = 'toast-top-center';
+		// toastr.options.positionClass = 'toast-top-center';
 	});
 	
 	function toggleEntitySelection() {
@@ -164,6 +165,7 @@
 	    
 	    var jsonDataStr = JSON.stringify(readMailServerSettings);
 	    
+	    $("#check-ajax-loader").show();
 		jQuery.ajax({
 		    type: "POST",
 		    url: "${checkMailConnectionUrl}?email="+checkEmailAddress,
@@ -171,6 +173,7 @@
 		    data: jsonDataStr,
 		    dataType: "json"
 		}).done(function (data) {
+		    $("#check-ajax-loader").hide();
 		    resetValidationErrors();
 		    if (data.success) {
 				var responseMessage = getSuccessBox("${successLabel}", "${checkSuccessMessage}");
@@ -181,6 +184,7 @@
 		    }
 		    $("#mailSettingsResult").show();
 		}).fail(function (jqXHR) {
+		    $("#check-ajax-loader").hide();
 		    resetValidationErrors();
 		    handleValidationErrors(jqXHR);
 	    });
@@ -220,6 +224,36 @@
 	    result.useTls = $("#useTls_modal").prop('checked');
 	    
 	    return result;
+	}
+	
+	function onSendMailsSubmit() {
+	    var useCustomMailServer = false;
+	    
+	    if (mailServerSettings.mailServerType == MAIL_SERVER_TYPE.STANDARD) {
+	    	$("#useCustomMailServer").val('false');
+	    	useCustomMailServer = false;
+	    } else {
+			$("#useCustomMailServer").val('true');
+			useCustomMailServer = true;
+	    }
+	    
+	    // Check for valid configuration:
+		if (useCustomMailServer) {
+		    var mailServer = $("#mailServer").val();
+		    var from = $("#from").val();
+		    var port = $("#mailServerPort").val();
+		    if (mailServer === "" || from === "" || port === "" || !isNormalInteger(port)) {
+			 	toastr.options.positionClass = "toast-bottom-right";
+				toastr.error('${submitErrorMessage}');
+				return false;
+		    }
+		}
+	    
+	    return true;
+	}
+	
+	function isNormalInteger(str) {
+	    return /^\+?(0|[1-9]\d*)$/.test(str);
 	}
 	
 	function writeMailSettingsToDialog() {

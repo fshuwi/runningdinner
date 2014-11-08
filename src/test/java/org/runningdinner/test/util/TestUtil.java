@@ -16,6 +16,7 @@ import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.service.RunningDinnerService;
+import org.runningdinner.service.email.MailServerSettingsImpl;
 import org.runningdinner.ui.dto.CreateWizardModel;
 
 public class TestUtil {
@@ -73,6 +74,19 @@ public class TestUtil {
 
 		return dinner;
 	}
+	
+	
+	public static MailServerSettingsImpl generateTestableMailServerSettings() {
+		MailServerSettingsImpl result = new MailServerSettingsImpl();
+		result.setMailServer("smtp.gmx.de");
+		result.setMailServerPort(587);
+		result.setFrom("from@from.de");
+		result.setPassword("password");
+		result.setUsername("username");
+		result.setUseTls(true);
+		return result;
+	}
+	
 
 	public static File getClasspathResourceAsFile(final String path) throws URISyntaxException {
 		URL tmpUrl = TestUtil.class.getResource(path);

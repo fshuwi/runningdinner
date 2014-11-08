@@ -31,6 +31,9 @@ public class TestMailReports {
 
 	@Autowired
 	protected RunningDinnerService runningDinnerService;
+	
+	@Autowired
+	protected CommunicationService communicationService;
 
 	@Autowired
 	protected MessageSource messageSource;
@@ -40,7 +43,7 @@ public class TestMailReports {
 		String uuid = "test";
 		TestUtil.createExampleDinnerAndVisitationPlans(runningDinnerService, uuid);
 
-		TeamMailReport lastTeamMailReport = runningDinnerService.findLastTeamMailReport(uuid);
+		TeamMailReport lastTeamMailReport = communicationService.findLastTeamMailReport(uuid);
 		assertEquals(null, lastTeamMailReport);
 	}
 
@@ -56,16 +59,16 @@ public class TestMailReports {
 		messageFormatter.setMessageTemplate(messageSource.getMessage("message.template.teams", null, Locale.GERMAN));
 		messageFormatter.setHostMessagePartTemplate(messageSource.getMessage("message.template.teams.host", null, Locale.GERMAN));
 		messageFormatter.setNonHostMessagePartTemplate(messageSource.getMessage("message.template.teams.nonhost", null, Locale.GERMAN));
-		runningDinnerService.sendTeamMessages(uuid, teamKeys, messageFormatter);
+		communicationService.sendTeamMessages(uuid, teamKeys, messageFormatter, null);
 
-		TeamMailReport mailReport = runningDinnerService.findLastTeamMailReport(uuid);
+		TeamMailReport mailReport = communicationService.findLastTeamMailReport(uuid);
 		assertEquals(true, mailReport.isSending());
 		assertEquals(false, mailReport.isInterrupted());
 		assertTrue("Sending starting date of mail report must be before current time", new Date().after(mailReport.getSendingStartDate()));
 
 		Thread.sleep(18 * 10 + 300); // Each participant needs 10 ms for mail being sent (-> MailSEnderMockInMemory)
 
-		mailReport = runningDinnerService.findLastTeamMailReport(uuid);
+		mailReport = communicationService.findLastTeamMailReport(uuid);
 		assertEquals(false, mailReport.isSending());
 		assertEquals(false, mailReport.isInterrupted());
 		assertEquals(18, mailReport.getSucceededMails().size());

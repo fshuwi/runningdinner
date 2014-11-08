@@ -185,7 +185,7 @@ public class MailQueue {
 			TeamArrangementMessageFormatter teamArrangementMessageFormatter = event.getTeamArrangementsMessageFormatter();
 			TeamMailReport teamMailReport = event.getTeamMailReport();
 
-			Map<String, Boolean> sendingResults = emailService.sendTeamArrangementMessages(teams, teamArrangementMessageFormatter);
+			Map<String, Boolean> sendingResults = emailService.sendTeamArrangementMessages(teams, teamArrangementMessageFormatter, event.getCustomMailServerSettings());
 
 			eventPublisher.notifySendTeamMailsFinished(teamMailReport, sendingResults);
 		}
@@ -195,7 +195,7 @@ public class MailQueue {
 			DinnerRouteMessageFormatter dinnerRouteMessageFormatter = event.getDinnerRouteMessageFormatter();
 			DinnerRouteMailReport dinnerRouteMailReport = event.getDinnerRouteMailReport();
 
-			Map<String, Boolean> sendingResults = emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter);
+			Map<String, Boolean> sendingResults = emailService.sendDinnerRouteMessages(teams, dinnerRouteMessageFormatter, event.getCustomMailServerSettings());
 
 			eventPublisher.notifySendDinnerRouteMailsFinished(dinnerRouteMailReport, sendingResults);
 		}
@@ -205,7 +205,7 @@ public class MailQueue {
 			ParticipantMessageFormatter participantMessageFormatter = event.getParticipantMessageFormatter();
 			ParticipantMailReport participantMailReport = event.getParticipantMailReport();
 
-			Map<String, Boolean> sendingResults = emailService.sendMessageToParticipants(participants, participantMessageFormatter);
+			Map<String, Boolean> sendingResults = emailService.sendMessageToParticipants(participants, participantMessageFormatter, event.getCustomMailServerSettings());
 
 			eventPublisher.notifySendParticipantMailsFinished(participantMailReport, sendingResults);
 		}

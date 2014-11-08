@@ -33,27 +33,27 @@ import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.DinnerRouteMailReport;
-import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
+import org.runningdinner.model.RunningDinnerPreference;
+import org.runningdinner.model.RunningDinnerPreferences;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.repository.jpa.RunningDinnerRepositoryJpa;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.TempParticipantLocationHandler;
 import org.runningdinner.service.UuidGenerator;
-import org.runningdinner.service.email.DinnerRouteMessageFormatter;
-import org.runningdinner.service.email.ParticipantMessageFormatter;
-import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
-public class RunningDinnerServiceImpl implements RunningDinnerService {
+public class RunningDinnerServiceImpl implements RunningDinnerService, ApplicationContextAware {
 
 	// Spring managed dependencies
 	private RunningDinnerRepositoryJpa repository;
@@ -62,6 +62,8 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	private EventPublisher eventPublisher;
 
 	private RunningDinnerCalculator runningDinnerCalculator;
+
+	private ApplicationContext applicationContext;
 
 	private static Logger LOGGER = LoggerFactory.getLogger(RunningDinnerServiceImpl.class);
 
@@ -415,104 +417,6 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	}
 
 	@Override
-	@Transactional
-	public int sendTeamMessages(String uuid, final List<String> teamKeys, final TeamArrangementMessageFormatter messageFormatter) {
-
-		LOGGER.info("Send team-arrangement email messages for {} teams for dinner {}", teamKeys.size(), uuid);
-
-		Set<String> teamKeysAsSet = convertTeamOrParticipantKeysToSet(teamKeys);
-
-		if (CoreUtil.isEmpty(teamKeysAsSet)) {
-			LOGGER.warn("No teams passed for sending messages!");
-			return 0;
-		}
-
-		RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
-		final List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeysAsSet);
-
-		checkLoadedTeamOrParticipantSize(teams, teamKeysAsSet.size());
-
-		final TeamMailReport teamMailStatusInfo = new TeamMailReport(dinner);
-		teamMailStatusInfo.applyNewSending();
-		repository.saveOrMerge(teamMailStatusInfo);
-
-		// Publish event only after transaction is successfully committed:
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
-				eventPublisher.publishTeamMessages(teams, messageFormatter, teamMailStatusInfo);
-			}
-		});
-
-		return teams.size();
-	}
-
-	@Override
-	@Transactional
-	public int sendDinnerRouteMessages(final String uuid, final List<String> selectedTeamKeys,
-			final DinnerRouteMessageFormatter dinnerRouteFormatter) {
-
-		LOGGER.info("Send final dinner-route email messages for {} teams for dinner {}", selectedTeamKeys.size(), uuid);
-
-		Set<String> teamKeys = convertTeamOrParticipantKeysToSet(selectedTeamKeys);
-
-		if (CoreUtil.isEmpty(teamKeys)) {
-			LOGGER.warn("No teams passed for sending dinner route messages!");
-			return 0;
-		}
-
-		final List<Team> teams = repository.loadTeamsWithVisitationPlan(teamKeys, true);
-		final RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
-
-		checkLoadedTeamOrParticipantSize(teams, teamKeys.size());
-
-		final DinnerRouteMailReport dinnerRouteMailReport = new DinnerRouteMailReport(dinner);
-		dinnerRouteMailReport.applyNewSending();
-		repository.saveOrMerge(dinnerRouteMailReport);
-
-		// Publish event only after transaction is successfully committed:
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
-				eventPublisher.publishDinnerRouteMessages(teams, dinnerRouteFormatter, dinnerRouteMailReport);
-			}
-		});
-
-		return teams.size();
-	}
-
-	@Override
-	@Transactional
-	public int sendParticipantMessages(String uuid, List<String> participantKeys, final ParticipantMessageFormatter participantFormatter) {
-		LOGGER.info("Send participant email messages for {} participants for dinner {}", participantKeys.size(), uuid);
-
-		Set<String> participantKeysAsSet = convertTeamOrParticipantKeysToSet(participantKeys);
-
-		if (CoreUtil.isEmpty(participantKeysAsSet)) {
-			LOGGER.warn("No participants passed for sending messages!");
-			return 0;
-		}
-
-		final List<Participant> participants = repository.loadAllParticipantsOfDinner(uuid); // TODO: Only selected participants!
-		checkLoadedTeamOrParticipantSize(participants, participantKeysAsSet.size());
-		final RunningDinner dinner = repository.findDinnerWithBasicDetailsByUuid(uuid);
-
-		final ParticipantMailReport mailReport = new ParticipantMailReport(dinner);
-		mailReport.applyNewSending();
-		repository.saveOrMerge(mailReport);
-
-		// Publish event only after transaction is successfully committed:
-		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void afterCommit() {
-				eventPublisher.publishParticipantMessages(participants, participantFormatter, mailReport);
-			}
-		});
-
-		return participants.size();
-	}
-
-	@Override
 	public List<Team> loadRegularTeamsWithVisitationPlanFromDinner(final String uuid) {
 		return repository.loadRegularTeamsWithArrangementsFromDinner(uuid);
 		// Consider eventually paging for future
@@ -646,6 +550,12 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 			repository.remove(statusInfo);
 		}
 
+		// Remove any preferences:
+		List<RunningDinnerPreference> preferences = repository.loadRunningDinnerPreferences(mergedDinner.getUuid());
+		for (RunningDinnerPreference preference : preferences) {
+			repository.remove(preference);
+		}
+
 		// Then remove finally the dinner:
 		// This removes automatically all participant-, mealclass- and team-associations (and entities):
 		repository.remove(mergedDinner);
@@ -670,6 +580,15 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Override
 	public List<Participant> getParticipantListFromTempLocation(final String location) throws IOException {
 		return tempParticipantLocationHandler.popFromTempLocation(location);
+	}
+
+	@Override
+	public RunningDinnerPreferences loadPreferences(final RunningDinner runningDinner) {
+		List<RunningDinnerPreference> singlePreferences = repository.loadRunningDinnerPreferences(runningDinner.getUuid());
+		// Not nice, but by doing so we achieve prototype-scope for this bean within the service (singleton) bean:
+		RunningDinnerPreferences result = applicationContext.getBean("runningDinnerPreferences", RunningDinnerPreferences.class);
+		result.init(runningDinner, singlePreferences);
+		return result;
 	}
 
 	@Override
@@ -727,84 +646,6 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 		}
 	}
 
-	/**
-	 * Simple helper method for checking for duplicates in a passed team/participant key list
-	 * 
-	 * @param teamKeysList
-	 * @return
-	 */
-	protected Set<String> convertTeamOrParticipantKeysToSet(final List<String> teamKeysList) {
-		Set<String> teamKeys = new HashSet<String>(teamKeysList);
-		if (teamKeys.size() != teamKeysList.size()) {
-			throw new IllegalStateException("Passed team key list contained some duplicates!");
-		}
-		return teamKeys;
-	}
-
-	/**
-	 * Asserts that the size of loaded teams and/or participants is the same as the passed expectedSize.<br>
-	 * 
-	 * @param loadedEntities
-	 * @param expectedSize
-	 */
-	protected <T> void checkLoadedTeamOrParticipantSize(final List<T> loadedEntities, final int expectedSize) {
-		if (CoreUtil.isEmpty(loadedEntities) && expectedSize > 0) {
-			throw new IllegalStateException("No teams/participants available => Impossible to finalize and/or send messages");
-		}
-		if (loadedEntities.size() != expectedSize) {
-			throw new IllegalStateException("Expected " + expectedSize + " teams/participants to be found, but there were "
-					+ loadedEntities.size());
-		}
-	}
-
-	@Override
-	@Transactional
-	public BaseMailReport updateMailReport(final BaseMailReport mailReport) {
-		LOGGER.info("Update Mail Report from {} with sending-status: {}",
-				CoreUtil.getFormattedTime(mailReport.getSendingStartDate(), CoreUtil.getDefaultDateFormat(), "Unknown"),
-				mailReport.isSending());
-		return repository.saveOrMerge(mailReport);
-	}
-
-	@Override
-	public TeamMailReport findLastTeamMailReport(final String dinnerUuid) {
-		List<TeamMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, TeamMailReport.class);
-		if (CoreUtil.isEmpty(tmpResult)) {
-			return null;
-		}
-		return tmpResult.iterator().next();
-	}
-
-	@Override
-	public DinnerRouteMailReport findLastDinnerRouteMailReport(String dinnerUuid) {
-		List<DinnerRouteMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, DinnerRouteMailReport.class);
-		if (CoreUtil.isEmpty(tmpResult)) {
-			return null;
-		}
-		return tmpResult.iterator().next();
-	}
-
-	@Override
-	public ParticipantMailReport findLastParticipantMailReport(final String dinnerUuid) {
-		List<ParticipantMailReport> tmpResult = repository.findAllMailReportsForDinner(dinnerUuid, ParticipantMailReport.class);
-		if (CoreUtil.isEmpty(tmpResult)) {
-			return null;
-		}
-		return tmpResult.iterator().next();
-	}
-
-	@Override
-	@Transactional
-	public void deleteMailReport(BaseMailReport mailReport) {
-		BaseMailReport mergedReport = repository.saveOrMerge(mailReport);
-		repository.remove(mergedReport);
-	}
-
-	@Override
-	public List<BaseMailReport> findPendingMailReports(final Date sendingStartDateLimit) {
-		return repository.findPendingMailReports(sendingStartDateLimit);
-	}
-
 	@Autowired
 	public void setTempParticipantLocationHandler(TempParticipantLocationHandler tempParticipantLocationHandler) {
 		this.tempParticipantLocationHandler = tempParticipantLocationHandler;
@@ -823,6 +664,10 @@ public class RunningDinnerServiceImpl implements RunningDinnerService {
 	@Autowired
 	public void setEventPublisher(EventPublisher eventPublisher) {
 		this.eventPublisher = eventPublisher;
+	}
+
+	public void setApplicationContext(ApplicationContext applicationContext) {
+		this.applicationContext = applicationContext;
 	}
 
 	// Configured in beans configuration:

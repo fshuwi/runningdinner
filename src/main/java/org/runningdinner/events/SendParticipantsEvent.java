@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.runningdinner.core.Participant;
 import org.runningdinner.model.ParticipantMailReport;
+import org.runningdinner.model.RunningDinner;
+import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.ParticipantMessageFormatter;
-import org.springframework.context.ApplicationEvent;
 
 /**
  * This event is published whenever a user wants to send messages to (all) participants
@@ -13,7 +14,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Clemens Stich
  * 
  */
-public class SendParticipantsEvent extends ApplicationEvent {
+public class SendParticipantsEvent extends BaseMailEvent {
 
 	private static final long serialVersionUID = -268961430347730710L;
 
@@ -21,9 +22,10 @@ public class SendParticipantsEvent extends ApplicationEvent {
 	protected ParticipantMessageFormatter participantMessageFormatter;
 	protected ParticipantMailReport participantMailReport;
 
-	public SendParticipantsEvent(final Object source, List<Participant> participants,
-			ParticipantMessageFormatter participantMessageFormatter, ParticipantMailReport participantMailReport) {
-		super(source);
+	public SendParticipantsEvent(final Object source, RunningDinner dinner, List<Participant> participants,
+			ParticipantMessageFormatter participantMessageFormatter, ParticipantMailReport participantMailReport,
+			MailServerSettings customMailServerSettings) {
+		super(source, dinner, customMailServerSettings);
 		this.participants = participants;
 		this.participantMessageFormatter = participantMessageFormatter;
 		this.participantMailReport = participantMailReport;

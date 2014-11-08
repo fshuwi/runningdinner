@@ -3,9 +3,10 @@ package org.runningdinner.events;
 import java.util.List;
 
 import org.runningdinner.core.Team;
+import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
+import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
-import org.springframework.context.ApplicationEvent;
 
 /**
  * This event is published whenever a user wants to send team-arrangement messages
@@ -13,7 +14,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Clemens Stich
  * 
  */
-public class SendTeamArrangementsEvent extends ApplicationEvent {
+public class SendTeamArrangementsEvent extends BaseMailEvent {
 
 	private static final long serialVersionUID = -3297813701725791593L;
 
@@ -21,9 +22,10 @@ public class SendTeamArrangementsEvent extends ApplicationEvent {
 	protected TeamArrangementMessageFormatter teamArrangementsMessageFormatter;
 	protected TeamMailReport teamMailReport;
 
-	public SendTeamArrangementsEvent(final Object source, List<Team> regularTeams,
-			TeamArrangementMessageFormatter teamArrangementsMessageFormatter, TeamMailReport teamMailReport) {
-		super(source);
+	public SendTeamArrangementsEvent(final Object source, RunningDinner dinner, List<Team> regularTeams,
+			TeamArrangementMessageFormatter teamArrangementsMessageFormatter, TeamMailReport teamMailReport,
+			MailServerSettings customMailServerSettings) {
+		super(source, dinner, customMailServerSettings);
 		this.regularTeams = regularTeams;
 		this.teamArrangementsMessageFormatter = teamArrangementsMessageFormatter;
 		this.teamMailReport = teamMailReport;
@@ -52,5 +54,4 @@ public class SendTeamArrangementsEvent extends ApplicationEvent {
 	public void setTeamMailReport(TeamMailReport teamMailReport) {
 		this.teamMailReport = teamMailReport;
 	}
-
 }

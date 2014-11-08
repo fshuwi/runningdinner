@@ -7,13 +7,18 @@ import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.DeserializationConfig.Feature;
+import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.RunningDinnerPreferences;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.MailServerSettingsImpl;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+
+import com.google.common.base.Optional;
 
 /**
  * 
@@ -27,6 +32,8 @@ public class MailServerSettingsTransformer {
 	public static final int MAILSERVER_SETTINGS_COOKIE_AGE_SECONDS = 3944700; // 1,5 months in seconds
 
 	private static Logger LOGGER = LoggerFactory.getLogger(MailServerSettingsTransformer.class);
+
+	private RunningDinnerService runningDinnerService;
 
 	public void enrichModelWithMailServerSettings(String dinnerUuid, BaseSendMailsModel sendMailsModel, String mailServerSettingsStr) {
 
@@ -48,6 +55,16 @@ public class MailServerSettingsTransformer {
 
 		if (foundMailServerSettings != null) {
 			sendMailsModel.setMailServerSettings((MailServerSettingsImpl)foundMailServerSettings);
+		}
+
+		RunningDinner dinner = runningDinnerService.loadDinnerWithBasicDetails(dinnerUuid);
+		RunningDinnerPreferences dinnerPreferences = runningDinnerService.loadPreferences(dinner);
+		Optional<Boolean> useCustomMailServer = dinnerPreferences.getBooleanValue(RunningDinnerPreferences.USE_CUSTOM_MAILSERVER);
+		if (useCustomMailServer.isPresent() && useCustomMailServer.get().booleanValue() == true) {
+			sendMailsModel.setUseCustomMailServer(true);
+		}
+		else {
+			sendMailsModel.setUseCustomMailServer(false);
 		}
 	}
 
@@ -108,5 +125,10 @@ public class MailServerSettingsTransformer {
 		}
 
 		return new MailServerSettingsDinnerListTO();
+	}
+
+	@Autowired
+	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
+		this.runningDinnerService = runningDinnerService;
 	}
 }

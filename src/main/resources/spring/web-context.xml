@@ -72,10 +72,11 @@
 		<beans:property name="warnLogCategory" value="dummy"/>		
 	</beans:bean>
 	
-	<!-- Used for accessing some configuration stuff in an easy way in footer.jsp -->
+	<!-- Used for accessing some configuration stuff in an easy way in jsps -->
 	<util:map id="globalProperties" value-type="java.lang.String" key-type="java.lang.String">
 		<beans:entry key="contact.mail" value="${contact.mail}" />
 		<beans:entry key="github.repo.url" value="${github.repo.url}" />
+		<beans:entry key="mail.from" value="${mail.from}" />
 	</util:map>
 	
 </beans:beans>

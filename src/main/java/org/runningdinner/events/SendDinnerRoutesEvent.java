@@ -4,8 +4,9 @@ import java.util.List;
 
 import org.runningdinner.core.Team;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.RunningDinner;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
-import org.springframework.context.ApplicationEvent;
+import org.runningdinner.service.email.MailServerSettings;
 
 /**
  * This event is published whenever a user wants to send dinner route messages
@@ -13,7 +14,7 @@ import org.springframework.context.ApplicationEvent;
  * @author Clemens Stich
  * 
  */
-public class SendDinnerRoutesEvent extends ApplicationEvent {
+public class SendDinnerRoutesEvent extends BaseMailEvent {
 
 	private static final long serialVersionUID = 3729494458843378610L;
 
@@ -21,9 +22,9 @@ public class SendDinnerRoutesEvent extends ApplicationEvent {
 	protected DinnerRouteMessageFormatter dinnerRouteMessageFormatter;
 	protected DinnerRouteMailReport dinnerRouteMailReport;
 
-	public SendDinnerRoutesEvent(final Object source, List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter,
-			DinnerRouteMailReport dinnerRouteMailReport) {
-		super(source);
+	public SendDinnerRoutesEvent(final Object source, RunningDinner dinner, List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter,
+			DinnerRouteMailReport dinnerRouteMailReport, final MailServerSettings customMailServerSettings) {
+		super(source, dinner, customMailServerSettings);
 		this.teams = teams;
 		this.dinnerRouteMessageFormatter = dinnerRouteMessageFormatter;
 		this.dinnerRouteMailReport = dinnerRouteMailReport;

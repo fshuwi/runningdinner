@@ -35,7 +35,7 @@ public class DeletePendingMailReportsJob extends AbstractDeleteDbInstancesJob {
 
 		List<BaseMailReport> pendingReports = null;
 		try {
-			pendingReports = runningDinnerService.findPendingMailReports(maxLifeTimeLimit);
+			pendingReports = communicationService.findPendingMailReports(maxLifeTimeLimit);
 		}
 		catch (Exception ex) {
 			LOGGER.error("Failed to retrieve pending reports to delete", ex);
@@ -50,7 +50,7 @@ public class DeletePendingMailReportsJob extends AbstractDeleteDbInstancesJob {
 		for (BaseMailReport pendingReport : pendingReports) {
 			LOGGER.info("Trying to delete pending report {}", pendingReport);
 			try {
-				runningDinnerService.deleteMailReport(pendingReport);
+				communicationService.deleteMailReport(pendingReport);
 				LOGGER.info("Pending Report {} successfully deleted", pendingReport);
 			}
 			catch (Exception ex) {

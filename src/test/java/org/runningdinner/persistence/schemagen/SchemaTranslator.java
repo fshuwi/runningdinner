@@ -14,6 +14,7 @@ import org.runningdinner.core.Team;
 import org.runningdinner.core.VisitationPlan;
 import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.model.RunningDinnerPreference;
 import org.runningdinner.model.TeamMailReport;
 
 public class SchemaTranslator {
@@ -79,7 +80,7 @@ public class SchemaTranslator {
 	public static void main(String[] args) throws IOException {
 		SchemaTranslator translator = new SchemaTranslator();
 		Class<?>[] entityClasses = { MealClass.class, Participant.class, Team.class, VisitationPlan.class, RunningDinner.class,
-				TeamMailReport.class, DinnerRouteMailReport.class };
+				TeamMailReport.class, DinnerRouteMailReport.class, RunningDinnerPreference.class };
 
 		// String dialect = "org.hibernate.dialect.MySQLDialect";
 		String dialect = "org.hibernate.dialect.DerbyDialect";

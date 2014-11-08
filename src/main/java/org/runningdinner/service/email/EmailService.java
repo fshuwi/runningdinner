@@ -22,6 +22,8 @@ import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import com.google.common.base.Optional;
+
 /**
  * Encapsulates the logic for sending emails
  * 
@@ -66,9 +68,12 @@ public class EmailService {
 		}
 	}
 
-	public Map<String, Boolean> sendTeamArrangementMessages(final Collection<Team> teams, final TeamArrangementMessageFormatter formatter) {
+	public Map<String, Boolean> sendTeamArrangementMessages(final Collection<Team> teams, final TeamArrangementMessageFormatter formatter,
+			final Optional<MailServerSettings> customMailServerSettings) {
 
 		Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+
+		MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
 
 		final String subject = formatter.getSubject();
 		for (Team team : teams) {
@@ -92,11 +97,12 @@ public class EmailService {
 				mailMessage.setSubject(subject);
 				mailMessage.setTo(email);
 				mailMessage.setText(messageText);
+				enrichWithCustomSettings(mailMessage, customMailServerSettings);
 
 				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
 
 				try {
-					mailSender.send(mailMessage);
+					mailSenderActive.send(mailMessage);
 					sendingResults.put(email, true);
 				}
 				catch (Exception ex) {
@@ -109,9 +115,12 @@ public class EmailService {
 		return sendingResults;
 	}
 
-	public Map<String, Boolean> sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter) {
+	public Map<String, Boolean> sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter,
+			final Optional<MailServerSettings> customMailServerSettings) {
 
 		Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+
+		MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
 
 		final String subject = formatter.getSubject();
 		for (Team team : teams) {
@@ -135,11 +144,12 @@ public class EmailService {
 				mailMessage.setSubject(subject);
 				mailMessage.setTo(email);
 				mailMessage.setText(messageText);
+				enrichWithCustomSettings(mailMessage, customMailServerSettings);
 
 				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
 
 				try {
-					mailSender.send(mailMessage);
+					mailSenderActive.send(mailMessage);
 					sendingResults.put(email, true);
 				}
 				catch (Exception ex) {
@@ -162,9 +172,12 @@ public class EmailService {
 		sendingResults.put(failedMail, false);
 	}
 
-	public Map<String, Boolean> sendMessageToParticipants(final List<Participant> participants, final ParticipantMessageFormatter formatter) {
+	public Map<String, Boolean> sendMessageToParticipants(final List<Participant> participants,
+			final ParticipantMessageFormatter formatter, final Optional<MailServerSettings> customMailServerSettings) {
 
 		final Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+
+		MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
 
 		final String subject = formatter.getSubject();
 
@@ -186,11 +199,12 @@ public class EmailService {
 			mailMessage.setSubject(subject);
 			mailMessage.setTo(email);
 			mailMessage.setText(messageText);
+			enrichWithCustomSettings(mailMessage, customMailServerSettings);
 
 			LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
 
 			try {
-				mailSender.send(mailMessage);
+				mailSenderActive.send(mailMessage);
 				sendingResults.put(email, true);
 			}
 			catch (Exception ex) {
@@ -222,6 +236,20 @@ public class EmailService {
 			return testEmailRecipient.trim();
 		}
 		return mailAddress.trim();
+	}
+
+	/**
+	 * Gets the concrete mailsender instance to be used for sending mails. Either the custom mailserver of user if present or the built-in
+	 * running dinner mailserver
+	 * 
+	 * @param customMailServerSettings
+	 * @return
+	 */
+	protected MailSender getActiveMailSender(Optional<MailServerSettings> customMailServerSettings) {
+		if (customMailServerSettings.isPresent()) {
+			return createCustomMailSender(customMailServerSettings.get());
+		}
+		return this.mailSender;
 	}
 
 	/**
@@ -284,6 +312,25 @@ public class EmailService {
 		result.setDefaultEncoding("UTF-8");
 
 		return result;
+	}
+
+	/**
+	 * If custom mail server shall be used, we enrich the message with appropriate "from" and "replyto" fields
+	 * 
+	 * @param mailMessage
+	 * @param customMailServerSettings
+	 */
+	private void enrichWithCustomSettings(SimpleMailMessage mailMessage, Optional<MailServerSettings> customMailServerSettings) {
+		if (!customMailServerSettings.isPresent()) {
+			return;
+		}
+
+		MailServerSettings mailServerSettings = customMailServerSettings.get();
+		mailMessage.setFrom(mailServerSettings.getFrom());
+
+		if (StringUtils.isNotEmpty(mailServerSettings.getReplyTo())) {
+			mailMessage.setReplyTo(mailServerSettings.getReplyTo());
+		}
 	}
 
 	public void setMailSender(MailSender mailSender) {

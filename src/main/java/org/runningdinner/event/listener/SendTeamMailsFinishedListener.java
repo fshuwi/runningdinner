@@ -4,7 +4,7 @@ import java.util.Map;
 
 import org.runningdinner.events.SendTeamMailsFinishedEvent;
 import org.runningdinner.model.TeamMailReport;
-import org.runningdinner.service.RunningDinnerService;
+import org.runningdinner.service.CommunicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class SendTeamMailsFinishedListener implements ApplicationListener<SendTe
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(SendTeamMailsFinishedListener.class);
 
-	protected RunningDinnerService runningDinnerService;
+	protected CommunicationService communicationService;
 
 	@Override
 	public void onApplicationEvent(SendTeamMailsFinishedEvent event) {
@@ -27,12 +27,12 @@ public class SendTeamMailsFinishedListener implements ApplicationListener<SendTe
 
 		teamMailReport.applySendingFinished(sendingResults);
 
-		runningDinnerService.updateMailReport(teamMailReport);
+		communicationService.updateMailReport(teamMailReport);
 	}
 
 	@Autowired
-	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
-		this.runningDinnerService = runningDinnerService;
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
 	}
 
 }

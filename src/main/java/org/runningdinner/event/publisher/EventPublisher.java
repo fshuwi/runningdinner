@@ -17,6 +17,7 @@ import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
 import org.springframework.context.ApplicationEventPublisher;
@@ -54,10 +55,11 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 	 * @param regularTeams
 	 * @param teamArrangementsMessageFormatter
 	 */
-	public void publishTeamMessages(final List<Team> regularTeams, final TeamArrangementMessageFormatter teamArrangementsMessageFormatter,
-			final TeamMailReport teamMailReport) {
-		applicationEventPublisher.publishEvent(new SendTeamArrangementsEvent(this, regularTeams, teamArrangementsMessageFormatter,
-				teamMailReport));
+	public void publishTeamMessages(RunningDinner dinner, final List<Team> regularTeams,
+			final TeamArrangementMessageFormatter teamArrangementsMessageFormatter, final TeamMailReport teamMailReport,
+			final MailServerSettings customMailServerSettings) {
+		applicationEventPublisher.publishEvent(new SendTeamArrangementsEvent(this, dinner, regularTeams, teamArrangementsMessageFormatter,
+				teamMailReport, customMailServerSettings));
 	}
 
 	/**
@@ -66,9 +68,10 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 	 * @param teams
 	 * @param dinnerRouteMessageFormatter
 	 */
-	public void publishDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter,
-			DinnerRouteMailReport dinnerRouteMailReport) {
-		applicationEventPublisher.publishEvent(new SendDinnerRoutesEvent(this, teams, dinnerRouteMessageFormatter, dinnerRouteMailReport));
+	public void publishDinnerRouteMessages(RunningDinner dinner, List<Team> teams, DinnerRouteMessageFormatter dinnerRouteMessageFormatter,
+			DinnerRouteMailReport dinnerRouteMailReport, final MailServerSettings customMailServerSettings) {
+		applicationEventPublisher.publishEvent(new SendDinnerRoutesEvent(this, dinner, teams, dinnerRouteMessageFormatter,
+				dinnerRouteMailReport, customMailServerSettings));
 	}
 
 	/**
@@ -78,10 +81,11 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 	 * @param participantMessageFormatter
 	 * @param participantMailReport
 	 */
-	public void publishParticipantMessages(List<Participant> participants, ParticipantMessageFormatter participantMessageFormatter,
-			ParticipantMailReport participantMailReport) {
-		applicationEventPublisher.publishEvent(new SendParticipantsEvent(this, participants, participantMessageFormatter,
-				participantMailReport));
+	public void publishParticipantMessages(RunningDinner dinner, List<Participant> participants,
+			ParticipantMessageFormatter participantMessageFormatter, ParticipantMailReport participantMailReport,
+			final MailServerSettings customMailServerSettings) {
+		applicationEventPublisher.publishEvent(new SendParticipantsEvent(this, dinner, participants, participantMessageFormatter,
+				participantMailReport, customMailServerSettings));
 	}
 
 	public void notifySendTeamMailsFinished(TeamMailReport teamMailReport, Map<String, Boolean> sendingResults) {

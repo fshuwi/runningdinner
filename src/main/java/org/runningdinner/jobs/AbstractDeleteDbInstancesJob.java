@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import org.joda.time.DateTime;
+import org.runningdinner.service.CommunicationService;
 import org.runningdinner.service.RunningDinnerService;
 
 /**
@@ -19,6 +20,8 @@ public class AbstractDeleteDbInstancesJob {
 	protected long maxLifeTime;
 
 	protected RunningDinnerService runningDinnerService;
+
+	protected CommunicationService communicationService;
 
 	public TimeUnit getTimeUnit() {
 		return timeUnit;
@@ -42,6 +45,14 @@ public class AbstractDeleteDbInstancesJob {
 
 	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
+	}
+
+	public CommunicationService getCommunicationService() {
+		return communicationService;
+	}
+
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
 	}
 
 	public RunningDinnerService getRunningDinnerService() {

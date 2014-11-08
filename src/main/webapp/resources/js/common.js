@@ -25,7 +25,7 @@ function saveMealTimesToModel() {
 
 
 function getSuccessBox(successLabel, successMessage) {
-   var responseMessage = "<div class='alert alert-success alert-dismissable'>";
+   var responseMessage = "<div class='alert alert-success alert-dismissable' style='margin-bottom:0px ! important;'>";
    responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
    responseMessage += "<strong>" + successLabel + "</strong> " + successMessage;
    responseMessage += "</div>";
@@ -33,7 +33,7 @@ function getSuccessBox(successLabel, successMessage) {
 }
 
 function getErrorBox(errorLabel, errorMessage) {
-    var responseMessage = "<div class='alert alert-danger alert-dismissable'>";
+    var responseMessage = "<div class='alert alert-danger alert-dismissable' style='margin-bottom:0px ! important;'>";
     responseMessage += "<button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">&times;</button>";
     responseMessage += "<strong>" + errorLabel + "</strong> " + errorMessage;
     responseMessage += "</div>";

@@ -32,6 +32,7 @@ import org.runningdinner.exceptions.MailServerConnectionFailedException.MAIL_CON
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
+import org.runningdinner.service.CommunicationService;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
 import org.runningdinner.service.email.EmailService;
@@ -90,6 +91,7 @@ public class AdminController extends AbstractBaseController {
 
 	private MessageSource messages;
 	private RunningDinnerService runningDinnerService;
+	private CommunicationService communicationService;
 
 	private AdminValidator adminValidator;
 
@@ -161,7 +163,7 @@ public class AdminController extends AbstractBaseController {
 
 		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate(messages, locale);
 
-		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, runningDinnerService.findLastTeamMailReport(uuid));
+		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, communicationService.findLastTeamMailReport(uuid));
 		Map<String, String> teamDisplayMap = sendTeamsModel.getEntityDisplayMap();
 
 		if (teamDisplayMap.size() == 0) {
@@ -214,7 +216,7 @@ public class AdminController extends AbstractBaseController {
 
 		adminValidator.validateSendMessagesModel(sendTeamsModel, bindingResult);
 		if (bindingResult.hasErrors()) {
-			bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, runningDinnerService.findLastTeamMailReport(uuid));
+			bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, communicationService.findLastTeamMailReport(uuid));
 			return getFullViewName("sendTeamsForm");
 		}
 
@@ -222,8 +224,8 @@ public class AdminController extends AbstractBaseController {
 			return doSendTeamArrangementsPreview(uuid, sendTeamsModel, model, locale);
 		}
 
-		int numTeams = runningDinnerService.sendTeamMessages(uuid, sendTeamsModel.getSelectedEntities(),
-				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale));
+		int numTeams = communicationService.sendTeamMessages(uuid, sendTeamsModel.getSelectedEntities(),
+				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale), getMailServerSettings(sendTeamsModel));
 
 		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -260,7 +262,7 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("sendMailsPreviewModel", sendMailsPreviewModel);
 
 		// Add model attributes (form binding) to be displayed again:
-		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, runningDinnerService.findLastTeamMailReport(uuid));
+		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, communicationService.findLastTeamMailReport(uuid));
 
 		return getFullViewName("sendTeamsForm");
 	}
@@ -277,7 +279,7 @@ public class AdminController extends AbstractBaseController {
 		mailServerSettingsTransformer.enrichModelWithMailServerSettings(uuid, sendDinnerRoutesModel, mailServerSettings);
 
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendDinnerRoutesModel, uuid,
-				runningDinnerService.findLastDinnerRouteMailReport(uuid));
+				communicationService.findLastDinnerRouteMailReport(uuid));
 
 		Map<String, String> teamDisplayMap = sendDinnerRoutesModel.getEntityDisplayMap();
 		if (teamDisplayMap.size() == 0) {
@@ -352,7 +354,7 @@ public class AdminController extends AbstractBaseController {
 		adminValidator.validateSendMessagesModel(sendDinnerRoutesModel, bindingResult);
 		if (bindingResult.hasErrors()) {
 			bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendDinnerRoutesModel, uuid,
-					runningDinnerService.findLastDinnerRouteMailReport(uuid));
+					communicationService.findLastDinnerRouteMailReport(uuid));
 			return getFullViewName("sendDinnerRoutesForm");
 		}
 
@@ -360,12 +362,25 @@ public class AdminController extends AbstractBaseController {
 			return doSendDinnerRoutesPreview(uuid, sendDinnerRoutesModel, model, locale);
 		}
 
-		int numTeams = runningDinnerService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedEntities(),
-				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN));
+		int numTeams = communicationService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedEntities(),
+				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN), getMailServerSettings(sendDinnerRoutesModel));
 
 		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
 				SimpleStatusMessage.SUCCESS_STATUS, messageText));
+	}
+
+	/**
+	 * If the passed sendMailsModel shall use any custom mail server settings those are returned. If not, null is returned.
+	 * 
+	 * @param sendMailsModel
+	 * @return The custom mail server settings or null
+	 */
+	protected MailServerSettings getMailServerSettings(BaseSendMailsModel sendMailsModel) {
+		if (sendMailsModel.isUseCustomMailServer()) {
+			return sendMailsModel;
+		}
+		return null;
 	}
 
 	protected String doSendDinnerRoutesPreview(String uuid, SendDinnerRoutesModel sendDinnerRoutesModel, Model model, Locale locale) {
@@ -389,7 +404,7 @@ public class AdminController extends AbstractBaseController {
 
 		// Add model attributes (form binding) to be displayed again:
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendDinnerRoutesModel, uuid,
-				runningDinnerService.findLastDinnerRouteMailReport(uuid));
+				communicationService.findLastDinnerRouteMailReport(uuid));
 
 		return getFullViewName("sendDinnerRoutesForm");
 	}
@@ -489,7 +504,8 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		// ... And send mails (if not ran into preview above):
-		int numParticipants = runningDinnerService.sendParticipantMessages(uuid, sendMailsModel.getSelectedEntities(), messageFormatter);
+		int numParticipants = communicationService.sendParticipantMessages(uuid, sendMailsModel.getSelectedEntities(), messageFormatter,
+				getMailServerSettings(sendMailsModel));
 
 		String messageText = messages.getMessage("text.sendmessage.notification.participants", new Object[] { numParticipants }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_PARTICIPANT_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -529,7 +545,7 @@ public class AdminController extends AbstractBaseController {
 		model.addAttribute("sendMailsModel", sendMailsModel);
 		model.addAttribute("uuid", uuid);
 
-		ParticipantMailReport lastMailReport = runningDinnerService.findLastParticipantMailReport(uuid);
+		ParticipantMailReport lastMailReport = communicationService.findLastParticipantMailReport(uuid);
 		sendMailsModel.setLastMailReport(lastMailReport);
 	}
 
@@ -769,6 +785,11 @@ public class AdminController extends AbstractBaseController {
 	@Override
 	public RunningDinnerService getRunningDinnerService() {
 		return runningDinnerService;
+	}
+
+	@Autowired
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
 	}
 
 }
