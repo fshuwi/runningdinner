@@ -35,7 +35,7 @@ public class TestRunningDinnerPreferences {
 	public void testEmptyPreferences() {
 		String dinnerUuid = "uuid";
 
-		RunningDinner dinner = createRunningDinner(dinnerUuid);
+		RunningDinner dinner = TestUtil.createDefaultRunningDinner(runningDinnerService, dinnerUuid);
 
 		RunningDinnerPreferences preferences = runningDinnerService.loadPreferences(dinner);
 		assertEquals(0, preferences.getAllPreferences().size());
@@ -44,7 +44,7 @@ public class TestRunningDinnerPreferences {
 	@Test
 	public void testAddAndFindPreference() {
 		String uuid = "uuid";
-		RunningDinner runningDinner = createRunningDinner(uuid);
+		RunningDinner runningDinner = TestUtil.createDefaultRunningDinner(runningDinnerService, uuid);
 
 		// Load preferences
 		RunningDinnerPreferences preferences = runningDinnerService.loadPreferences(runningDinner);
@@ -68,7 +68,7 @@ public class TestRunningDinnerPreferences {
 	@Test
 	public void testOverwritePreference() {
 		String uuid = "uuid";
-		RunningDinner runningDinner = createRunningDinner(uuid);
+		RunningDinner runningDinner = TestUtil.createDefaultRunningDinner(runningDinnerService, uuid);
 
 		// Load preferences
 		RunningDinnerPreferences preferences = runningDinnerService.loadPreferences(runningDinner);
@@ -87,8 +87,8 @@ public class TestRunningDinnerPreferences {
 	public void testSeveralDinnerPreferences() {
 		String uuid1 = "uuid1";
 		String uuid2 = "uuid2";
-		RunningDinner dinner1 = createRunningDinner(uuid1);
-		RunningDinner dinner2 = createRunningDinner(uuid2);
+		RunningDinner dinner1 = TestUtil.createDefaultRunningDinner(runningDinnerService, uuid1);
+		RunningDinner dinner2 = TestUtil.createDefaultRunningDinner(runningDinnerService, uuid2);
 
 		RunningDinnerPreferences pref1 = runningDinnerService.loadPreferences(dinner1);
 		RunningDinnerPreferences pref2 = runningDinnerService.loadPreferences(dinner2);
@@ -103,18 +103,5 @@ public class TestRunningDinnerPreferences {
 		pref2 = runningDinnerService.loadPreferences(dinner2);
 		assertEquals("dinner1", pref1.getValue("name"));
 		assertEquals("dinner2", pref2.getValue("name"));
-	}
-
-	RunningDinner createRunningDinner(String newUuid) {
-		Date now = new Date();
-		RunningDinnerInfo info = TestUtil.createRunningDinnerInfo("title", now, "email@email.de", "Freiburg");
-
-		RunningDinnerConfig runningDinnerConfig = RunningDinnerConfig.newConfigurer().build();
-
-		List<Participant> participants = TestUtil.generateParticipants(18);
-		RunningDinner result = runningDinnerService.createRunningDinner(info, runningDinnerConfig, participants, newUuid);
-		assertEquals(newUuid, result.getUuid());
-
-		return result;
 	}
 }

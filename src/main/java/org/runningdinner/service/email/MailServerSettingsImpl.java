@@ -1,5 +1,7 @@
 package org.runningdinner.service.email;
 
+import javax.validation.constraints.Min;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.annotate.JsonIgnoreProperties;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -9,9 +11,10 @@ public class MailServerSettingsImpl implements MailServerSettings {
 
 	private static final long serialVersionUID = -722009921667020426L;
 
-	@NotEmpty(message = "{error.required.mailserversettings.mailserver}")
+	@NotEmpty//(message = "{error.required.mailserversettings.mailserver}")
 	private String mailServer = StringUtils.EMPTY;
 
+	@Min(value=0)//, message="{error.required.mailserversettings.mailserver}")
 	private int mailServerPort = 25;
 
 	private String username = StringUtils.EMPTY;
@@ -21,8 +24,8 @@ public class MailServerSettingsImpl implements MailServerSettings {
 	private boolean useAuth = true;
 
 	private boolean useTls = true;
-
-	@NotEmpty(message = "{error.required.mailserversettings.from}")
+	
+	@NotEmpty//(message = "{error.required.mailserversettings.from}")
 	private String from = StringUtils.EMPTY;
 
 	private String replyTo = StringUtils.EMPTY;

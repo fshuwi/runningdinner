@@ -2,9 +2,7 @@ package org.runningdinner.event.listener;
 
 import org.runningdinner.events.BaseMailEvent;
 import org.runningdinner.model.RunningDinner;
-import org.runningdinner.model.RunningDinnerPreference;
 import org.runningdinner.model.RunningDinnerPreferences;
-import org.runningdinner.repository.jpa.RunningDinnerRepositoryJpa;
 import org.runningdinner.service.RunningDinnerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
@@ -25,7 +23,7 @@ public class CustomMailServerSettingsListener implements ApplicationListener<Bas
 
 	private RunningDinnerService runningDinnerService;
 
-	@Transactional(propagation=Propagation.REQUIRES_NEW)
+	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Override
 	public void onApplicationEvent(BaseMailEvent event) {
 
@@ -41,7 +39,7 @@ public class CustomMailServerSettingsListener implements ApplicationListener<Bas
 				// Performance: Don't update database if not necessary:
 				return;
 			}
-			
+
 			preferences.addPreference(RunningDinnerPreferences.USE_CUSTOM_MAILSERVER, String.valueOf(true));
 		}
 		else { // Change running dinner settings preference to use built-in mail server
@@ -50,7 +48,7 @@ public class CustomMailServerSettingsListener implements ApplicationListener<Bas
 				// Performance: Don't update database if not necessary:
 				return;
 			}
-			
+
 			preferences.addPreference(RunningDinnerPreferences.USE_CUSTOM_MAILSERVER, String.valueOf(false));
 		}
 	}

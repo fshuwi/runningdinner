@@ -7,6 +7,7 @@ import javax.servlet.http.Cookie;
 
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.runningdinner.core.util.Encryptor;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerPreferences;
 import org.runningdinner.service.RunningDinnerService;
@@ -34,6 +35,8 @@ public class MailServerSettingsTransformer {
 	private static Logger LOGGER = LoggerFactory.getLogger(MailServerSettingsTransformer.class);
 
 	private RunningDinnerService runningDinnerService;
+	
+	private Encryptor encryptor;
 
 	public void enrichModelWithMailServerSettings(String dinnerUuid, BaseSendMailsModel sendMailsModel, String mailServerSettingsStr) {
 
@@ -86,6 +89,7 @@ public class MailServerSettingsTransformer {
 		ObjectMapper jsonMapper = new ObjectMapper();
 		try {
 			String mailServerSettingsJson = jsonMapper.writeValueAsString(mailServerSettingsList);
+			mailServerSettingsJson = encryptSafe(mailServerSettingsJson);
 			mailServerSettingsCookie.setValue(mailServerSettingsJson);
 		}
 		catch (IOException e) {
@@ -113,6 +117,8 @@ public class MailServerSettingsTransformer {
 
 		if (StringUtils.isNotEmpty(mailServerSettingsStr)) {
 
+			mailServerSettingsStr = decryptSafe(mailServerSettingsStr);
+			
 			ObjectMapper jsonMapper = new ObjectMapper();
 			try {
 				MailServerSettingsDinnerListTO mailServerSettingsDinnerListTO = jsonMapper.readValue(mailServerSettingsStr.getBytes(),
@@ -127,8 +133,32 @@ public class MailServerSettingsTransformer {
 		return new MailServerSettingsDinnerListTO();
 	}
 
+	protected String encryptSafe(String text) {
+		try {
+			return encryptor.encrypt(text);
+		} catch (Exception ex) {
+			LOGGER.error("Failed to encrypt mail server settings cookie string", ex);
+			return text;
+		}
+	}
+	
+	protected String decryptSafe(String text) {
+		try {
+			return encryptor.decrypt(text);
+		} catch (Exception ex) {
+			LOGGER.error("Failed to decrypt mail server settings cookie string", ex);
+			return text;
+		}
+	}
+	
 	@Autowired
 	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
 	}
+
+	@Autowired
+	public void setEncryptor(Encryptor encryptor) {
+		this.encryptor = encryptor;
+	}
+	
 }

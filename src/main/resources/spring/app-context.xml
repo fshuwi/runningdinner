@@ -34,6 +34,9 @@
 
 	<bean id="adminUrlGenerator" class="org.runningdinner.service.impl.AdminUrlGenerator" />
 	
+	<bean id="encryptor" class="org.runningdinner.core.util.Encryptor">
+		<constructor-arg value="${encryptionKey}" />
+	</bean>
 	<bean id="mailServerSettingsTransformer" class="org.runningdinner.ui.mail.MailServerSettingsTransformer" />
 	
 	<bean id="runningDinnerPreferences" class="org.runningdinner.model.RunningDinnerPreferences" scope="prototype" />

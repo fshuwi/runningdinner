@@ -16,6 +16,7 @@
 <spring:message code="text.mailserversettings.test.success" var="checkSuccessMessage"/>
 <spring:message code="text.mailserversettings.save.cookie.success" var="saveSuccessMessage" />
 <spring:message code="error.mailserversettings.submit" var="submitErrorMessage" />
+<spring:message code="error.mailserversettings.validation.general" var="validationGeneralErrorMessage"/>
 
 <script>
 	
@@ -194,12 +195,16 @@
 	    var errorMessage = "";
 	    if (400 == jqXHR.status) {
 			data = jqXHR.responseJSON;
-			for (var i=0; i<data.fieldErrors.length; i++) {
-				errorMessage += "<br/>";
-			    errorMessage += data.fieldErrors[i].message;
-			    
-			    field = data.fieldErrors[i].field;
-			    $("#"+field+"_modal").parent().parent().addClass("has-error");
+			if (data && data.fieldErrors.length > 0) {
+				for (var i=0; i<data.fieldErrors.length; i++) {
+					errorMessage += "<br/>";
+				    errorMessage += data.fieldErrors[i].message;
+				    
+				    field = data.fieldErrors[i].field;
+				    $("#"+field+"_modal").parent().parent().addClass("has-error");
+				}
+			} else {
+			    errorMessage = "${validationGeneralErrorMessage}";
 			}
 	    }
 	    

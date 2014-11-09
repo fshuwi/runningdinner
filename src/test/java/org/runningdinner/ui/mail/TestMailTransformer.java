@@ -12,6 +12,7 @@ import org.codehaus.jackson.map.JsonMappingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.MailServerSettingsImpl;
 import org.runningdinner.test.util.TestUtil;
@@ -29,10 +30,14 @@ public class TestMailTransformer {
 	@Autowired
 	protected MailServerSettingsTransformer mailServerSettingsTransformer;
 
+	@Autowired
+	protected RunningDinnerService runningDinnerService;
+
 	@Test
 	public void testEnrichSendMailsModel() throws JsonGenerationException, JsonMappingException, IOException {
 
 		String dinnerUuid = "uuid";
+		TestUtil.createDefaultRunningDinner(runningDinnerService, dinnerUuid);
 
 		MailServerSettings mailServerSettings = TestUtil.generateTestableMailServerSettings();
 		MailServerSettingsDinnerTO mailServerSettingsTO = new MailServerSettingsDinnerTO(dinnerUuid, mailServerSettings);
@@ -89,11 +94,13 @@ public class TestMailTransformer {
 
 	protected String toJson(Object object) throws JsonGenerationException, JsonMappingException, IOException {
 		ObjectMapper jsonMapper = new ObjectMapper();
-		return jsonMapper.writeValueAsString(object);
+		String result = jsonMapper.writeValueAsString(object);
+		return mailServerSettingsTransformer.encryptSafe(result); // We must use this for testing
 	}
 
 	protected MailServerSettingsDinnerListTO fromJson(final String jsonStr) throws JsonParseException, JsonMappingException, IOException {
 		ObjectMapper jsonMapper = new ObjectMapper();
-		return jsonMapper.readValue(jsonStr.getBytes(), MailServerSettingsDinnerListTO.class);
+		String jsonStrDecrypted = mailServerSettingsTransformer.decryptSafe(jsonStr); // We must use this for testing
+		return jsonMapper.readValue(jsonStrDecrypted.getBytes(), MailServerSettingsDinnerListTO.class);
 	}
 }

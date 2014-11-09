@@ -88,6 +88,19 @@ public class TestUtil {
 	}
 	
 
+	public static RunningDinner createDefaultRunningDinner(RunningDinnerService runningDinnerService, String newUuid) {
+		Date now = new Date();
+		RunningDinnerInfo info = TestUtil.createRunningDinnerInfo("title", now, "email@email.de", "Freiburg");
+
+		RunningDinnerConfig runningDinnerConfig = RunningDinnerConfig.newConfigurer().build();
+
+		List<Participant> participants = TestUtil.generateParticipants(18);
+		RunningDinner result = runningDinnerService.createRunningDinner(info, runningDinnerConfig, participants, newUuid);
+		assertEquals(newUuid, result.getUuid());
+
+		return result;
+	}
+	
 	public static File getClasspathResourceAsFile(final String path) throws URISyntaxException {
 		URL tmpUrl = TestUtil.class.getResource(path);
 		File file = new File(tmpUrl.toURI());
