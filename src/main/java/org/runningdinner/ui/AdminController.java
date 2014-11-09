@@ -156,12 +156,15 @@ public class AdminController extends AbstractBaseController {
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
-	public String showSendTeamArrangementsForm(HttpServletRequest request,
-			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model, RedirectAttributes redirectAttributes,
-			Locale locale) {
+	public String showSendTeamArrangementsForm(
+			HttpServletRequest request,
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@CookieValue(value = MailServerSettingsTransformer.MAILSERVER_SETTINGS_COOKIE_NAME, required = false) String mailServerSettings,
+			Model model, RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		SendTeamArrangementsModel sendTeamsModel = SendTeamArrangementsModel.createWithDefaultMessageTemplate(messages, locale);
+		mailServerSettingsTransformer.enrichModelWithMailServerSettings(uuid, sendTeamsModel, mailServerSettings);
 
 		bindCommonMailAttributesAndLoadTeamDisplayMap(model, sendTeamsModel, uuid, communicationService.findLastTeamMailReport(uuid));
 		Map<String, String> teamDisplayMap = sendTeamsModel.getEntityDisplayMap();
@@ -459,11 +462,15 @@ public class AdminController extends AbstractBaseController {
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_PARTICIPANT_MAILS, method = RequestMethod.GET)
-	public String showSendParticipantsForm(HttpServletRequest request, @PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+	public String showSendParticipantsForm(
+			HttpServletRequest request,
+			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@CookieValue(value = MailServerSettingsTransformer.MAILSERVER_SETTINGS_COOKIE_NAME, required = false) String mailServerSettings,
 			Model model, RedirectAttributes redirectAttributes, Locale locale) {
 		adminValidator.validateUuid(uuid);
 
 		BaseSendMailsModel sendMailsModel = new BaseSendMailsModel();
+		mailServerSettingsTransformer.enrichModelWithMailServerSettings(uuid, sendMailsModel, mailServerSettings);
 		sendMailsModel.setMessage(messages.getMessage("message.template.participants", null, locale));
 
 		bindAndSetupParticipantMailAttributes(model, sendMailsModel, uuid, locale);

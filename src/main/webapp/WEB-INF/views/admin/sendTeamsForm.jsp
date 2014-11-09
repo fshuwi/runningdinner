@@ -12,6 +12,8 @@
 
 <tiles:insertDefinition name="view-status-info" flush="true" />
 
+<tiles:insertDefinition name="view-mailserversettings-dialog" flush="true" />
+
 <div class="alert alert-info alert-dismissable">
 	<button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
 	<strong>Info</strong><br/><spring:message code="text.teams.sendmessage.info" />
@@ -63,7 +65,9 @@
 			</div>
 		</div>
 		
-		<input type="submit" class="btn btn-primary" value="<spring:message code="label.teams.sendmessage"/>" name="sendTeamMessages" />
+		<tiles:insertDefinition name="view-mailserversettings-buttons" flush="true" />
+		
+		<input onclick="return onSendMailsSubmit()" type="submit" class="btn btn-primary" value="<spring:message code="label.teams.sendmessage"/>" name="sendTeamMessages" />
 		<input type="submit" class='btn btn-info' value="<spring:message code="label.preview" />" name="preview" />
 		
 		<div style="margin-top:20px;">

@@ -63,6 +63,9 @@
  	<definition name="view-mailreport" template="/WEB-INF/views/common/mailReportView.jsp" />
  	<definition name="view-mailpreview" template="/WEB-INF/views/common/mailPreviewView.jsp" />
  	
+ 	<definition name="view-mailserversettings-dialog" template="/WEB-INF/views/common/mailServerSettingsDialog.jsp" />
+ 	<definition name="view-mailserversettings-buttons" template="/WEB-INF/views/common/mailServerSettingsButtons.jsp" />
+ 	
  	<!-- Concrete template mappings -->
  	<definition name="wizard/wizard-start" extends="template-welcome">
   		<put-attribute name="content" value="/WEB-INF/views/wizard/wizard-start.jsp" />
