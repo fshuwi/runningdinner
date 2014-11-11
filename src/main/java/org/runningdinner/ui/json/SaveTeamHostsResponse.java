@@ -9,6 +9,8 @@ import org.runningdinner.core.Team;
 
 public class SaveTeamHostsResponse extends StandardJsonResponse {
 
+	private static final long serialVersionUID = 1L;
+	
 	protected List<TeamWrapper> savedTeams;
 
 	public List<TeamWrapper> getSavedTeams() {
@@ -22,12 +24,12 @@ public class SaveTeamHostsResponse extends StandardJsonResponse {
 		this.savedTeams = savedTeams;
 	}
 
-	public static SaveTeamHostsResponse createSuccessResponse(List<Team> savedTeams) {
+	public static SaveTeamHostsResponse createSuccessResponse(final List<Team> savedTeams, final String dinnerUuid) {
 		SaveTeamHostsResponse result = new SaveTeamHostsResponse();
 
 		List<TeamWrapper> teamWrappers = new ArrayList<TeamWrapper>();
 		for (Team team : savedTeams) {
-			teamWrappers.add(new TeamWrapper(team));
+			teamWrappers.add(new TeamWrapper(team, dinnerUuid));
 		}
 		result.setSavedTeams(teamWrappers);
 

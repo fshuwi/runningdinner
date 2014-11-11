@@ -191,6 +191,7 @@
 	function updateSwitchedTeam(switchedTeam) {
 		teamKey = switchedTeam.naturalKey;
 		teamMembers = switchedTeam.teamMembers;
+		teamNumber = switchedTeam.teamNumber;
 		
 		teamInfoContainer = $("div[teamKey='" + teamKey + "']"); 
 		teamHostSelect = $("select[teamKey='" + teamKey + "']");
@@ -207,6 +208,10 @@
 			$(teamInfoContainer).append($(newTeamMemberDiv));
 		}
 		
+		// Update team number labels (hosting distribution)
+		$('#teamNumber_'+teamNumber).removeClass(); // Remove all classes
+		$('#teamNumber_'+teamNumber).addClass(mapDistributionToCssClass(switchedTeam));
+		
 		// Select control for hosts
 		$(teamHostSelect).empty();
 		for (var i = 0; i < teamMembers.length; i++) {
@@ -220,6 +225,17 @@
 		
 		// Update (potentially) changed zip:
 		$("span[teamKeyZip='" + teamKey + "']").text(switchedTeam.hostZip);
+	}
+	
+	function mapDistributionToCssClass(team) {
+	    var result = "label label-success";
+	    if (team.unbalancedDistribution) {
+			result = "label label-danger";
+	    }
+	    else if (team.overbalancedDistribution) {
+			result = "label label-warning";
+	    }
+	    return result;
 	}
 	
 	// Refrehs UI context from successful AJAX request after some team hosts may have been changed

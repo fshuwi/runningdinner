@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import org.runningdinner.core.FuzzyBoolean;
 import org.runningdinner.core.Gender;
 import org.runningdinner.core.GeneratedTeamsResult;
 import org.runningdinner.core.MealClass;
@@ -53,6 +54,7 @@ import org.runningdinner.ui.json.StandardJsonResponse;
 import org.runningdinner.ui.json.SwitchTeamMembers;
 import org.runningdinner.ui.json.SwitchTeamMembersResponse;
 import org.runningdinner.ui.json.TeamHostChangeList;
+import org.runningdinner.ui.json.TeamWrapper;
 import org.runningdinner.ui.mail.MailServerSettingsTransformer;
 import org.runningdinner.ui.util.MealClassHelper;
 import org.runningdinner.ui.util.MealClassPropertyEditor;
@@ -124,6 +126,8 @@ public class AdminController extends AbstractBaseController {
 	public String showTeamArrangement(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
 		adminValidator.validateUuid(uuid);
 
+		final RunningDinner runningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
+
 		final int numberOfTeamsForDinner = runningDinnerService.loadNumberOfTeamsForDinner(uuid);
 
 		List<Team> regularTeams = null;
@@ -148,11 +152,40 @@ public class AdminController extends AbstractBaseController {
 			}
 		}
 
-		model.addAttribute("regularTeams", regularTeams);
+		model.addAttribute("regularTeams", createTeamWrappers(regularTeams, runningDinner, true));
 		model.addAttribute("notAssignedParticipants", notAssignedParticipants);
 		model.addAttribute("uuid", uuid);
 
 		return getFullViewName("teams");
+	}
+
+	private List<TeamWrapper> createTeamWrappers(final List<Team> regularTeams, final RunningDinner runningDinner,
+			final boolean withVisitationPlans) {
+		List<TeamWrapper> result = new ArrayList<TeamWrapper>();
+		for (Team regularTeam : regularTeams) {
+			TeamWrapper teamWrapper = new TeamWrapper(regularTeam, runningDinner.getUuid(), withVisitationPlans);
+			List<FuzzyBoolean> hostingCapabilities = regularTeam.getHostingCapability(runningDinner.getConfiguration());
+
+			int numPossibleHosts = 0;
+			for (FuzzyBoolean hostingCapability : hostingCapabilities) {
+				if (hostingCapability == FuzzyBoolean.TRUE) {
+					numPossibleHosts++;
+				}
+			}
+
+			if (numPossibleHosts == 1) {
+				teamWrapper.setWellbalancedDistribution(true);
+			}
+			else if (numPossibleHosts > 1) {
+				teamWrapper.setOverbalancedDistribution(true);
+			}
+			else {
+				teamWrapper.setUnbalancedDistribution(true);
+			}
+
+			result.add(teamWrapper);
+		}
+		return result;
 	}
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
@@ -693,14 +726,14 @@ public class AdminController extends AbstractBaseController {
 		adminValidator.validateUuid(uuid);
 
 		if (CoreUtil.isEmpty(changedHostTeams)) {
-			return SaveTeamHostsResponse.createSuccessResponse(Collections.<Team> emptyList());
+			return SaveTeamHostsResponse.createSuccessResponse(Collections.<Team> emptyList(), uuid);
 		}
 
 		Map<String, String> teamHostMappings = TeamHostChangeList.generateTeamHostsMap(changedHostTeams);
 
 		try {
 			List<Team> updatedTeamHosters = runningDinnerService.updateTeamHosters(uuid, teamHostMappings);
-			return SaveTeamHostsResponse.createSuccessResponse(updatedTeamHosters);
+			return SaveTeamHostsResponse.createSuccessResponse(updatedTeamHosters, uuid);
 		}
 		catch (Exception ex) {
 			LOGGER.error("Failed to update team hosters for dinner {} with number of passed teamHostMappings {}", uuid,
@@ -720,6 +753,7 @@ public class AdminController extends AbstractBaseController {
 	@ResponseBody
 	public SwitchTeamMembersResponse switchTeamMembers(@PathVariable("uuid") String uuid, @RequestBody SwitchTeamMembers switchTeamMembers) {
 		adminValidator.validateUuid(uuid);
+		RunningDinner runningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		if (switchTeamMembers == null || switchTeamMembers.size() != 2) {
 			return SwitchTeamMembersResponse.createErrorResponse("Expected size of participants with 2, but was "
@@ -734,9 +768,12 @@ public class AdminController extends AbstractBaseController {
 		try {
 			adminValidator.validateNaturalKeys(naturalKeysTmp);
 
-			List<Team> result = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
+			List<Team> changedTeams = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
 					switchTeamMembers.get(1).getParticipantKey());
+
+			List<TeamWrapper> result = createTeamWrappers(changedTeams, runningDinner, false);
 			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result, uuid);
+
 			return response;
 		}
 		catch (Exception ex) {

@@ -47,27 +47,29 @@
 							<th><spring:message code="label.receives" /></th>
 							<th><spring:message code="label.visits" /></th>
 							<th><spring:message code="label.host" /></th>
-							<th>&nbsp;</th>
+							<th><spring:message code="label.zip" /></th>
 							<th>&nbsp;</th>
 						</tr>
 					</thead>
 					<tbody>
 						<c:forEach items="${regularTeams}" var="team">
 							<tr>
-								<td><span id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
+								<c:set var="teamDistributionCssClass" value="label-success"/>
+								<c:if test="${team.unbalancedDistribution}">
+									<c:set var="teamDistributionCssClass" value="label-danger"/>
+								</c:if>
+								<c:if test="${team.overbalancedDistribution}">
+									<c:set var="teamDistributionCssClass" value="label-warning"/>
+								</c:if>
+								
+								<td><span class="label ${teamDistributionCssClass}" id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
 								
 								<td>
 									<div teamKey="${team.naturalKey}">
 										<c:forEach items="${team.teamMembers}" var="teamMember">
-										
-											<spring:url value="<%=RequestMappings.EDIT_PARTICIPANT%>" var="editParticipantUrl" htmlEscape="true">
-												<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
-												<spring:param name="key" value="${teamMember.naturalKey}" />
-											</spring:url>
-											
 											<div class="draggableTeamMember droppableTeamMember" participantKey="${teamMember.naturalKey}">
 												<h5 class="media-heading">
-													<a class="teamMember" href="${editParticipantUrl}">${teamMember.name.fullnameFirstnameFirst}</a>
+													<a class="teamMember" href="${pageContext.request.contextPath}${teamMember.editLink}">${teamMember.fullname}</a>
 												</h5>
 											</div>
 											
@@ -75,11 +77,11 @@
 									</div>
 								</td>
 								
-								<td><span class="text-success"><strong>${team.mealClass}</strong></span></td>
+								<td><span class="text-success"><strong>${team.mealClass.label}</strong></span></td>
 								
 								<td>
 									<div>
-										<c:forEach items="${team.visitationPlan.guestTeams}" var="guestTeam">
+										<c:forEach items="${team.guestTeams}" var="guestTeam">
 											<h5 class="media-heading"><a href="#teamNumber_${guestTeam.teamNumber}">Team ${guestTeam.teamNumber}</a></h5>
 										</c:forEach>
 									</div>
@@ -87,8 +89,8 @@
 								
 								<td>
 									<div>
-										<c:forEach items="${team.visitationPlan.hostTeams}" var="hostTeam">
-											<h5 class="media-heading"><a href="#teamNumber_${hostTeam.teamNumber}">Team ${hostTeam.teamNumber}</a> - <span class="text-success"><strong>${hostTeam.mealClass}</strong></span></h5>
+										<c:forEach items="${team.hostTeams}" var="hostTeam">
+											<h5 class="media-heading"><a href="#teamNumber_${hostTeam.teamNumber}">Team ${hostTeam.teamNumber}</a> - <span class="text-success"><strong>${hostTeam.mealClass.label}</strong></span></h5>
 										</c:forEach>
 									</div>
 							   </td>
@@ -96,12 +98,12 @@
 							   <td class="col-xs-2" style="text-align:center;">	
 							   		<select class="form-control teamHoster" teamKey="${team.naturalKey}" onchange="onTeamHosterChanged('${team.naturalKey}')">
 							   			<c:forEach items="${team.teamMembers}" var="teamMember">
-							   				<option value="${teamMember.naturalKey}" <c:if test="${teamMember.host eq true}">selected</c:if>>${teamMember.name.fullnameFirstnameFirst}</option>
+							   				<option value="${teamMember.naturalKey}" <c:if test="${teamMember.host eq true}">selected</c:if>>${teamMember.fullname}</option>
 							   			</c:forEach>
 						 			</select>					
 							   </td>
 							  							   
-							   <td><span class="label label-primary" teamKeyZip="${team.naturalKey}">${team.hostTeamMember.address.zip}</span></td>
+							   <td><span class="label label-primary" teamKeyZip="${team.naturalKey}">${team.hostZip}</span></td>
 							   
 							   <td>
 							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE%>" var="teamRoutePreviewUrl" htmlEscape="true">
@@ -135,6 +137,22 @@
 								
 
 				<div id="saveTeamHostsResponse" class="hidden col-xs-12 col-xs-offset-0"></div>
+				
+				<div class="row">
+					<div class="col-xs-12">
+						<h3>Legende</h3>
+					</div>
+					<div class="col-xs-12">
+						<dl class="dl-horizontal">
+	  						<dt><span class="label label-success">1</span></dt>
+	  						<dd>Team 1 ist perfekt ausgelichen anhand der Gastgeberkapazitäten</dd>
+	  			  			<dt><span class="label label-warning">1</span></dt>
+	  						<dd>Team 1 hat mehrere Teilnehmer die als Gastgeber fungieren können</dd>
+	  				  		<dt><span class="label label-danger">1</span></dt>
+	  						<dd>Team 1 hat keinen Teilnehmer der als Gastgeber fungieren kann</dd>					
+						</dl>
+					</div>
+				</div>
 				
 			</c:when>
 			<c:otherwise>
