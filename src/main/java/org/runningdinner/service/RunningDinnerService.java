@@ -1,6 +1,7 @@
 package org.runningdinner.service;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -210,8 +211,7 @@ public interface RunningDinnerService {
 	 * @return
 	 */
 	RunningDinnerPreferences loadPreferences(final RunningDinner runningDinner);
-	
-	
+
 	/**
 	 * Deletes the dinner instance and all related entities.
 	 * 
@@ -260,5 +260,7 @@ public interface RunningDinnerService {
 	 * @param meals Contains the new times for each passed meal to be updated
 	 */
 	void updateMealTimes(String uuid, Set<MealClass> meals);
+
+	Collection<Team> getAllCrossedTeams(final String dinnerUuid, final String teamKey);
 
 }

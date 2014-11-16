@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
@@ -152,17 +153,34 @@ public class AdminController extends AbstractBaseController {
 			}
 		}
 
-		model.addAttribute("regularTeams", createTeamWrappers(regularTeams, runningDinner, true));
+		model.addAttribute("regularTeams", createTeamWrappersWithDistributionBalanceInfo(regularTeams, runningDinner, true));
 		model.addAttribute("notAssignedParticipants", notAssignedParticipants);
 		model.addAttribute("uuid", uuid);
 
 		return getFullViewName("teams");
 	}
+	
+	
+	@RequestMapping(value = RequestMappings.AJAX_GET_CROSSING_TEAMS, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public TeamWrapper[] getAllCrossedTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("teamKey") String teamKey) {
+		 
+		adminValidator.validateUuid(uuid);
+		adminValidator.validateNaturalKey(teamKey);
+		
+		Collection<Team> allCrossedTeams = runningDinnerService.getAllCrossedTeams(uuid, teamKey);
+		List<TeamWrapper> teamWrappers = createTeamWrappers(allCrossedTeams, uuid, false);
+		
+		TeamWrapper[] result = new TeamWrapper[teamWrappers.size()];
+		result = teamWrappers.toArray(result);
+		
+		return result;
+	}
 
-	private List<TeamWrapper> createTeamWrappers(final List<Team> regularTeams, final RunningDinner runningDinner,
+	private List<TeamWrapper> createTeamWrappersWithDistributionBalanceInfo(final Collection<Team> teams, final RunningDinner runningDinner,
 			final boolean withVisitationPlans) {
 		List<TeamWrapper> result = new ArrayList<TeamWrapper>();
-		for (Team regularTeam : regularTeams) {
+		for (Team regularTeam : teams) {
 			TeamWrapper teamWrapper = new TeamWrapper(regularTeam, runningDinner.getUuid(), withVisitationPlans);
 			List<FuzzyBoolean> hostingCapabilities = regularTeam.getHostingCapability(runningDinner.getConfiguration());
 
@@ -187,6 +205,16 @@ public class AdminController extends AbstractBaseController {
 		}
 		return result;
 	}
+	
+	private List<TeamWrapper> createTeamWrappers(final Collection<Team> teams, String dinnerUuid, final boolean withVisitationPlans) {
+		List<TeamWrapper> result = new ArrayList<TeamWrapper>();
+		for (Team regularTeam : teams) {
+			TeamWrapper teamWrapper = new TeamWrapper(regularTeam, dinnerUuid, withVisitationPlans);
+			result.add(teamWrapper);
+		}
+		return result;
+	}
+	
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
 	public String showSendTeamArrangementsForm(
@@ -753,8 +781,6 @@ public class AdminController extends AbstractBaseController {
 	@ResponseBody
 	public SwitchTeamMembersResponse switchTeamMembers(@PathVariable("uuid") String uuid, @RequestBody SwitchTeamMembers switchTeamMembers) {
 		adminValidator.validateUuid(uuid);
-		RunningDinner runningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
-
 		if (switchTeamMembers == null || switchTeamMembers.size() != 2) {
 			return SwitchTeamMembersResponse.createErrorResponse("Expected size of participants with 2, but was "
 					+ (switchTeamMembers == null ? "empty" : switchTeamMembers.size()));
@@ -771,7 +797,7 @@ public class AdminController extends AbstractBaseController {
 			List<Team> changedTeams = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
 					switchTeamMembers.get(1).getParticipantKey());
 
-			List<TeamWrapper> result = createTeamWrappers(changedTeams, runningDinner, false);
+			List<TeamWrapper> result = createTeamWrappers(changedTeams, uuid, false);
 			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result, uuid);
 
 			return response;

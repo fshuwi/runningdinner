@@ -18,6 +18,7 @@ import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerPreference;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Repository
@@ -164,6 +165,7 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 	 * @param teamKeys
 	 * @return
 	 */
+	@Transactional(propagation=Propagation.SUPPORTS)
 	public List<Team> loadRegularTeamsFromDinnerByKeys(String uuid, Set<String> teamKeys) {
 		TypedQuery<Team> query = em.createQuery(
 				"SELECT DISTINCT t FROM RunningDinner r JOIN r.teams t LEFT JOIN FETCH t.teamMembers LEFT JOIN FETCH t.mealClass WHERE r.uuid=:uuid AND t.naturalKey IN :teamKeys ORDER BY t.teamNumber",

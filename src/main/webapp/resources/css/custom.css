@@ -87,3 +87,8 @@ h3 .contentheadline {
 	margin-top:0 ! important;
 }
 /** ****************** END CAROUSEL STYLES ******************* **/
+
+.tooltipsterAnchor {
+	text-decoration: none ! important;
+	opacity: 1 ! important;
+}

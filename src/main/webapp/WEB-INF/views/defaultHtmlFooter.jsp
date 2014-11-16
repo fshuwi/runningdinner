@@ -9,3 +9,5 @@
 <script src='<c:url value="/resources/js/jquery.ui.datepicker-de.js"/>'></script>
 
 <script src='<c:url value="/resources/js/toastr.min.js"/>'></script>
+
+<script src='<c:url value="/resources/js/jquery.tooltipster.min.js"/>'></script>

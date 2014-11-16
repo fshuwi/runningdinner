@@ -61,8 +61,8 @@
 								<c:if test="${team.overbalancedDistribution}">
 									<c:set var="teamDistributionCssClass" value="label-warning"/>
 								</c:if>
-								
-								<td><span class="label ${teamDistributionCssClass}" id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></td>
+
+								<td><a href="javascript:void();" class="tooltip tooltipsterAnchor" teamKey="${team.naturalKey}" teamNumber="${team.teamNumber}"><span class="label ${teamDistributionCssClass}" id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></a></td>
 								
 								<td>
 									<div teamKey="${team.naturalKey}">

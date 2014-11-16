@@ -28,6 +28,7 @@ import org.runningdinner.core.converter.ConverterFactory;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.FileConverter;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
+import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
@@ -644,6 +645,25 @@ public class RunningDinnerServiceImpl implements RunningDinnerService, Applicati
 				throw new IllegalStateException("Meal " + modifiedMeal + " was not found for being updated!");
 			}
 		}
+	}
+
+	@Transactional(readOnly = true)
+	public Collection<Team> getAllCrossedTeams(final String dinnerUuid, final String teamKey) {
+
+		List<Team> teams = repository.loadTeamsWithVisitationPlan(new HashSet<String>(Arrays.asList(teamKey)), true);
+		if (teams.size() != 1) {
+			throw new IllegalStateException("Expected 1 team to be found for " + teamKey + " but found " + teams.size() + " teams");
+		}
+		Team team = teams.get(0);
+
+		Collection<Team> crossedTeams = TeamRouteBuilder.getAllCrossedTeams(team);
+
+		Set<String> teamKeys = new HashSet<String>();
+		for (Team crossedTeam : crossedTeams) {		
+			teamKeys.add(crossedTeam.getNaturalKey());
+		}
+		
+		return repository.loadRegularTeamsFromDinnerByKeys(dinnerUuid, teamKeys);
 	}
 
 	@Autowired

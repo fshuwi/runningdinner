@@ -1,10 +1,14 @@
 <%@page import="org.runningdinner.ui.RequestMappings"%>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <spring:url value="<%=RequestMappings.AJAX_SWITCH_TEAMMEMBERS%>" var="teamsSwitchMembersUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 <spring:url value="<%=RequestMappings.AJAX_SAVE_HOSTS%>" var="teamsSaveHostUrl" htmlEscape="true">
+	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
+</spring:url>
+<spring:url value="<%=RequestMappings.AJAX_GET_CROSSING_TEAMS_PREFIX%>" var="crossedTeamPrefixUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
 
@@ -19,9 +23,79 @@
 	var checkedTeamMembers = [];
 
 	$(document).ready(function() {
-		setUpDragDrop();
+		setUpDragDrop();		
+		setUpTeamTooltips();
 	});
 	
+	
+	function setUpTeamTooltips() {
+		$('.tooltip').tooltipster({
+			content: $("<span>Laden...</span>" + "<img src='<c:url value="/resources/images/ajax-loader.gif" />' class='tooltip-loader-img' />"),
+			theme: 'tooltipster-shadow',
+			position: 'top',
+			delay: 100,
+			animation: 'fade',
+			functionBefore: function(origin, continueTooltip) {
+			    continueTooltip();
+			    
+		       // if (origin.data('ajax') !== 'cached') {
+			   		var teamKey = origin.attr("teamKey");
+			   		var teamNumber = origin.attr("teamNumber");
+			   		
+			   		var url = '${crossedTeamPrefixUrl}/' +  teamKey + "/crossingteams";
+		            $.ajax({
+		        		dataType: 'json',
+		                type: 'GET',
+		                url: url,
+		                success: function(result) {
+		                    // update our tooltip content with our returned data and cache it
+		                    
+		                    var tooltipContent = "<div class='row'><div class='col-xs-12'><h3>Team " + teamNumber + " trifft folgende Teams:</h3></div></div>";
+		                    
+		                    var len = result.length;
+		                    for (var i=0; i<len; i+=2) {
+		                		var team = result[i];
+		                		var teamMembers = team.teamMembers;
+		                		var teamMembersLen = teamMembers.length;
+		                		
+		                		var teamStr = "<div class='row'>";
+		                		
+		                		teamStr += renderSingleTeam(team);
+		                		if (i+1 < len) {
+		                		    team = result[i+1];
+		                		}
+		                		teamStr += renderSingleTeam(team);
+	
+		                		teamStr += "</div>";
+		                		
+		                		tooltipContent += teamStr;
+		                    }
+		                    
+		                    console.log(tooltipContent);
+		                    origin.tooltipster('content', $(tooltipContent)).data('ajax', 'cached');
+		                    
+		                    $(".tooltip-loader-img").hide();
+		                }
+		            });
+		       // }
+		       
+		       function renderSingleTeam(team) {
+					var teamMembers = team.teamMembers;
+					var teamMembersLen = teamMembers.length;
+					
+					var result = "<div class='col-xs-6'><b>Team " + team.teamNumber + "</b><br/>";
+					
+					for (var j=0; j<teamMembersLen;j++) {
+					    result += teamMembers[j].fullname + "<br/>";
+					}
+					
+					result += "<br/></div>";
+					return result;
+		       }
+			    
+			}
+		});    
+	}
 	
 	function setUpDragDrop() {
 		 $(".draggableTeamMember").draggable({ revert: "invalid" });
