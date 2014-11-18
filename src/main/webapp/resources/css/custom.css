@@ -91,4 +91,5 @@ h3 .contentheadline {
 .tooltipsterAnchor {
 	text-decoration: none ! important;
 	opacity: 1 ! important;
+	cursor: pointer ! important;
 }

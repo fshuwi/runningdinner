@@ -719,11 +719,6 @@ public class AdminController extends AbstractBaseController {
 				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.participant.edit.success", null, locale)));
 	}
 
-	@RequestMapping(value = RequestMappings.EXCHANGE_TEAM, method = RequestMethod.GET)
-	public String exchangeTeam(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, Model model) {
-		adminValidator.validateUuid(uuid);
-		throw new UnsupportedOperationException("not yet implemented");
-	}
 
 	/**
 	 * Used for select-box when editing participant

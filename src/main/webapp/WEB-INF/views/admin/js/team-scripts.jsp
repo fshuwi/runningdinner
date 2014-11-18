@@ -29,12 +29,14 @@
 	
 	
 	function setUpTeamTooltips() {
+	    
 		$('.tooltip').tooltipster({
 			content: $("<span>Laden...</span>" + "<img src='<c:url value="/resources/images/ajax-loader.gif" />' class='tooltip-loader-img' />"),
 			theme: 'tooltipster-shadow',
-			position: 'top',
+			position: 'right',
 			delay: 100,
 			animation: 'fade',
+			trigger: 'click',
 			functionBefore: function(origin, continueTooltip) {
 			    continueTooltip();
 			    
@@ -50,7 +52,10 @@
 		                success: function(result) {
 		                    // update our tooltip content with our returned data and cache it
 		                    
-		                    var tooltipContent = "<div class='row'><div class='col-xs-12'><h3>Team " + teamNumber + " trifft folgende Teams:</h3></div></div>";
+		                    var tooltipContent = "<div class='row'><div class='col-xs-12'>"
+		                    tooltipContent += "<h3>Team " + teamNumber + " trifft folgende Teams&nbsp;&nbsp;";
+		                    tooltipContent += "<button type='button' class='close' style='cursor:pointer ! important;'><span aria-hidden='true' style='cursor:pointer ! important;'>&times;</span><span class='sr-only'>Close</span></button></h3>";
+		                    tooltipContent += "<hr/></div></div>";
 		                    
 		                    var len = result.length;
 		                    for (var i=0; i<len; i+=2) {
@@ -71,7 +76,6 @@
 		                		tooltipContent += teamStr;
 		                    }
 		                    
-		                    console.log(tooltipContent);
 		                    origin.tooltipster('content', $(tooltipContent)).data('ajax', 'cached');
 		                    
 		                    $(".tooltip-loader-img").hide();

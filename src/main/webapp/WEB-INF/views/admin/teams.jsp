@@ -62,7 +62,7 @@
 									<c:set var="teamDistributionCssClass" value="label-warning"/>
 								</c:if>
 
-								<td><a href="javascript:void();" class="tooltip tooltipsterAnchor" teamKey="${team.naturalKey}" teamNumber="${team.teamNumber}"><span class="label ${teamDistributionCssClass}" id="teamNumber_${team.teamNumber}">${team.teamNumber}</span></a></td>
+								<td><span class="tooltip tooltipsterAnchor label ${teamDistributionCssClass}" id="teamNumber_${team.teamNumber}" teamKey="${team.naturalKey}" teamNumber="${team.teamNumber}">${team.teamNumber}</span></td>
 								
 								<td>
 									<div teamKey="${team.naturalKey}">

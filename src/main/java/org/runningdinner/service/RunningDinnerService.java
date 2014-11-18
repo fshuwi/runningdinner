@@ -19,7 +19,6 @@ import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
-import org.runningdinner.model.RunningDinnerPreference;
 import org.runningdinner.model.RunningDinnerPreferences;
 import org.springframework.web.multipart.MultipartFile;
 

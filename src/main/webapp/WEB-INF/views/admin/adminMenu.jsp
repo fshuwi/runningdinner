@@ -22,9 +22,6 @@
 <spring:url value="/event/{uuid}/admin/participants/upload" var="participantsUploadUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
 </spring:url>
-<spring:url value="<%=RequestMappings.EXCHANGE_TEAM%>" var="teamsExchangeUrl" htmlEscape="true">
-	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
-</spring:url>
 
 <spring:url value="<%=RequestMappings.SEND_PARTICIPANT_MAILS%>" var="participantsMailUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
@@ -84,7 +81,6 @@
 <hr/>
 <ul class="nav nav-pills nav-stacked">
     <li class="${participantsClass}"><a href="${participantsUrl}"><spring:message code="headline.participantlist"/></a></li>
-    <li><a href="${teamsExchangeUrl}"><spring:message code="headline.teams.exchange"/></a></li>
 </ul>
 
 <hr/>
