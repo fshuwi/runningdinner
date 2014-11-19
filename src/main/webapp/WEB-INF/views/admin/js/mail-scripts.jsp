@@ -125,7 +125,7 @@
 	   
 	    var jsonDataStr = JSON.stringify(readMailServerSettings);
 	    jQuery.ajax({
-		    type: "POST",
+		    type: "PUT",
 		    url: "${saveMailSettingsUrl}",
 		    contentType: "application/json; charset=utf-8",
 		    data: jsonDataStr,

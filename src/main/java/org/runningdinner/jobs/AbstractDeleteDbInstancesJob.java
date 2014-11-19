@@ -21,8 +21,6 @@ public class AbstractDeleteDbInstancesJob {
 
 	protected RunningDinnerService runningDinnerService;
 
-	protected CommunicationService communicationService;
-
 	public TimeUnit getTimeUnit() {
 		return timeUnit;
 	}
@@ -45,14 +43,6 @@ public class AbstractDeleteDbInstancesJob {
 
 	public void setRunningDinnerService(RunningDinnerService runningDinnerService) {
 		this.runningDinnerService = runningDinnerService;
-	}
-
-	public CommunicationService getCommunicationService() {
-		return communicationService;
-	}
-
-	public void setCommunicationService(CommunicationService communicationService) {
-		this.communicationService = communicationService;
 	}
 
 	public RunningDinnerService getRunningDinnerService() {

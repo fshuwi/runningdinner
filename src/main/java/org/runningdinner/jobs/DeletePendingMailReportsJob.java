@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.model.BaseMailReport;
+import org.runningdinner.service.CommunicationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -19,6 +20,8 @@ import org.springframework.scheduling.annotation.Scheduled;
 public class DeletePendingMailReportsJob extends AbstractDeleteDbInstancesJob {
 
 	private static Logger LOGGER = LoggerFactory.getLogger(DeletePendingMailReportsJob.class);
+	
+	protected CommunicationService communicationService;
 
 	// Perform job each 3 hours
 	@Scheduled(fixedRate = 60 * 1000 * 60 * 3)
@@ -57,6 +60,14 @@ public class DeletePendingMailReportsJob extends AbstractDeleteDbInstancesJob {
 				LOGGER.error("Failed to delete pending report {}", pendingReport, ex);
 			}
 		}
+	}
+	
+	public CommunicationService getCommunicationService() {
+		return communicationService;
+	}
+
+	public void setCommunicationService(CommunicationService communicationService) {
+		this.communicationService = communicationService;
 	}
 
 }

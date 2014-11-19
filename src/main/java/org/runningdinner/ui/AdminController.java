@@ -390,7 +390,7 @@ public class AdminController extends AbstractBaseController {
 		}
 	}
 
-	@RequestMapping(value = RequestMappings.AJAX_SAVE_MAIL_SETTINGS, method = RequestMethod.POST)
+	@RequestMapping(value = RequestMappings.AJAX_SAVE_MAIL_SETTINGS, method = RequestMethod.PUT)
 	@ResponseBody
 	public StandardJsonResponse saveMailSettings(HttpServletRequest request, HttpServletResponse response,
 			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, @RequestBody @Valid MailServerSettings mailServerSettings,

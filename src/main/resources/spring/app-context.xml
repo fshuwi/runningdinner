@@ -109,7 +109,7 @@
 
 	<bean id="deletePendingMailReportsJob" class="org.runningdinner.jobs.DeletePendingMailReportsJob"
 		p:maxLifeTime="${mail.reports.pending.lifetime}" p:timeUnitAsString="${mail.reports.pending.lifetime.timeunit}"
-		p:runningDinnerService-ref="runningDinnerService" />
+		p:runningDinnerService-ref="runningDinnerService" p:communicationService-ref="communicationService" />
 
 	<!-- Enabled usage of EntityManager during whole http request. Not needed 
 		currently. <bean class="org.springframework.orm.jpa.support.OpenEntityManagerInViewInterceptor" 

@@ -5,6 +5,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -61,8 +62,14 @@ public class GeocoderServiceGoogleImpl implements GeocoderService {
 	@Override
 	public Map<ParticipantAddress, List<GeocodingResult>> geocodeAddresses(Set<ParticipantAddress> addresses, Locale locale)
 			throws GeocodingException {
-		// TODO Auto-generated method stub
-		return null;
+		
+		Map<ParticipantAddress, List<GeocodingResult>> result = new HashMap<ParticipantAddress, List<GeocodingResult>>();
+		
+		for (ParticipantAddress address : addresses) {
+			result.put(address,geocodeAddress(address, locale));
+		}
+		
+		return result;
 	}
 
 	private GoogleGeocderResponse executeRequest(final String requestUrl) throws GeocodingException {
