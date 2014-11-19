@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.ParticipantAddress;
@@ -54,6 +56,13 @@ public class GeocoderServiceGoogleImpl implements GeocoderService {
 		else {
 			throw new GeocodingException("Google Geocoding API returned status " + response.getStatus() + " for request " + requestUrl);
 		}
+	}
+	
+	@Override
+	public Map<ParticipantAddress, List<GeocodingResult>> geocodeAddresses(Set<ParticipantAddress> addresses, Locale locale)
+			throws GeocodingException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 	private GoogleGeocderResponse executeRequest(final String requestUrl) throws GeocodingException {
