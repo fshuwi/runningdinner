@@ -6,6 +6,7 @@
 <%@ taglib prefix="rd" uri="http://org.runningdinner/tags/functions"%>
 <%@ taglib prefix="bs" tagdir="/WEB-INF/tags" %>
 <%@ page import="org.runningdinner.ui.RequestMappings" %>
+<%@ page session="false" %>
 
 <img src="<c:url value="/resources/images/ajax-loader.gif" />" id="dragdrop-ajax-loader" style="display:none;position:absolute;left:-10px;top:-10px;" />
 

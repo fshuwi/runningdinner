@@ -11,3 +11,7 @@
 /src/main/resources/config_prod.properties
 startderby.bat
 snippets.txt
+/target/
+/target/
+/target/
+/node_modules/

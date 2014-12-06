@@ -8,6 +8,8 @@ public class GeocodingResult {
 
 	protected boolean exact;
 
+	protected String formattedAddress;
+
 	public double getLat() {
 		return lat;
 	}
@@ -32,10 +34,17 @@ public class GeocodingResult {
 		this.exact = exact;
 	}
 
+	public String getFormattedAddress() {
+		return formattedAddress;
+	}
+
+	public void setFormattedAddress(String formattedAddress) {
+		this.formattedAddress = formattedAddress;
+	}
+
 	@Override
 	public String toString() {
 		return "(" + lat + ", " + lng + ", " + exact + ")";
 	}
 
-	
 }

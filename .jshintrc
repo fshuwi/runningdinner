@@ -1,0 +1,25 @@
+{
+  "globals": {
+    "jQuery": true
+  },
+  "eqnull": true,
+  "eqeqeq": false,
+  "-W041": false, 
+  "-W083": false,
+  "-W009": false,
+  "browser": true,
+  "bitwise": true,
+  "camelcase": false,
+  "sub": true,        // allow access to arrays with via []
+  "curly": true,
+  "immed": true,
+  "newcap": false,
+  "noarg": true,
+  "quotmark": false,
+  "regexp": true,
+  "undef": false,
+  "unused": false,
+  "strict": false,    //automatically added by grunt
+  "trailing": false,
+  "smarttabs": true
+}

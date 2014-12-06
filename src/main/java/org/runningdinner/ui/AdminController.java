@@ -392,9 +392,9 @@ public class AdminController extends AbstractBaseController {
 
 	@RequestMapping(value = RequestMappings.AJAX_SAVE_MAIL_SETTINGS, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public StandardJsonResponse saveMailSettings(HttpServletRequest request, HttpServletResponse response,
-			@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, @RequestBody @Valid MailServerSettings mailServerSettings,
-			Locale locale) {
+	public StandardJsonResponse saveMailSettings(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@RequestBody @Valid MailServerSettings mailServerSettings, Locale locale, HttpServletRequest request,
+			HttpServletResponse response) {
 
 		try {
 			Cookie mailServerSettingCookie = mailServerSettingsTransformer.transformToCookie(uuid, mailServerSettings, request.getCookies());

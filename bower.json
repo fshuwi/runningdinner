@@ -1,0 +1,17 @@
+{
+  "name": "runningdinner",
+  "version": "0.0.1",
+  "authors": [
+    "Clemens Stich"
+  ],
+  "private": true,
+  "ignore": [
+  ],
+  "dependencies": {
+    "bootstrap": "3.0.3",
+    "jquery": "1.11.1",
+    "jquery-ui": "1.10.4",
+    "toastr": "2.1.0",
+    "tooltipster" : "3.3.0"
+  }
+}

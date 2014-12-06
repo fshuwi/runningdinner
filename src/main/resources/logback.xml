@@ -56,7 +56,7 @@
 		<appender-ref ref="MAIN_FILE" />
 	</logger>
 
-	<logger name="org.springframework.http" level="DEBUG" additivity="false">
+	<logger name="org.springframework.web" level="DEBUG" additivity="false">
 		<appender-ref ref="MAIN_FILE" />
 	</logger>
 

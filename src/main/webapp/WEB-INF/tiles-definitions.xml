@@ -108,6 +108,11 @@
   		<put-attribute name="customScripts" value="/WEB-INF/views/dinnerroute/js/route-scripts.jsp" />
  	</definition>
  	
+ 	
+ 	<definition name="dinnerroute-ng/*" template="/WEB-INF/views/dinnerroute-ng/route-ng.jsp">
+ 	</definition>
+ 	
+ 	
  	 <definition name="error/*" extends="template-error">
   		<put-attribute name="content" value="/WEB-INF/views/error/{1}.jsp" />
  	</definition>
