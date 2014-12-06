@@ -23,7 +23,7 @@
 <c:if test="${not empty sendMailsModel.lastMailReport}">
 	<tiles:insertDefinition name="view-mailreport">
 		<tiles:putAttribute name="lastMailReport" value="${sendMailsModel.lastMailReport}" />
-		<tiles:putAttribute name="mailType" value="Participant Emails" />
+		<tiles:putAttribute name="mailType" value="participant" />
 	</tiles:insertDefinition>
 </c:if>
 
@@ -53,7 +53,7 @@
 		<input type="submit" class='btn btn-info' value="<spring:message code="label.preview" />" name="preview" />
 		
 		<div style="margin-top:20px;">
-			<h4><spring:message code="label.teams.selection" /></h4>
+			<h4><spring:message code="label.participant.selection" /></h4>
 			<form:errors path="selectedEntities" />
 			<span><input type="checkbox" id="allEntitiesSelectedBox" onchange="toggleEntitySelection()" /><label><spring:message code="label.teams.selection.all" /></label></span>
 			<ul class="participantSelection">

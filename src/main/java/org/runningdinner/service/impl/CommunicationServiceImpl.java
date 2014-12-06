@@ -1,5 +1,6 @@
 package org.runningdinner.service.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -118,8 +119,8 @@ public class CommunicationServiceImpl implements CommunicationService {
 
 		final RunningDinner dinner = repository.findDinnerByUuidWithParticipants(uuid);
 		
-		final List<Participant> participants = dinner.getParticipants(); // TODO: Only selected participants!
-		checkLoadedTeamOrParticipantSize(participants, participantKeysAsSet.size());
+		final List<Participant> selectedParticipants = getFilteredParticipantList(dinner.getParticipants(), participantKeysAsSet);
+		checkLoadedTeamOrParticipantSize(selectedParticipants, participantKeysAsSet.size());
 
 		final ParticipantMailReport mailReport = new ParticipantMailReport(dinner);
 		mailReport.applyNewSending();
@@ -129,11 +130,21 @@ public class CommunicationServiceImpl implements CommunicationService {
 		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
 			@Override
 			public void afterCommit() {
-				eventPublisher.publishParticipantMessages(dinner, participants, participantFormatter, mailReport, customMailServerSettings);
+				eventPublisher.publishParticipantMessages(dinner, selectedParticipants, participantFormatter, mailReport, customMailServerSettings);
 			}
 		});
 
-		return participants.size();
+		return selectedParticipants.size();
+	}
+
+	private List<Participant> getFilteredParticipantList(final List<Participant> participants, final Set<String> filterKeys) {
+		List<Participant> result = new ArrayList<Participant>(filterKeys.size());
+		for (Participant p : participants) {
+			if (filterKeys.contains(p.getNaturalKey())) {
+				result.add(p);
+			}
+		}
+		return result;
 	}
 
 	@Override

@@ -23,7 +23,7 @@
 <c:if test="${not empty sendMailsModel.lastMailReport}">
 	<tiles:insertDefinition name="view-mailreport">
 		<tiles:putAttribute name="lastMailReport" value="${sendMailsModel.lastMailReport}" />
-		<tiles:putAttribute name="mailType" value="Team Emails" />
+		<tiles:putAttribute name="mailType" value="team" />
 	</tiles:insertDefinition>
 </c:if>
 

@@ -10,9 +10,24 @@
 
 <c:set value="<%=CoreUtil.DEFAULT_DATEFORMAT_PATTERN%>" var="datePattern" />
 <fmt:formatDate pattern="${datePattern} HH:mm:ss" value="${lastMailReport.sendingStartDate}" var="startDate"/>
+
+<spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}" var="sendingActiveLabel"/>
+<spring:message code="label.teams.mails" var="mailTypeLabel"/>
+<c:choose>
+	<c:when test="${mailType == 'participant'}">
+		<spring:message code="text.participants.sendmessage.sendingactive" arguments="${startDate}" var="sendingActiveLabel"/>
+		<spring:message code="label.participants.mails" var="mailTypeLabel"/>
+	</c:when>
+	<c:when test="${mailType == 'route'}">
+		<spring:message code="text.routes.sendmessage.sendingactive" arguments="${startDate}" var="sendingActiveLabel"/>
+		<spring:message code="label.routes.mails" var="mailTypeLabel"/>
+	</c:when>
+</c:choose>
+
 <c:choose>
 	<c:when test="${lastMailReport.sending}">
-		<div class="alert alert-info"><strong>Mail-Report</strong><br/><spring:message code="text.teams.sendmessage.sendingactive" arguments="${startDate}"/></div>
+		<div class="alert alert-info"><strong>Mail-Report</strong><br/>
+		${sendingActiveLabel}</div>
 	</c:when>
 	<c:otherwise>
 		<div class="alert alert-info  alert-dismissable">
@@ -22,7 +37,7 @@
 			<c:set var="failedMailsSize" value="${fn:length(lastMailReport.failedMails)}" />
 			
 			<strong>Mail-Report</strong><br/>
-			<spring:message code="text.sendmessage.alreadysent" arguments="${startDate},${mailType}"/>:
+			<spring:message code="text.sendmessage.alreadysent" arguments="${startDate},${mailTypeLabel}"/>:
 			<p>
 				<spring:message code="text.sendmessage.success" arguments="${succeededMailsSize}"/>.
 				<c:if test="${failedMailsSize gt 0}">

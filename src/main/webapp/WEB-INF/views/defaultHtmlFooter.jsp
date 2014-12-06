@@ -8,7 +8,8 @@
 --%>
 <script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
 
-<script src='<c:url value="/resources/js/jquery.tooltipster.min.js"/>'></script>
-<script src='<c:url value="/resources/js/toastr.min.js"/>'></script>
+<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
+<%-- <script src='<c:url value="/resources/js/jquery.tooltipster.min.js"/>'></script>
+<script src='<c:url value="/resources/js/toastr.min.js"/>'></script> --%>
 
 <script src='<c:url value="/resources/js/common.js"/>'></script>
