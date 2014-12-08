@@ -3,6 +3,11 @@ package org.runningdinner.ui.route;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.map.annotate.JsonRootName;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
+@JsonRootName("teamRouteList")
 public class TeamRouteListTO {
 
 	private String teamMemberNames;

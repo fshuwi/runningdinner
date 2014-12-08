@@ -1,8 +1,10 @@
 package org.runningdinner.ui;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
@@ -54,10 +56,22 @@ public class TeamRouteController {
 			result.addTeamRouteEntry(teamRouteEntry);
 		}
 		model.addAttribute("route", result);
+		model.addAttribute("routejson", transformToJson(result));
 		
 		return "dinnerroute-ng/route-ng";
 	}
 	
+	private String transformToJson(final TeamRouteListTO result) {
+		
+		ObjectMapper jsonMapper = new ObjectMapper();
+		try {
+			return jsonMapper.writeValueAsString(result);
+		}
+		catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
 	private String oldView(Model model, String teamKey, List<Team> teamDinnerRoute, String participantNames) {
 		model.addAttribute("participantNames", participantNames);
 		model.addAttribute("teamDinnerRoute", teamDinnerRoute);
