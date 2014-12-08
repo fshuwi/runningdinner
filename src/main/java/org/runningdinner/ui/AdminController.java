@@ -780,19 +780,21 @@ public class AdminController extends AbstractBaseController {
 			return SwitchTeamMembersResponse.createErrorResponse("Expected size of participants with 2, but was "
 					+ (switchTeamMembers == null ? "empty" : switchTeamMembers.size()));
 		}
+		
+		final RunningDinner runningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		Set<String> naturalKeysTmp = new HashSet<String>();
 		for (SingleTeamParticipantChange teamParticipantChange : switchTeamMembers) {
 			naturalKeysTmp.add(teamParticipantChange.getParticipantKey());
 		}
-
+		
 		try {
 			adminValidator.validateNaturalKeys(naturalKeysTmp);
 
 			List<Team> changedTeams = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
 					switchTeamMembers.get(1).getParticipantKey());
 
-			List<TeamWrapper> result = createTeamWrappers(changedTeams, uuid, false);
+			List<TeamWrapper> result = createTeamWrappersWithDistributionBalanceInfo(changedTeams, runningDinner, false);//(changedTeams, uuid, false);
 			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result, uuid);
 
 			return response;
