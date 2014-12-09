@@ -3,11 +3,14 @@ package org.runningdinner.ui;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
+import org.runningdinner.exceptions.GeocodingException;
+import org.runningdinner.service.GeocoderService;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.ui.route.HostTO;
@@ -29,6 +32,8 @@ public class TeamRouteController {
 
 	private AdminValidator adminValidator;
 
+	private GeocoderService geocoderService;
+	
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
 	public String showTeamDinnerRoute(@PathVariable("key") String teamKey,
 			@RequestParam(value = "new", defaultValue = "false") boolean useNew, Model model) {
@@ -94,8 +99,13 @@ public class TeamRouteController {
 		result.setOnlyLastname(!isCurrentTeam);
 		result.setName(result.isOnlyLastname() ? hostTeamMember.getName().getLastname() : hostTeamMember.getName().getFullnameFirstnameFirst());
 
-		// TODO
-		result.setGeocodes(null);
+		try {
+			result.setGeocodes(geocoderService.geocodeAddress(hostTeamMember.getAddress(), Locale.GERMAN));
+		}
+		catch (GeocodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		return result;
 	}
@@ -114,4 +124,10 @@ public class TeamRouteController {
 		this.adminValidator = adminValidator;
 	}
 
+	@Autowired
+	public void setGeocoderService(GeocoderService geocoderService) {
+		this.geocoderService = geocoderService;
+	}
+
+	
 }

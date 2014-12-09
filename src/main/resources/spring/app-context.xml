@@ -29,6 +29,8 @@
 		p:runningDinnerCalculator-ref="runningDinnerCalculator" />
 		
 	<bean id="communicationService" class="org.runningdinner.service.impl.CommunicationServiceImpl" />
+	
+	<bean id="geocoderService" class="org.runningdinner.service.geocoder.impl.GeocoderServiceGoogleImpl" />
 
 	<bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
 
