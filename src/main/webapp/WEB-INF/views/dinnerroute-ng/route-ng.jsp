@@ -21,47 +21,60 @@
     <![endif]-->
   </head>
 <body>
-
+  <div class="container">
+  	
 	<div class="row">
 		<div class="col-xs-12">
 			<h3>Route</h3>
 			<h5>${route.teamMemberNames}</h5>
 		</div>
+	</div>
+	<div class="row">	
 		
-		<c:forEach items="${route.teamRouteEntries}" var="teamRouteEntry">
-			
-			<c:choose>
-				<c:when test="${teamRouteEntry.currentTeam == true}">
-					<div class="alert alert-success col-xs-12 col-sm-6 col-md-4 col-lg-3">
-						<h3 class="media-heading"><spring:message code="label.dinnerroutes.self.meal"/>: ${teamRouteEntry.meal.label}</h3>
-						<spring:message code="label.dinnerroutes.self.host"/>: <strong>${teamRouteEntry.host.name}</strong><br/>
-					<br/>
-					<fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${teamRouteEntry.meal.time}" var="mealTimeSelf"/>
-					<strong><spring:message code="label.time"/>: <spring:message code="time.display" arguments="${mealTimeSelf}" /></strong>
-					</div>
-				</c:when>
-				<c:otherwise>
-					<div class="alert alert-info col-xs-12 col-sm-6 col-md-4 col-lg-3">
-						<h3 class="media-heading">${teamRouteEntry.meal.label}</h3>
-						<address>
-							<spring:message code="label.lastname" />: <strong>${teamRouteEntry.host.name}</strong><br>
-							${teamRouteEntry.host.address.streetWithNr}<br>
-							${teamRouteEntry.host.address.zipWithCity}<br>
-							<br />
-							<fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${teamRouteEntry.meal.time}" var="mealTimeHost" />
-							<strong><spring:message code="label.time"/>: <spring:message code="time.display" arguments="${mealTimeHost}" /></strong>
-						</address>
-					</div>
-				</c:otherwise>
-			</c:choose>
-		</c:forEach>
-		
+		<div class="col-md-4 col-xs-12">
+			<c:forEach items="${route.teamRouteEntries}" var="teamRouteEntry" varStatus="loopStatus">
+				<c:choose>
+					<c:when test="${teamRouteEntry.currentTeam == true}">
+							<div class="alert alert-success">
+								<h3 class="media-heading">
+									${loopStatus.index + 1}) <spring:message code="label.dinnerroutes.self.meal"/>: ${teamRouteEntry.meal.label}
+								</h3>
+								<spring:message code="label.dinnerroutes.self.host"/>: <strong>${teamRouteEntry.host.name}</strong><br/>
+							<br/>
+							<fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${teamRouteEntry.meal.time}" var="mealTimeSelf"/>
+							<strong><spring:message code="label.time"/>: <spring:message code="time.display" arguments="${mealTimeSelf}" /></strong>
+						</div>
+					</c:when>
+					<c:otherwise>
+						<div class="alert alert-info">
+							<h3 class="media-heading">
+								${loopStatus.index + 1}) ${teamRouteEntry.meal.label}
+							</h3>
+							<address>
+								<spring:message code="label.lastname" />: <strong>${teamRouteEntry.host.name}</strong><br>
+								${teamRouteEntry.host.address.streetWithNr}<br>
+								${teamRouteEntry.host.address.zipWithCity}<br>
+								<br />
+								<fmt:formatDate pattern="<%=FormatterUtil.DEFAULT_TIME_FORMAT%>" value="${teamRouteEntry.meal.time}" var="mealTimeHost" />
+								<strong><spring:message code="label.time"/>: <spring:message code="time.display" arguments="${mealTimeHost}" /></strong>
+							</address>
+						</div>
+					</c:otherwise>
+				</c:choose>
+			</c:forEach>
+		</div>
+	
+		<div class="col-md-8 col-xs-12">
+			<div id="map" style="height:450px;"></div>
+		</div>		
 	</div>
 	
 	<div class="row">
-		<div class="col-xs-12 col-md-8 col-md-offset-2" id="map" style="height:500px; margin-bottom:15px;">
+		<div class="col-xs-12" style="display:none;" id="routeinfo">
 		</div>
 	</div>
+  
+  </div>
 
 	<script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
 	<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
@@ -71,22 +84,27 @@
 	<script src='<c:url value="/resources/js/common.js"/>'></script>
 	
 	<script>
-		function setMarkersToMap(markers, map) {
-			for (var i=0; i<markers.length; i++) {
-			    markers[i].setMap(map);
+		function setMarkersToMap(teamMarkers, map) {
+			for (var i=0; i<teamMarkers.length; i++) {
+			    teamMarkers[i].marker.setMap(map);
 			}    
 		}
 		
-		function createMarker(latLngCoord, title, mapIcon) {
-		    var result = null;
+		function createMarker(latLngCoord, teamRouteEntry, mapIcon) {
+		    
+			var title = teamRouteEntry.meal.label + ': ' + teamRouteEntry.host.name;
+		    
+		    var result = {};
+		    result.teamRouteEntry = teamRouteEntry;
+		    
 		    if (mapIcon) {
-				result = new google.maps.Marker({
+				result.marker = new google.maps.Marker({
 				      position: latLngCoord,
 				      title: title,
 				      icon : mapIcon
 				});
 		    } else {
-				result = new google.maps.Marker({
+				result.marker = new google.maps.Marker({
 				      position: latLngCoord,
 				      title: title
 				});
@@ -94,8 +112,46 @@
 		    return result; 
 		}
 		
+		function addInfoWindow(map, teamMarker) {
+			google.maps.event.addListener(teamMarker.marker, 'click', function() {
+			    var teamInfoString = getTeamInfoString(teamMarker.teamRouteEntry);
+				var infoWindow = new google.maps.InfoWindow({
+			      content: teamInfoString
+				});
+		    
+		    	infoWindow.open(map, teamMarker.marker);
+		  	});
+		}
+		
+		function getTeamInfoString(teamRouteEntry) {
+		    
+		    var addressStr = '<p>Dieser Gang wird bei euch eingenommen</p><p>Uhrzeit: ' + teamRouteEntry.meal.time + '</p>';
+		    
+		    if (!teamRouteEntry.currentTeam) {
+				addressStr = '<p>Bei: ' + teamRouteEntry.host.name + '</p>';
+				addressStr += '<p>Anschrift: ' + getAddressString(teamRouteEntry.host.address) + '</p>';
+				addressStr += '<p>Uhrzeit: ' + teamRouteEntry.meal.time + '</p>';
+		    }
+		    
+		    return '<div id="content">' +
+		      '<div id="siteNotice"></div>' +
+		      '<h2 id="firstHeading" class="firstHeading">' + teamRouteEntry.meal.label + '</h2>'+
+		      '<div id="bodyContent">'+
+		      addressStr +
+		      '</div>'+
+		      '</div>';
+		}
+		
+		function getAddressString(address) {
+		    var result = address.street + ' ' + address.streetNr + ', ' + address.zip;
+		    if (address.cityName) {
+				result += ' ' + address.cityName; 
+		    }
+		    return result;
+		}
+		
 		function createMapIcon(number, isCurrentTeam) {
-		    var color = '0000FF';
+		    var color = '9acfea';
 		    if (isCurrentTeam) {
 				color = '00FF00';
 		    }
@@ -103,11 +159,12 @@
 		    var result = 'https://chart.googleapis.com/chart?chst=d_map_pin_letter_withshadow&chld=' + number + '|' + color + '|000000';
 		    return result;
 		}
-	
+		
+		// Start Logic
 		var teamRouteList = JSON.parse('${routejson}');
-
+		
 		var currentTeamCoord = null;
-		var markers = new Array();
+		var teamMarkers = new Array();
 		
 		for (var i=0; i< teamRouteList.teamRouteEntries.length; i++) {
 		    
@@ -116,21 +173,21 @@
 		    var geocodes = teamRouteEntry.host.geocodes;
 		    if (geocodes && geocodes.length >= 0) {
 				var latLngCoord = new google.maps.LatLng( parseFloat(geocodes[0].lat),  parseFloat(geocodes[0].lng) );
-				var title = teamRouteEntry.host.name; // TODO
-				
+					
 				if (teamRouteEntry.currentTeam) {
 				    currentTeamCoord = latLngCoord;
 				}
 				
 				var mapIcon = createMapIcon(i+1, teamRouteEntry.currentTeam);
 				
-				markers.push(createMarker(latLngCoord, title, mapIcon));
+				var teamMarker = createMarker(latLngCoord, teamRouteEntry, mapIcon);
+				teamMarkers.push(teamMarker);
 		    }
 		}
 
 		// Fallback if current team could not be resolved:
 		if (currentTeamCoord == null) {
-		    currentTeamCoord = markers[0];
+		    currentTeamCoord = teamMarkers[0].marker.position;
 		}
 		
 		var mapOptions = {
@@ -142,7 +199,20 @@
 		
 		$(document).ready(function() {
 			var map = new google.maps.Map(document.getElementById("map"), mapOptions);
-			setMarkersToMap(markers, map);
+			setMarkersToMap(teamMarkers, map);
+			
+			for (var i=0; i<teamMarkers.length; i++) {
+				addInfoWindow(map, teamMarkers[i]);
+			}
+			
+			for (var i=0; i<teamMarkers.length; i++) {
+			   	if (!teamMarkers[i].teamRouteEntry.currentTeam && teamMarkers[i].teamRouteEntry.host.onlyLastname) {
+			   	    $('#routeinfo').append($('<span>Es werden nur die Nachnamen eurer Gastgeber angezeigt!</span>'));
+			   	    $('#routeinfo').show();
+			   	    break;
+			   	}
+			}
+			
 		});
 	</script>	
 	

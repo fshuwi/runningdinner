@@ -36,7 +36,7 @@ public class TeamRouteController {
 	
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
 	public String showTeamDinnerRoute(@PathVariable("key") String teamKey,
-			@RequestParam(value = "new", defaultValue = "false") boolean useNew, Model model) {
+			@RequestParam(value = "old", defaultValue = "false") boolean useOld, Model model) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey));
 
@@ -46,10 +46,9 @@ public class TeamRouteController {
 
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
-		if (!useNew) {
+		if (useOld) {
 			return oldView(model, teamKey, teamDinnerRoute, participantNames);
 		}
-
 
 		TeamRouteListTO result = new TeamRouteListTO();
 		for (Team teamInDinnerRoute : teamDinnerRoute) {
