@@ -45,13 +45,13 @@ public class TeamRouteController {
 
 		Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
 
-		String participantNames = FormatterUtil.generateParticipantNamesWithCommas(team);
+//		String participantNames = FormatterUtil.generateParticipantNamesWithCommas(team);
 
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
-		if (useOld) {
-			return oldView(model, teamKey, teamDinnerRoute, participantNames);
-		}
+//		if (useOld) {
+//			return oldView(model, teamKey, teamDinnerRoute, participantNames);
+//		}
 
 		TeamRouteListTO result = new TeamRouteListTO();
 		for (Team teamInDinnerRoute : teamDinnerRoute) {
