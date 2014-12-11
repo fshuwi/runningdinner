@@ -5,10 +5,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.GeocodingException;
 import org.runningdinner.service.GeocoderService;
 import org.runningdinner.service.RunningDinnerService;
@@ -36,7 +39,7 @@ public class TeamRouteController {
 	
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
 	public String showTeamDinnerRoute(@PathVariable("key") String teamKey,
-			@RequestParam(value = "old", defaultValue = "false") boolean useOld, Model model) {
+			@RequestParam(value = "old", defaultValue = "false") boolean useOld, Model model, HttpServletRequest request) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey));
 
@@ -61,6 +64,7 @@ public class TeamRouteController {
 		}
 		model.addAttribute("route", result);
 		model.addAttribute("routejson", transformToJson(result));
+		model.addAttribute("mobile", CoreUtil.isMobileBrowser(request.getHeader("User-Agent")));
 		
 		return "dinnerroute-ng/route-ng";
 	}

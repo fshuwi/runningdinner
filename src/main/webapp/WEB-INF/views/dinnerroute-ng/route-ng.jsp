@@ -65,21 +65,23 @@
 		</div>
 	
 		<div class="col-md-8 col-xs-12">
-			<div id="map" style="height:450px;"></div>
+			<div id="map" style="height:550px;"></div>
+			<div id="maperrors" style="display:none;"></div>
 		</div>		
 	</div>
 	
 	<div class="row">
-		<div class="col-xs-12" style="display:none;" id="routeinfo">
+		<div class="col-xs-12" style="display:none; margin-top:15px;" id="routeinfo">
 		</div>
 	</div>
   
   </div>
-
+				
 	<script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
 	<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
-			
+
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB46NpYyjomUcb-N3_9XjMfSrLEbBbvCaQ&sensor=false"></script>
+	<script src='<c:url value="/resources/js/geolocationmarker.js"/>'></script>
 	
 	<script src='<c:url value="/resources/js/common.js"/>'></script>
 	
@@ -165,6 +167,10 @@
 		
 		var currentTeamCoord = null;
 		var teamMarkers = new Array();
+		var currentPositionMarker = null;
+		var map = null;
+		
+		var isMobile = ${mobile};
 		
 		for (var i=0; i< teamRouteList.teamRouteEntries.length; i++) {
 		    
@@ -182,6 +188,10 @@
 				
 				var teamMarker = createMarker(latLngCoord, teamRouteEntry, mapIcon);
 				teamMarkers.push(teamMarker);
+				
+				if (geocodes.length > 1) {
+					// TODO: Add to data structure so that user can choose concrete one later:
+				}
 		    }
 		}
 
@@ -192,18 +202,45 @@
 		
 		var mapOptions = {
 		    center: currentTeamCoord,
-		    zoom: 12,
+		    zoom: isMobile ? 12 : 13,
 		    mapTypeId: google.maps.MapTypeId.ROADMAP
 		};
 		
 		
+		function addConnectionLine(teamMarkers, map) {
+			var positions = new Array();
+		    for (var i=0; i<teamMarkers.length; i++) {
+				positions.push(teamMarkers[i].marker.position);
+		    }
+		    
+			var connectionLine = new google.maps.Polyline({
+			    path: positions,
+			    geodesic: true,
+			    strokeColor: '#0000FF',
+			    strokeOpacity: 1.0,
+			    strokeWeight: 2
+			});
+			
+			connectionLine.setMap(map);
+			
+			return connectionLine;
+		}
+		
+		
 		$(document).ready(function() {
-			var map = new google.maps.Map(document.getElementById("map"), mapOptions);
+			
+			if (isMobile) {
+				$('map').height('400px');
+			}
+			
+			map = new google.maps.Map(document.getElementById("map"), mapOptions);
 			setMarkersToMap(teamMarkers, map);
 			
 			for (var i=0; i<teamMarkers.length; i++) {
 				addInfoWindow(map, teamMarkers[i]);
 			}
+			
+			addConnectionLine(teamMarkers, map);
 			
 			for (var i=0; i<teamMarkers.length; i++) {
 			   	if (!teamMarkers[i].teamRouteEntry.currentTeam && teamMarkers[i].teamRouteEntry.host.onlyLastname) {
@@ -213,8 +250,15 @@
 			   	}
 			}
 			
+			var geoMarker = new GeolocationMarker(map);
+			google.maps.event.addListener(geoMarker, 'geolocation_error', function(e) {
+				 if (console) { 
+					 console.error('There was an error obtaining your position. Message: ' + e.message);
+				 }
+			});
+			
 		});
-	</script>	
+	</script>
 	
 </body>
 </html>

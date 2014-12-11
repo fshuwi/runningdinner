@@ -5,6 +5,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 <%@ page import="org.runningdinner.ui.RequestMappings" %>
+<%@ page session="false" %>
 
 <spring:url value="<%=RequestMappings.SHOW_TEAMS%>" var="teamsUrl" htmlEscape="true">
 	<spring:param name="<%=RequestMappings.ADMIN_URL_UUID_MARKER%>" value="${uuid}" />
