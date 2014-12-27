@@ -26,7 +26,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
 public class TeamRouteController {
@@ -38,20 +37,13 @@ public class TeamRouteController {
 	private GeocoderService geocoderService;
 	
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
-	public String showTeamDinnerRoute(@PathVariable("key") String teamKey,
-			@RequestParam(value = "old", defaultValue = "false") boolean useOld, Model model, HttpServletRequest request) {
+	public String showTeamDinnerRoute(@PathVariable("key") String teamKey, Model model, HttpServletRequest request) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey));
 
 		Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
 
-//		String participantNames = FormatterUtil.generateParticipantNamesWithCommas(team);
-
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
-
-//		if (useOld) {
-//			return oldView(model, teamKey, teamDinnerRoute, participantNames);
-//		}
 
 		TeamRouteListTO result = new TeamRouteListTO();
 		for (Team teamInDinnerRoute : teamDinnerRoute) {
@@ -80,12 +72,6 @@ public class TeamRouteController {
 		}
 	}
 
-	private String oldView(Model model, String teamKey, List<Team> teamDinnerRoute, String participantNames) {
-		model.addAttribute("participantNames", participantNames);
-		model.addAttribute("teamDinnerRoute", teamDinnerRoute);
-		model.addAttribute("currentTeamKey", teamKey);
-		return getFullViewName("route");	
-	}
 
 	private TeamRouteEntryTO toTeamRouteEntryTO(final Team team, final String teamKey) {
 		TeamRouteEntryTO result = new TeamRouteEntryTO();
@@ -93,6 +79,7 @@ public class TeamRouteController {
 		result.setCurrentTeam(team.getNaturalKey().equals(teamKey));
 		HostTO host = toHostTO(team.getHostTeamMember(), result.isCurrentTeam());
 		result.setHost(host);
+		result.setTeamNumber(team.getTeamNumber());
 		return result;
 	}
 

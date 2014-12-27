@@ -41,6 +41,11 @@ function getErrorBox(errorLabel, errorMessage) {
  }
 
 
+function getFormattedTime(date) {
+	var wrappedDate = moment(date);
+	return wrappedDate.format("HH:mm");
+}
+
 (function($) {
 	/**
 	 * attaches a character counter to each textarea element in the jQuery object

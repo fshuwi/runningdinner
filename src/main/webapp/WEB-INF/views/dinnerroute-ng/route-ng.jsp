@@ -25,12 +25,12 @@
   	
 	<div class="row">
 		<div class="col-xs-12">
-			<h3>Route</h3>
+			<h3>Route <span style="display:none;" id="routeinfo"></span></h3>
 			<h5>${route.teamMemberNames}</h5>
 		</div>
 	</div>
+	
 	<div class="row">	
-		
 		<div class="col-md-4 col-xs-12">
 			<c:forEach items="${route.teamRouteEntries}" var="teamRouteEntry" varStatus="loopStatus">
 				<c:choose>
@@ -62,20 +62,17 @@
 					</c:otherwise>
 				</c:choose>
 			</c:forEach>
+			
 		</div>
-	
 		<div class="col-md-8 col-xs-12">
 			<div id="map" style="height:550px;"></div>
 			<div id="maperrors" style="display:none;"></div>
 		</div>		
 	</div>
-	
-	<div class="row">
-		<div class="col-xs-12" style="display:none; margin-top:15px;" id="routeinfo">
-		</div>
-	</div>
   
   </div>
+				
+	<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min.js'></script>				
 				
 	<script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
 	<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
@@ -88,7 +85,10 @@
 	<script>
 		function setMarkersToMap(teamMarkers, map) {
 			for (var i=0; i<teamMarkers.length; i++) {
-			    teamMarkers[i].marker.setMap(map);
+				if (teamMarkers[i].enabled == false) {
+					continue;
+				}
+		    	teamMarkers[i].marker.setMap(map);
 			}    
 		}
 		
@@ -115,6 +115,10 @@
 		}
 		
 		function addInfoWindow(map, teamMarker) {
+			if (teamMarker.enabled == false) {
+				return;
+			}
+			
 			google.maps.event.addListener(teamMarker.marker, 'click', function() {
 			    var teamInfoString = getTeamInfoString(teamMarker.teamRouteEntry);
 				var infoWindow = new google.maps.InfoWindow({
@@ -127,12 +131,15 @@
 		
 		function getTeamInfoString(teamRouteEntry) {
 		    
-		    var addressStr = '<p>Dieser Gang wird bei euch eingenommen</p><p>Uhrzeit: ' + teamRouteEntry.meal.time + '</p>';
+			var date = new Date(teamRouteEntry.meal.time);
+			var formattedTime = getFormattedTime(date);
+			
+			var addressStr = '<p>Dieser Gang wird bei euch eingenommen</p><p>Uhrzeit: ' + formattedTime + '</p>';
 		    
 		    if (!teamRouteEntry.currentTeam) {
 				addressStr = '<p>Bei: ' + teamRouteEntry.host.name + '</p>';
 				addressStr += '<p>Anschrift: ' + getAddressString(teamRouteEntry.host.address) + '</p>';
-				addressStr += '<p>Uhrzeit: ' + teamRouteEntry.meal.time + '</p>';
+				addressStr += '<p>Uhrzeit: ' + formattedTime + '</p>';
 		    }
 		    
 		    return '<div id="content">' +
@@ -165,38 +172,57 @@
 		// Start Logic
 		var teamRouteList = JSON.parse('${routejson}');
 		
+		var map = null;
 		var currentTeamCoord = null;
 		var teamMarkers = new Array();
 		var currentPositionMarker = null;
-		var map = null;
+		var showOnlyLastnames = false;
+		
+		var unresolvedTeamRouteEntries = new Array();
 		
 		var isMobile = ${mobile};
 		
 		for (var i=0; i< teamRouteList.teamRouteEntries.length; i++) {
 		    
 		   	var teamRouteEntry = teamRouteList.teamRouteEntries[i];
+		   	
+			if (!teamRouteEntry.currentTeam && teamRouteEntry.host.onlyLastname == true) {
+				showOnlyLastnames = true;
+			}
 
 		    var geocodes = teamRouteEntry.host.geocodes;
-		    if (geocodes && geocodes.length >= 0) {
-				var latLngCoord = new google.maps.LatLng( parseFloat(geocodes[0].lat),  parseFloat(geocodes[0].lng) );
+		    if (geocodes && geocodes.length > 0) {
+				// Typically we have exactly one geocode:
+		    	for (var j=0; j<geocodes.length; j++) {
+			    	var latLngCoord = new google.maps.LatLng( parseFloat(geocodes[j].lat),  parseFloat(geocodes[j].lng) );
 					
-				if (teamRouteEntry.currentTeam) {
-				    currentTeamCoord = latLngCoord;
-				}
-				
-				var mapIcon = createMapIcon(i+1, teamRouteEntry.currentTeam);
-				
-				var teamMarker = createMarker(latLngCoord, teamRouteEntry, mapIcon);
-				teamMarkers.push(teamMarker);
-				
-				if (geocodes.length > 1) {
-					// TODO: Add to data structure so that user can choose concrete one later:
-				}
+					if (teamRouteEntry.currentTeam && j==0) {
+					    currentTeamCoord = latLngCoord;
+					}
+					
+					var mapIcon = createMapIcon(i+1, teamRouteEntry.currentTeam);
+					
+					var teamMarker = createMarker(latLngCoord, teamRouteEntry, mapIcon);
+					teamMarkers.push(teamMarker);
+					
+					if (j==0) {
+						// First one is enabled by default
+						teamMarker.enabled = true;
+					} else {
+						teamMarker.enabled = false;
+					}
+					
+					teamMarker.exact = geocodes[j].exact;
+					teamMarker.formattedAddress = geocodes[j].formattedAddress;
+		    	}
+		    }
+		    else {
+		    	unresolvedTeamRouteEntries.push(teamRouteEntry);
 		    }
 		}
 
 		// Fallback if current team could not be resolved:
-		if (currentTeamCoord == null) {
+		if (currentTeamCoord == null && teamMarkers.length > 0) {
 		    currentTeamCoord = teamMarkers[0].marker.position;
 		}
 		
@@ -210,6 +236,9 @@
 		function addConnectionLine(teamMarkers, map) {
 			var positions = new Array();
 		    for (var i=0; i<teamMarkers.length; i++) {
+		    	if (teamMarkers[i].enabled == false) {
+		    		continue;
+		    	}
 				positions.push(teamMarkers[i].marker.position);
 		    }
 		    
@@ -226,6 +255,81 @@
 			return connectionLine;
 		}
 		
+		function handleUnresolvedTeamRouteEntries(unresolvedTeamRouteEntries) {
+			var resultHtml = '<p><u>Nicht gefundene Adresse(n):</u></p><ul>';
+			for (var i=0; i<unresolvedTeamRouteEntries.length; i++) {
+				var teamRouteEntry = unresolvedTeamRouteEntries[i];
+				var singleResultHtml = 'Die Adresse von <b>' + teamRouteEntry.host.name + ' (' + teamRouteEntry.meal.label + ')</b> kann nicht angezeigt werden. Ist folgende Adresse gültig?<br/>';
+				singleResultHtml += "<i>" + getAddressString(teamRouteEntry.host.address) + "</i>";
+				resultHtml += '<li>' + singleResultHtml + '</li>';
+			}
+			resultHtml += '</ul>';
+			
+			$('#maperrors').append($(resultHtml));
+			$('#maperrors').show();
+		}
+		
+		function handleNonAccurateTeamRouteEntries(teamMarkers) {
+			
+			var multipleGeocodes = {};
+			var nonAccurateGeocodes = new Array();
+			
+			var showMapErrors = false;
+			
+		    for (var i=0; i<teamMarkers.length; i++) {
+		    	
+		    	if (teamMarkers[i].enabled == false) {
+		    		var teamNumber = teamMarkers[i].teamRouteEntry.teamNumber;
+		    		var entry = multipleGeocodes[teamNumber];
+		    		if (!entry) {
+		    			entry = new Array();
+		    			multipleGeocodes[teamNumber] = entry;
+		    		}
+		    		entry.push(teamMarkers[i]);
+			    	
+		    		continue;
+		    	}
+		    	else if (teamMarkers[i].exact == false) {
+					nonAccurateGeocodes.push(teamMarkers[i]);		    		
+		    	}
+		    }
+		    
+		    if (nonAccurateGeocodes.length > 0) {
+		    	var nonAccurateGeocodesHtml = '<p><u>Ungenaue Adresse(n):</u></p><ul>';
+		    	for (var i=0; i<nonAccurateGeocodes.length; i++) {
+		    		var teamRouteEntry = nonAccurateGeocodes[i].teamRouteEntry;
+					
+		    		var singleResultHtml = 'Die Adresse von <b>' + teamRouteEntry.host.name + ' (' + teamRouteEntry.meal.label + ')</b> wird nur ungenau auf der Karte dargestellt. Angegebene Adresse:<br/>';
+					singleResultHtml += "<i>" + getAddressString(teamRouteEntry.host.address) + "</i>";
+					
+					nonAccurateGeocodesHtml += '<li>' + singleResultHtml + '</li>';
+		    	}
+		    	nonAccurateGeocodesHtml += '</ul>';
+		    	$('#maperrors').append($(nonAccurateGeocodesHtml));	
+		    	showMapErrors = true;
+		    }
+		    
+		    if (!$.isEmptyObject(multipleGeocodes)) {
+		    	var multipleGeocodesHtml = '<ul>';
+		    	$.each( multipleGeocodes, function( key, value ) {
+		    		
+		    		var teamRouteEntry = value[0].teamRouteEntry;
+		    		multipleGeocodesHtml += '<li>Für die Adresse von <b>' + teamRouteEntry.host.name + ' (' + teamRouteEntry.meal.label + ')</b> gibt es noch weitere alternative Treffer:</li>';
+		    		multipleGeocodesHtml += '<ul>';
+		    		for (var i=0; i<value.length; i++) {
+		    			multipleGeocodesHtml += ("<li>" + value[i].formattedAddress + ": <a href='#'>Auf Karte anzeigen</a></li>");
+		    		}
+		    		multipleGeocodesHtml += '</ul>';
+		    	});
+		    	multipleGeocodesHtml += '</ul>';
+		    	$('#maperrors').append($(multipleGeocodesHtml));	
+		    	showMapErrors = true;
+		    }
+		    
+		    if (showMapErrors) {
+				$('#maperrors').show();
+		    }
+		}
 		
 		$(document).ready(function() {
 			
@@ -242,21 +346,23 @@
 			
 			addConnectionLine(teamMarkers, map);
 			
-			for (var i=0; i<teamMarkers.length; i++) {
-			   	if (!teamMarkers[i].teamRouteEntry.currentTeam && teamMarkers[i].teamRouteEntry.host.onlyLastname) {
-			   	    $('#routeinfo').append($('<span>Es werden nur die Nachnamen eurer Gastgeber angezeigt!</span>'));
-			   	    $('#routeinfo').show();
-			   	    break;
-			   	}
-			}
+		   	if (showOnlyLastnames) {
+		   	    $('#routeinfo').append($('<small>(Es werden nur die Nachnamen eurer Gastgeber angezeigt!)</small>'));
+		   	    $('#routeinfo').show();
+		   	}
 			
 			var geoMarker = new GeolocationMarker(map);
 			google.maps.event.addListener(geoMarker, 'geolocation_error', function(e) {
-				 if (console) { 
-					 console.error('There was an error obtaining your position. Message: ' + e.message);
-				 }
+			 if (console) { 
+				 console.error('There was an error obtaining your position. Message: ' + e.message);
+			 }
 			});
 			
+			if (unresolvedTeamRouteEntries.length > 0) {
+				handleUnresolvedTeamRouteEntries(unresolvedTeamRouteEntries);
+			}
+			
+			handleNonAccurateTeamRouteEntries(teamMarkers);
 		});
 	</script>
 	

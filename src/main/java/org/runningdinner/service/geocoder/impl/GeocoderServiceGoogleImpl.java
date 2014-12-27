@@ -144,6 +144,7 @@ public class GeocoderServiceGoogleImpl implements GeocoderService {
 		result.setLat(lat);
 		result.setLng(lng);
 		result.setExact(exact);
+		result.setFormattedAddress(googleGeocodingResult.getFormatted_address());
 		return Optional.of(result);
 	}
 

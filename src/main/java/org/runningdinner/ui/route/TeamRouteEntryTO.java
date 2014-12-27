@@ -9,6 +9,8 @@ public class TeamRouteEntryTO {
 	protected MealClass meal;
 
 	protected HostTO host;
+	
+	protected int teamNumber;
 
 	public boolean isCurrentTeam() {
 		return isCurrentTeam;
@@ -32,6 +34,14 @@ public class TeamRouteEntryTO {
 
 	public void setHost(HostTO host) {
 		this.host = host;
+	}
+
+	public int getTeamNumber() {
+		return teamNumber;
+	}
+
+	public void setTeamNumber(int teamNumber) {
+		this.teamNumber = teamNumber;
 	}
 
 }
