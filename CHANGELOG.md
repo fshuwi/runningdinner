@@ -2,6 +2,7 @@
  - Enhanced Google Maps Integration (improvded error handling & added database cache for geocoding)
  - Use CDN for JS files in production
  - Fixed datepicker locale bug
+ - Fixed modal dialog bugs in footer
  
 # Version 0.9.4 (2014-12-09)
  - Added first google maps integration for dinner route view
