@@ -2,6 +2,7 @@ package org.runningdinner.ui;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
@@ -13,13 +14,16 @@ import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.GeocodingException;
-import org.runningdinner.service.GeocoderService;
+import org.runningdinner.model.GeocodingResult;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
+import org.runningdinner.service.geocoder.impl.GeocoderServiceCachedImpl;
 import org.runningdinner.ui.route.HostTO;
 import org.runningdinner.ui.route.TeamRouteEntryTO;
 import org.runningdinner.ui.route.TeamRouteListTO;
 import org.runningdinner.ui.validator.AdminValidator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -34,7 +38,9 @@ public class TeamRouteController {
 
 	private AdminValidator adminValidator;
 
-	private GeocoderService geocoderService;
+	private GeocoderServiceCachedImpl geocoderService;
+	
+	private static Logger LOGGER = LoggerFactory.getLogger(TeamRouteController.class);
 	
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
 	public String showTeamDinnerRoute(@PathVariable("key") String teamKey, Model model, HttpServletRequest request) {
@@ -93,8 +99,8 @@ public class TeamRouteController {
 			result.setGeocodes(geocoderService.geocodeAddress(hostTeamMember.getAddress(), Locale.GERMAN));
 		}
 		catch (GeocodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			LOGGER.error("Failed to geocode adresse {} for participant {}", hostTeamMember.getAddress(), hostTeamMember.getName(), e);
+			result.setGeocodes(Collections.<GeocodingResult>emptyList());
 		}
 
 		return result;
@@ -115,7 +121,7 @@ public class TeamRouteController {
 	}
 
 	@Autowired
-	public void setGeocoderService(GeocoderService geocoderService) {
+	public void setGeocoderService(GeocoderServiceCachedImpl geocoderService) {
 		this.geocoderService = geocoderService;
 	}
 

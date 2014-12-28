@@ -30,7 +30,9 @@
 		
 	<bean id="communicationService" class="org.runningdinner.service.impl.CommunicationServiceImpl" />
 	
-	<bean id="geocoderService" class="org.runningdinner.service.geocoder.impl.GeocoderServiceGoogleImpl" />
+	<bean id="geocoderServiceGoogle" class="org.runningdinner.service.geocoder.impl.GeocoderServiceGoogleImpl" />
+	<bean id="geocoderServiceDb" class="org.runningdinner.service.geocoder.impl.GeocoderServiceDbImpl" />
+	<bean id="geocoderServiceCached" class="org.runningdinner.service.geocoder.impl.GeocoderServiceCachedImpl" />
 
 	<bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
 

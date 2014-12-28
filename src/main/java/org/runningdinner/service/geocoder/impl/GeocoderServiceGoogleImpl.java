@@ -5,17 +5,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.exceptions.GeocodingException;
 import org.runningdinner.model.GeocodingResult;
-import org.runningdinner.service.GeocoderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.client.RestClientException;
@@ -28,9 +24,9 @@ import com.google.common.base.Optional;
  * See https://developers.google.com/maps/documentation/geocoding/ for API information.
  * 
  * @author Clemens
- *
+ * 
  */
-public class GeocoderServiceGoogleImpl implements GeocoderService {
+public class GeocoderServiceGoogleImpl extends AbstractGeocoderService {
 
 	protected static final String BASE_URL = "https://maps.googleapis.com/maps/api/geocode/json?address=";
 
@@ -57,19 +53,6 @@ public class GeocoderServiceGoogleImpl implements GeocoderService {
 		else {
 			throw new GeocodingException("Google Geocoding API returned status " + response.getStatus() + " for request " + requestUrl);
 		}
-	}
-	
-	@Override
-	public Map<ParticipantAddress, List<GeocodingResult>> geocodeAddresses(Set<ParticipantAddress> addresses, Locale locale)
-			throws GeocodingException {
-		
-		Map<ParticipantAddress, List<GeocodingResult>> result = new HashMap<ParticipantAddress, List<GeocodingResult>>();
-		
-		for (ParticipantAddress address : addresses) {
-			result.put(address,geocodeAddress(address, locale));
-		}
-		
-		return result;
 	}
 
 	private GoogleGeocderResponse executeRequest(final String requestUrl) throws GeocodingException {

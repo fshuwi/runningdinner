@@ -16,6 +16,7 @@ import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerPreference;
 import org.runningdinner.model.TeamMailReport;
+import org.runningdinner.service.geocoder.impl.DbGeocoderResult;
 
 public class SchemaTranslator {
 	private Configuration config = null;
@@ -80,7 +81,7 @@ public class SchemaTranslator {
 	public static void main(String[] args) throws IOException {
 		SchemaTranslator translator = new SchemaTranslator();
 		Class<?>[] entityClasses = { MealClass.class, Participant.class, Team.class, VisitationPlan.class, RunningDinner.class,
-				TeamMailReport.class, DinnerRouteMailReport.class, RunningDinnerPreference.class };
+				TeamMailReport.class, DinnerRouteMailReport.class, RunningDinnerPreference.class, DbGeocoderResult.class };
 
 		 String dialect = "org.hibernate.dialect.MySQLDialect";
 //		String dialect = "org.hibernate.dialect.DerbyDialect";

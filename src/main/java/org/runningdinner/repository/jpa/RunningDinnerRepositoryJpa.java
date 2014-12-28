@@ -8,6 +8,7 @@ import java.util.Set;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TemporalType;
 import javax.persistence.TypedQuery;
 
@@ -17,6 +18,7 @@ import org.runningdinner.core.model.AbstractEntity;
 import org.runningdinner.model.BaseMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerPreference;
+import org.runningdinner.service.geocoder.impl.DbGeocoderResult;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -243,6 +245,12 @@ public class RunningDinnerRepositoryJpa extends AbstractJpaRepository {
 		}
 
 		return result;
+	}
+	
+	public DbGeocoderResult findGeodingByNormalizedAddress(final String normalizedAddress) {
+		Query query = em.createNamedQuery(DbGeocoderResult.FIND_BY_NORMALIZED_ADDRESS);
+		query.setParameter(DbGeocoderResult.Fields.NORMALIZED_ADDRESS_STRING, normalizedAddress);
+		return getSingleResult(query, DbGeocoderResult.class);
 	}
 
 	/**

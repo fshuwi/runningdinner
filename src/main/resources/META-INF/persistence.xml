@@ -15,6 +15,7 @@
 		<class>org.runningdinner.model.DinnerRouteMailReport</class>
 		<class>org.runningdinner.model.ParticipantMailReport</class>
 		<class>org.runningdinner.model.RunningDinnerPreference</class>
+		<class>org.runningdinner.service.geocoder.impl.DbGeocoderResult</class>
 	</persistence-unit>
 
 </persistence>

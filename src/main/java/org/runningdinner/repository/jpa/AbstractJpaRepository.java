@@ -8,6 +8,7 @@ import java.util.Set;
 
 import javax.persistence.EntityNotFoundException;
 import javax.persistence.NonUniqueResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.runningdinner.core.model.AbstractEntity;
@@ -34,11 +35,21 @@ public class AbstractJpaRepository {
 		if (CoreUtil.isEmpty(resultList)) {
 			return null;
 		}
-		// if (resultList.size() != 1) {
-		// throw new NonUniqueResultException("Found more than one entity");
-		// }
+
 		return resultList.get(0);
 	}
+	
+	@SuppressWarnings("unchecked")
+	protected <T> T getSingleResult(final Query query, final Class<T> clazz) {
+		List<T> resultList = query.getResultList();
+
+		if (CoreUtil.isEmpty(resultList)) {
+			return null;
+		}
+
+		return resultList.get(0);
+	}
+	
 
 	/**
 	 * Helper method for retrieving a single result from a JPA query.
