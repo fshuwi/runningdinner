@@ -8,8 +8,10 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
+import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import javax.persistence.UniqueConstraint;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -23,6 +25,9 @@ import org.runningdinner.core.model.AbstractEntity;
 })
 @Entity
 @Access(AccessType.FIELD)
+@Table(uniqueConstraints={ 
+			@UniqueConstraint(name="dbGeocoderResultUniqueConstraint", columnNames={"lat", "lng", "normalizedAddressString"} )
+		})
 public class DbGeocoderResult extends AbstractEntity {
 
 	private static final long serialVersionUID = -2437951767698871442L;

@@ -14,5 +14,6 @@ create table DbGeocoderResult (
     street varchar(255),
     streetNr varchar(255),
     zip integer not null,
-    primary key (id)
+    primary key (id),
+    unique (lat, lng, normalizedAddressString)
 );
