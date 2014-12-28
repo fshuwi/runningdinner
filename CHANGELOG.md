@@ -1,7 +1,7 @@
-# Version 0.9.4 (2014-12-09)
- - Added first google maps integration for dinner route view
- - Introduced grunt for minifying and putting all JS and CSS files together
- - Many improvements and bugfixes
+# Version 0.9.5 (2014-12-28)
+ - Enhanced Google Maps Integration (improvded error handling & added database cache for geocoding)
+ - Use CDN for JS files in production
+ - Fixed datepicker locale bug
  
 # Version 0.9.4 (2014-12-09)
  - Added first google maps integration for dinner route view
