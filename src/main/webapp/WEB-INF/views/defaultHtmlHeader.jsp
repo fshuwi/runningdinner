@@ -1,6 +1,6 @@
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
- <%@ page session="false" %>
+<%@ page session="false" %>
  
   <head>
     <title><tiles:insertAttribute name="pageTitle" ignore="true" defaultValue="Run Your Dinner"/></title>

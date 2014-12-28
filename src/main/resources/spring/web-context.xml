@@ -77,6 +77,7 @@
 		<beans:entry key="contact.mail" value="${contact.mail}" />
 		<beans:entry key="github.repo.url" value="${github.repo.url}" />
 		<beans:entry key="mail.from" value="${mail.from}" />
+		<beans:entry key="ui.useCDN" value="${ui.useCDN}" />
 	</util:map>
 	
 </beans:beans>

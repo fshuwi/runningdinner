@@ -72,10 +72,29 @@
   
   </div>
 				
-	<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min.js'></script>				
-				
-	<script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
-	<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
+	<c:set var="useCDN" value="false" />
+	<spring:eval expression="@globalProperties['ui.useCDN']" var="useCDN" />
+	<c:choose>
+		<c:when test="${useCDN == 'true'}">
+			<script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment-with-locales.min.js'></script>
+			
+			<script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+			<script src="https://code.jquery.com/ui/1.10.4/jquery-ui.min.js"></script>
+			
+			<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js"></script>
+			
+			<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.10.4/i18n/jquery-ui-i18n.min.js"></script>
+			
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.0.5/js/jquery.tooltipster.min.js"></script>
+			
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+		</c:when>
+		<c:otherwise>
+			<script src='<c:url value="/resources/js/moment.min.js"/>'></script>
+			<script src='<c:url value="/resources/js/dist/deps.js"/>'></script>
+			<script src='<c:url value="/resources/js/dist/toastr_tooltip.js"/>'></script>
+		</c:otherwise>
+	</c:choose>
 
 	<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyB46NpYyjomUcb-N3_9XjMfSrLEbBbvCaQ&sensor=false"></script>
 	<script src='<c:url value="/resources/js/geolocationmarker.js"/>'></script>
