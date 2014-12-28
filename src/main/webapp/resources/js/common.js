@@ -46,6 +46,38 @@ function getFormattedTime(date) {
 	return wrappedDate.format("HH:mm");
 }
 
+function toggleModalFooter(modalDialogId, contentUrl, dialogTitle) {
+    $('#'+modalDialogId).modal('hide');
+    
+    clearModalAjaxLoaders();
+    
+    var ajaxLoader = $("<img src='./resources/images/ajax-loader.gif' />");
+    $('#footer-modal-body').append(ajaxLoader);
+    $('#footer-modal-title').append(ajaxLoader);
+    
+    jQuery.ajax({
+	type: "GET",
+	url: contentUrl
+    }).done(function (data) {
+	clearModalAjaxLoaders();
+	$('#footer-modal-body').append($(data));
+	$('#footer-modal-title').append(dialogTitle);
+    }).fail(function (jqXHR) {
+	clearModalAjaxLoaders();
+	var msg = "Fehler: Konnte Inhalt nicht laden!";
+	$('#footer-modal-body').append(msg);
+	$('#footer-modal-title').append(msg);
+    }); 
+    
+    $('#'+modalDialogId).modal('show');
+}
+
+function clearModalAjaxLoaders() {
+    $('#footer-modal-body').empty();
+    $('#footer-modal-title').empty();
+}
+
+
 (function($) {
 	/**
 	 * attaches a character counter to each textarea element in the jQuery object
