@@ -53,3 +53,7 @@ Application can be accessed on http://localhost:8080/runningdinner
 ## Running embedded (quick start)
 
 TODO
+
+## Author
+**Clemens Stich**
++ ClemensStich at web.de
