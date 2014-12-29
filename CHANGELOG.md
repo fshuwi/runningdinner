@@ -1,3 +1,6 @@
+# Version 0.9.6 (2014-12-29)
+ - Send Dinner Route Link to Teams
+
 # Version 0.9.5 (2014-12-28)
  - Enhanced Google Maps Integration (improvded error handling & added database cache for geocoding)
  - Use CDN for JS files in production

@@ -5,7 +5,7 @@ import static org.junit.Assert.assertEquals;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.runningdinner.service.impl.AdminUrlGenerator;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.runningdinner.test.util.TestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
@@ -18,17 +18,17 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class TestAdminUrlGenerator {
 
 	@Autowired
-	AdminUrlGenerator adminUrlGenerator;
+	UrlGenerator urlGenerator;
 
 	@Before
 	public void setUp() {
-		adminUrlGenerator.setHostUrlContext("http://localhost:8080/runningdinner");
+		urlGenerator.setHostUrlContext("http://localhost:8080/runningdinner");
 	}
 
 	@Test
 	public void testAdminUrlGeneration() {
 		String uuid = "myuuid";
-		String url = adminUrlGenerator.constructAdministrationUrl(uuid, null);
+		String url = urlGenerator.constructAdministrationUrl(uuid, null);
 		assertEquals("http://localhost:8080/runningdinner/event/myuuid/admin", url);
 	}
 }

@@ -107,8 +107,8 @@
 							   <td><span class="label label-primary" teamKeyZip="${team.naturalKey}">${team.hostZip}</span></td>
 							   
 							   <td>
-							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE%>" var="teamRoutePreviewUrl" htmlEscape="true">
-										<spring:param name="key" value="${team.naturalKey}" />
+							   		<spring:url value="<%=RequestMappings.TEAM_DINNER_ROUTE_FOR_ADMINS%>" var="teamRoutePreviewUrl" htmlEscape="true">
+										<spring:param name="teamKey" value="${team.naturalKey}" />
 									</spring:url>
 								   <div><a class='btn btn-info btn-sm' href="${teamRoutePreviewUrl}" target="_blank"><span class="glyphicon glyphicon-eye-open"></span> <spring:message code="label.preview" /></a></div>
 							   </td>

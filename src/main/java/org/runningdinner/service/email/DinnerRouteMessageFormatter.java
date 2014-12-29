@@ -9,6 +9,7 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.util.CoreUtil;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.springframework.context.MessageSource;
 import org.springframework.util.Assert;
 
@@ -16,6 +17,8 @@ public class DinnerRouteMessageFormatter extends AbstractMessageFormatter {
 
 	protected String selfTemplate;
 	protected String hostsTemplate;
+	
+	private UrlGenerator urlGenerator;
 
 	public DinnerRouteMessageFormatter(final MessageSource messageSource, final Locale locale) {
 		super(messageSource, locale, null);
@@ -36,8 +39,13 @@ public class DinnerRouteMessageFormatter extends AbstractMessageFormatter {
 		String theMessage = messageTemplate;
 		theMessage = theMessage.replaceAll(FormatterUtil.FIRSTNAME, teamMember.getName().getFirstnamePart());
 		theMessage = theMessage.replaceAll(FormatterUtil.LASTNAME, teamMember.getName().getLastname());
+		String routeLink = urlGenerator.constructPrivateDinnerRouteUrl(parentTeam.getNaturalKey(), teamMember.getNaturalKey());
+		theMessage = theMessage.replaceAll(FormatterUtil.ROUTELINK, routeLink);
 
+		final int dinnerRouteSize = dinnerRoute.size();
+		
 		StringBuilder plan = new StringBuilder();
+		int cnt=0;
 		for (Team dinnerRouteTeam : dinnerRoute) {
 
 			Participant hostTeamMember = dinnerRouteTeam.getHostTeamMember();
@@ -69,7 +77,10 @@ public class DinnerRouteMessageFormatter extends AbstractMessageFormatter {
 				plan.append(host);
 			}
 
-			plan.append(FormatterUtil.TWO_NEWLINES).append(FormatterUtil.NEWLINE);
+			if (++cnt < dinnerRouteSize) {
+				plan.append(FormatterUtil.TWO_NEWLINES);
+				plan.append(FormatterUtil.NEWLINE);
+			}
 		}
 
 		theMessage = theMessage.replaceFirst(FormatterUtil.ROUTE, plan.toString());
@@ -86,4 +97,9 @@ public class DinnerRouteMessageFormatter extends AbstractMessageFormatter {
 		this.hostsTemplate = hostsTemplate;
 	}
 
+	public void setUrlGenerator(UrlGenerator urlGenerator) {
+		this.urlGenerator = urlGenerator;
+	}
+
+	
 }

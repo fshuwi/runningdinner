@@ -47,6 +47,10 @@ h3 .contentheadline {
     padding: 0;
 }
 
+.word-wrap-break {
+	word-wrap: break-word;
+}
+
 
 /** ****************** CAROUSEL STYLES ******************* **/
 #myCarousel .nav a small

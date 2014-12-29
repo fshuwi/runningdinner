@@ -42,6 +42,7 @@ import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.service.email.MailServerSettings;
 import org.runningdinner.service.email.ParticipantMessageFormatter;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.runningdinner.ui.dto.BaseSendMailsModel;
 import org.runningdinner.ui.dto.EditMealTimesModel;
 import org.runningdinner.ui.dto.SelectOption;
@@ -102,6 +103,8 @@ public class AdminController extends AbstractBaseController {
 
 	private MailServerSettingsTransformer mailServerSettingsTransformer;
 
+	private UrlGenerator urlGenerator;
+
 	private static Logger LOGGER = LoggerFactory.getLogger(AdminController.class);
 
 	@InitBinder
@@ -159,26 +162,26 @@ public class AdminController extends AbstractBaseController {
 
 		return getFullViewName("teams");
 	}
-	
-	
+
 	@RequestMapping(value = RequestMappings.AJAX_GET_CROSSING_TEAMS, method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public TeamWrapper[] getAllCrossedTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid, @PathVariable("teamKey") String teamKey) {
-		 
+	public TeamWrapper[] getAllCrossedTeams(@PathVariable(RequestMappings.ADMIN_URL_UUID_MARKER) String uuid,
+			@PathVariable("teamKey") String teamKey) {
+
 		adminValidator.validateUuid(uuid);
 		adminValidator.validateNaturalKey(teamKey);
-		
+
 		Collection<Team> allCrossedTeams = runningDinnerService.getAllCrossedTeams(uuid, teamKey);
 		List<TeamWrapper> teamWrappers = createTeamWrappers(allCrossedTeams, uuid, false);
-		
+
 		TeamWrapper[] result = new TeamWrapper[teamWrappers.size()];
 		result = teamWrappers.toArray(result);
-		
+
 		return result;
 	}
 
-	private List<TeamWrapper> createTeamWrappersWithDistributionBalanceInfo(final Collection<Team> teams, final RunningDinner runningDinner,
-			final boolean withVisitationPlans) {
+	private List<TeamWrapper> createTeamWrappersWithDistributionBalanceInfo(final Collection<Team> teams,
+			final RunningDinner runningDinner, final boolean withVisitationPlans) {
 		List<TeamWrapper> result = new ArrayList<TeamWrapper>();
 		for (Team regularTeam : teams) {
 			TeamWrapper teamWrapper = new TeamWrapper(regularTeam, runningDinner.getUuid(), withVisitationPlans);
@@ -205,7 +208,7 @@ public class AdminController extends AbstractBaseController {
 		}
 		return result;
 	}
-	
+
 	private List<TeamWrapper> createTeamWrappers(final Collection<Team> teams, String dinnerUuid, final boolean withVisitationPlans) {
 		List<TeamWrapper> result = new ArrayList<TeamWrapper>();
 		for (Team regularTeam : teams) {
@@ -214,7 +217,6 @@ public class AdminController extends AbstractBaseController {
 		}
 		return result;
 	}
-	
 
 	@RequestMapping(value = RequestMappings.SEND_TEAM_MAILS, method = RequestMethod.GET)
 	public String showSendTeamArrangementsForm(
@@ -427,7 +429,8 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		int numTeams = communicationService.sendDinnerRouteMessages(uuid, sendDinnerRoutesModel.getSelectedEntities(),
-				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN), getMailServerSettings(sendDinnerRoutesModel));
+				sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, Locale.GERMAN, urlGenerator),
+				getMailServerSettings(sendDinnerRoutesModel));
 
 		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_DINNERROUTES_MAIL, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -453,7 +456,7 @@ public class AdminController extends AbstractBaseController {
 		SendMailsPreviewModel sendMailsPreviewModel = createSendMailsPreviewModel(sendDinnerRoutesModel, uuid, true);
 
 		// ... and add formatted messages to it:
-		DinnerRouteMessageFormatter formatter = sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, locale);
+		DinnerRouteMessageFormatter formatter = sendDinnerRoutesModel.getDinnerRouteMessageFormatter(messages, locale, urlGenerator);
 
 		Team firstTeam = sendMailsPreviewModel.getTeam();
 
@@ -719,7 +722,6 @@ public class AdminController extends AbstractBaseController {
 				SimpleStatusMessage.SUCCESS_STATUS, messages.getMessage("label.participant.edit.success", null, locale)));
 	}
 
-
 	/**
 	 * Used for select-box when editing participant
 	 * 
@@ -780,21 +782,22 @@ public class AdminController extends AbstractBaseController {
 			return SwitchTeamMembersResponse.createErrorResponse("Expected size of participants with 2, but was "
 					+ (switchTeamMembers == null ? "empty" : switchTeamMembers.size()));
 		}
-		
+
 		final RunningDinner runningDinner = runningDinnerService.loadDinnerWithBasicDetails(uuid);
 
 		Set<String> naturalKeysTmp = new HashSet<String>();
 		for (SingleTeamParticipantChange teamParticipantChange : switchTeamMembers) {
 			naturalKeysTmp.add(teamParticipantChange.getParticipantKey());
 		}
-		
+
 		try {
 			adminValidator.validateNaturalKeys(naturalKeysTmp);
 
 			List<Team> changedTeams = runningDinnerService.switchTeamMembers(uuid, switchTeamMembers.get(0).getParticipantKey(),
 					switchTeamMembers.get(1).getParticipantKey());
 
-			List<TeamWrapper> result = createTeamWrappersWithDistributionBalanceInfo(changedTeams, runningDinner, false);//(changedTeams, uuid, false);
+			List<TeamWrapper> result = createTeamWrappersWithDistributionBalanceInfo(changedTeams, runningDinner, false);// (changedTeams,
+																															// uuid, false);
 			SwitchTeamMembersResponse response = SwitchTeamMembersResponse.createSuccessResponse(result, uuid);
 
 			return response;
@@ -857,6 +860,11 @@ public class AdminController extends AbstractBaseController {
 	@Autowired
 	public void setCommunicationService(CommunicationService communicationService) {
 		this.communicationService = communicationService;
+	}
+
+	@Autowired
+	public void setUrlGenerator(UrlGenerator urlGenerator) {
+		this.urlGenerator = urlGenerator;
 	}
 
 }

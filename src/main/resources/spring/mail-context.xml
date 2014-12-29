@@ -24,7 +24,7 @@
     	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate"
     	p:baseMessageTemplate-ref="baseMessageTemplate" p:messageSource-ref="messageSource" p:testEmailRecipient=""/>
     				
-    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:adminUrlGenerator-ref="adminUrlGenerator" p:emailService-ref="emailService"
+    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:urlGenerator-ref="urlGenerator" p:emailService-ref="emailService"
     />
     
     

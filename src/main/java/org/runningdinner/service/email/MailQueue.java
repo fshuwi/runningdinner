@@ -22,7 +22,7 @@ import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.TeamMailReport;
-import org.runningdinner.service.impl.AdminUrlGenerator;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +40,7 @@ public class MailQueue {
 
 	private EmailService emailService;
 
-	private AdminUrlGenerator adminUrlGenerator;
+	private UrlGenerator urlGenerator;
 
 	private BlockingQueue<ApplicationEvent> mailMessagesQueue = new LinkedBlockingQueue<ApplicationEvent>();
 	private ExecutorService execService;
@@ -176,7 +176,7 @@ public class MailQueue {
 
 		private void sendNewRunningDinnerEmail(NewRunningDinnerEvent event) {
 			RunningDinner newRunningDinner = event.getNewRunningDinner();
-			String administrationUrl = adminUrlGenerator.constructAdministrationUrl(newRunningDinner.getUuid(), null);
+			String administrationUrl = urlGenerator.constructAdministrationUrl(newRunningDinner.getUuid(), null);
 			emailService.sendRunningDinnerCreatedMessage(newRunningDinner.getEmail(), administrationUrl);
 		}
 
@@ -217,8 +217,8 @@ public class MailQueue {
 	}
 
 	@Autowired
-	public void setAdminUrlGenerator(AdminUrlGenerator adminUrlGenerator) {
-		this.adminUrlGenerator = adminUrlGenerator;
+	public void setUrlGenerator(UrlGenerator adminUrlGenerator) {
+		this.urlGenerator = adminUrlGenerator;
 	}
 
 	@Autowired

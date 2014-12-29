@@ -3,9 +3,12 @@ package org.runningdinner.ui.dto;
 import java.util.Locale;
 
 import org.runningdinner.service.email.DinnerRouteMessageFormatter;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.springframework.context.MessageSource;
 
 public class SendDinnerRoutesModel extends BaseSendMailsModel {
+
+	private static final long serialVersionUID = -8005797744787342783L;
 
 	protected String selfTemplate;
 	protected String hostsTemplate;
@@ -20,13 +23,14 @@ public class SendDinnerRoutesModel extends BaseSendMailsModel {
 		return result;
 	}
 
-	public DinnerRouteMessageFormatter getDinnerRouteMessageFormatter(final MessageSource messageSource, final Locale locale) {
+	public DinnerRouteMessageFormatter getDinnerRouteMessageFormatter(final MessageSource messageSource, final Locale locale, final UrlGenerator urlGenerator) {
 		// MAybe use locale and concrete dateformatter instance!
 		DinnerRouteMessageFormatter result = new DinnerRouteMessageFormatter(messageSource, locale);
 		result.setMessageTemplate(message);
 		result.setSelfTemplate(selfTemplate);
 		result.setHostsTemplate(hostsTemplate);
 		result.setSubject(subject);
+		result.setUrlGenerator(urlGenerator);
 		return result;
 	}
 

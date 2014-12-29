@@ -109,7 +109,7 @@
  	</definition>
  	
  	
- 	<definition name="dinnerroute-ng/*" template="/WEB-INF/views/dinnerroute-ng/route-ng.jsp">
+ 	<definition name="dinnerroute-ng/*" template="/WEB-INF/views/dinnerroute-ng/{1}.jsp">
  	</definition>
  	
  	

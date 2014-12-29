@@ -41,7 +41,7 @@
 			
 			<div class="form-group">
 				<label for="message"><spring:message code="label.message" /></label>
-				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {route}</span>
+				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {route}, {routelink}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
 				<h6 class="pull-right" id="message_counter">3000 characters remaining</h6>
 				<form:errors path="message"/>

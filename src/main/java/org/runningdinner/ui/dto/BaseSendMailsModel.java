@@ -11,6 +11,8 @@ import org.runningdinner.service.email.MailServerSettingsImpl;
 
 public class BaseSendMailsModel implements MailServerSettings {
 
+	private static final long serialVersionUID = -4190220149145894290L;
+	
 	protected String subject = StringUtils.EMPTY;
 	protected String message = StringUtils.EMPTY;
 

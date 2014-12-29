@@ -36,8 +36,9 @@
 
 	<bean id="uuidGenerator" class="org.runningdinner.service.impl.DefaultUuidGenerator" />
 
-	<bean id="adminUrlGenerator" class="org.runningdinner.service.impl.AdminUrlGenerator" />
-	
+	<bean id="urlGenerator"
+		class="org.runningdinner.service.impl.UrlGenerator" />
+
 	<bean id="encryptor" class="org.runningdinner.core.util.Encryptor">
 		<constructor-arg value="${encryptionKey}" />
 	</bean>

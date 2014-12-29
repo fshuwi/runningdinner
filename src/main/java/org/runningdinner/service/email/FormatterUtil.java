@@ -24,6 +24,7 @@ public class FormatterUtil {
 	public static final String HOST = "\\{host\\}";
 
 	public static final String ROUTE = "\\{route\\}";
+	public static final String ROUTELINK = "\\{routelink\\}";
 	public static final String HOSTADDRESS = "\\{hostaddress\\}";
 
 	public static final String NEWLINE = "\r\n";

@@ -5,9 +5,11 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
@@ -25,6 +27,7 @@ import org.runningdinner.ui.validator.AdminValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,20 +43,39 @@ public class TeamRouteController {
 
 	private GeocoderServiceCachedImpl geocoderService;
 	
+	private MessageSource messages;
+
 	private static Logger LOGGER = LoggerFactory.getLogger(TeamRouteController.class);
-	
-	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE, method = RequestMethod.GET)
-	public String showTeamDinnerRoute(@PathVariable("key") String teamKey, Model model, HttpServletRequest request) {
+
+	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE_FOR_ADMINS, method = RequestMethod.GET)
+	public String showTeamDinnerRouteForAdmin(@PathVariable("teamKey") String teamKey, Model model, HttpServletRequest request) {
 
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey));
-
 		Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
+		return showTeamDinnerRoute(team, model, request);
+	}
 
+	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE_FOR_PARTICIPANT, method = RequestMethod.GET)
+	public String showTeamDinnerRouteForParticipant(@PathVariable("teamKey") final String teamKey,
+			@PathVariable("participantKey") final String participantKey, Model model, HttpServletRequest request, Locale locale) {
+		
+		adminValidator.validateNaturalKeys(Arrays.asList(teamKey, participantKey));
+		
+		final Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
+		if (team == null || (!isParticipantContainedInTeam(team, participantKey))) {
+			model.addAttribute("errorMessage", messages.getMessage("error.route.invalid.link", new Object[]{}, locale));
+			return "dinnerroute-ng/error-ng";
+		}
+
+		return showTeamDinnerRoute(team, model, request);
+	}
+	
+	private String showTeamDinnerRoute(final Team team, final Model model, final HttpServletRequest request) {
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
 		TeamRouteListTO result = new TeamRouteListTO();
 		for (Team teamInDinnerRoute : teamDinnerRoute) {
-			TeamRouteEntryTO teamRouteEntry = toTeamRouteEntryTO(teamInDinnerRoute, teamKey);
+			TeamRouteEntryTO teamRouteEntry = toTeamRouteEntryTO(teamInDinnerRoute, team.getNaturalKey());
 
 			if (teamRouteEntry.isCurrentTeam()) {
 				result.setTeamMemberNames(FormatterUtil.generateParticipantNamesWithCommas(teamInDinnerRoute));
@@ -63,12 +85,22 @@ public class TeamRouteController {
 		model.addAttribute("route", result);
 		model.addAttribute("routejson", transformToJson(result));
 		model.addAttribute("mobile", CoreUtil.isMobileBrowser(request.getHeader("User-Agent")));
-		
+
 		return "dinnerroute-ng/route-ng";
+	}
+
+	private boolean isParticipantContainedInTeam(final Team team, final String participantKey) {
+		Set<Participant> teamMembers = team.getTeamMembers();
+		for (Participant teamMember : teamMembers) {
+			if (StringUtils.equals(teamMember.getNaturalKey(), participantKey)) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	private String transformToJson(final TeamRouteListTO result) {
-		
+
 		ObjectMapper jsonMapper = new ObjectMapper();
 		try {
 			return jsonMapper.writeValueAsString(result);
@@ -77,7 +109,6 @@ public class TeamRouteController {
 			throw new RuntimeException(e);
 		}
 	}
-
 
 	private TeamRouteEntryTO toTeamRouteEntryTO(final Team team, final String teamKey) {
 		TeamRouteEntryTO result = new TeamRouteEntryTO();
@@ -100,7 +131,7 @@ public class TeamRouteController {
 		}
 		catch (GeocodingException e) {
 			LOGGER.error("Failed to geocode adresse {} for participant {}", hostTeamMember.getAddress(), hostTeamMember.getName(), e);
-			result.setGeocodes(Collections.<GeocodingResult>emptyList());
+			result.setGeocodes(Collections.<GeocodingResult> emptyList());
 		}
 
 		return result;
@@ -125,5 +156,9 @@ public class TeamRouteController {
 		this.geocoderService = geocoderService;
 	}
 
-	
+	@Autowired
+	public void setMessages(MessageSource messages) {
+		this.messages = messages;
+	}
+
 }

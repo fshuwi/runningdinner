@@ -32,7 +32,7 @@
 						<hr/>
 					</c:if>
 					<h3>${previewModel.subject}</h3>
-					<div class="well"><i>${message}</i></div>
+					<div class="well"><span class="word-wrap-break"><i>${message}</i></span></div>
 				</c:forEach>						    				
    			</div>
    			<div class="modal-footer">

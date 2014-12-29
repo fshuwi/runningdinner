@@ -16,6 +16,8 @@ public class RequestMappings {
 	public static final String EDIT_MEALTIMES = ADMIN_URL_PATTERN + "/mealtimes";
 	public static final String EDIT_PARTICIPANT = ADMIN_URL_PATTERN + "/participant/{key}/edit";
 
+	public static final String TEAM_DINNER_ROUTE_FOR_ADMINS = "/team/{teamKey}/route";
+	
 	public static final String AJAX_CHECK_MAIL_CONNECTION = ADMIN_URL_PATTERN + "/checkMailConnection";
 	public static final String AJAX_SAVE_MAIL_SETTINGS = ADMIN_URL_PATTERN + "/saveCustomMailSettings";
 
@@ -30,8 +32,8 @@ public class RequestMappings {
 	public static final String WIZARD_UPLOAD = "/wizard-upload";
 	public static final String WIZARD_FINISH = "/finish";
 
-	// *************** Private Team request mappings ****************** //
-	public static final String TEAM_DINNER_ROUTE = "/team/{key}/route";
+	// *************** Team / Participant request mappings ****************** //
+	public static final String TEAM_DINNER_ROUTE_FOR_PARTICIPANT = "/team/{teamKey}/participant/{participantKey}/route";
 
 	// *************** Request Parameters ********************* //
 	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";

@@ -19,7 +19,7 @@ import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.service.RunningDinnerService;
-import org.runningdinner.service.impl.AdminUrlGenerator;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.runningdinner.ui.dto.ColumnMappingOption;
 import org.runningdinner.ui.dto.CreateWizardModel;
 import org.runningdinner.ui.dto.SelectOption;
@@ -58,7 +58,7 @@ public class CreateWizardController extends AbstractBaseController {
 	private MessageSource messages;
 	private CreateWizardValidator validator;
 	private RunningDinnerService runningDinnerService;
-	private AdminUrlGenerator adminUrlGenerator;
+	private UrlGenerator urlGenerator;
 
 	private static Map<Integer, String> wizardViews = new HashMap<Integer, String>(4);
 
@@ -295,7 +295,7 @@ public class CreateWizardController extends AbstractBaseController {
 		// #4 Generate UUID and Admin-Link and set it to model
 		String uuid = runningDinnerService.generateNewUUID();
 		createWizardModel.setNewUuid(uuid);
-		createWizardModel.setAdministrationUrl(adminUrlGenerator.constructAdministrationUrl(uuid, request));
+		createWizardModel.setAdministrationUrl(urlGenerator.constructAdministrationUrl(uuid, request));
 	}
 
 	/**
@@ -365,8 +365,8 @@ public class CreateWizardController extends AbstractBaseController {
 	}
 
 	@Autowired
-	public void setAdminUrlGenerator(AdminUrlGenerator adminUrlGenerator) {
-		this.adminUrlGenerator = adminUrlGenerator;
+	public void setUrlGenerator(UrlGenerator urlGenerator) {
+		this.urlGenerator = urlGenerator;
 	}
 
 }
