@@ -34,6 +34,7 @@ public class RequestMappings {
 
 	// *************** Team / Participant request mappings ****************** //
 	public static final String TEAM_DINNER_ROUTE_FOR_PARTICIPANT = "/team/{teamKey}/participant/{participantKey}/route";
+	public static final String TEAM_MANAGE_HOST = "/team/{teamKey}/participant/{participantKey}/host";
 
 	// *************** Request Parameters ********************* //
 	public static final String SELECT_ALL_TEAMS_PARAMETER = "selectAll";

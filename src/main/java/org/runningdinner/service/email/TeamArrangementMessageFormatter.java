@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.util.CoreUtil;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.springframework.context.MessageSource;
 import org.springframework.util.Assert;
 
@@ -15,6 +16,8 @@ public class TeamArrangementMessageFormatter extends AbstractMessageFormatter {
 
 	protected String hostMessagePartTemplate;
 	protected String nonHostMessagePartTemplate;
+	
+	protected UrlGenerator urlGenerator;
 
 	public TeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale) {
 		super(messageSource, locale, null);
@@ -76,6 +79,9 @@ public class TeamArrangementMessageFormatter extends AbstractMessageFormatter {
 		hostReplacement = hostReplacement.replaceAll(FormatterUtil.PARTNER, hostMember.getName().getFullnameFirstnameFirst());
 		theMessage = theMessage.replaceAll(FormatterUtil.HOST, hostReplacement);
 
+		final String manageHostLink = urlGenerator.constructManageHostUrl(parentTeam.getNaturalKey(), teamMember.getNaturalKey());
+		theMessage = theMessage.replaceAll(FormatterUtil.MANGE_HOST_LINK, manageHostLink);
+		
 		return theMessage;
 	}
 
@@ -87,4 +93,7 @@ public class TeamArrangementMessageFormatter extends AbstractMessageFormatter {
 		this.nonHostMessagePartTemplate = nonHostMessagePartTemplate;
 	}
 
+	public void setUrlGenerator(UrlGenerator urlGenerator) {
+		this.urlGenerator = urlGenerator;
+	}
 }

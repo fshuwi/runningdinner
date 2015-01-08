@@ -14,7 +14,7 @@ import org.runningdinner.service.email.TeamArrangementMessageFormatter;
  * @author Clemens Stich
  * 
  */
-public class SendTeamArrangementsEvent extends BaseMailEvent {
+public class SendTeamArrangementsEvent extends BaseAdminMailEvent {
 
 	private static final long serialVersionUID = -3297813701725791593L;
 

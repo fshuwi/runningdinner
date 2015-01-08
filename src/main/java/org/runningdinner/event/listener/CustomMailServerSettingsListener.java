@@ -1,6 +1,6 @@
 package org.runningdinner.event.listener;
 
-import org.runningdinner.events.BaseMailEvent;
+import org.runningdinner.events.BaseAdminMailEvent;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerPreferences;
 import org.runningdinner.service.RunningDinnerService;
@@ -19,13 +19,13 @@ import com.google.common.base.Optional;
  *
  */
 @Component
-public class CustomMailServerSettingsListener implements ApplicationListener<BaseMailEvent> {
+public class CustomMailServerSettingsListener implements ApplicationListener<BaseAdminMailEvent> {
 
 	private RunningDinnerService runningDinnerService;
 
 	@Transactional(propagation = Propagation.REQUIRES_NEW)
 	@Override
-	public void onApplicationEvent(BaseMailEvent event) {
+	public void onApplicationEvent(BaseAdminMailEvent event) {
 
 		RunningDinner runningDinner = event.getRunningDinner();
 		RunningDinnerPreferences preferences = runningDinnerService.loadPreferences(runningDinner);

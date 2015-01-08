@@ -5,47 +5,53 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.GeocodingException;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.GeocodingResult;
 import org.runningdinner.service.RunningDinnerService;
 import org.runningdinner.service.email.FormatterUtil;
 import org.runningdinner.service.geocoder.impl.GeocoderServiceCachedImpl;
-import org.runningdinner.ui.route.HostTO;
-import org.runningdinner.ui.route.TeamRouteEntryTO;
-import org.runningdinner.ui.route.TeamRouteListTO;
+import org.runningdinner.ui.frontend.host.ChangeTeamHostTO;
+import org.runningdinner.ui.frontend.to.managehost.TeamTO;
+import org.runningdinner.ui.frontend.to.route.HostTO;
+import org.runningdinner.ui.frontend.to.route.TeamRouteEntryTO;
+import org.runningdinner.ui.frontend.to.route.TeamRouteListTO;
+import org.runningdinner.ui.json.SingleTeamParticipantChange;
 import org.runningdinner.ui.validator.AdminValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.Assert;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @Controller
-public class TeamRouteController {
+public class TeamFrontendController {
 
 	private RunningDinnerService runningDinnerService;
 
 	private AdminValidator adminValidator;
 
 	private GeocoderServiceCachedImpl geocoderService;
-	
+
 	private MessageSource messages;
 
-	private static Logger LOGGER = LoggerFactory.getLogger(TeamRouteController.class);
+	private static Logger LOGGER = LoggerFactory.getLogger(TeamFrontendController.class);
 
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE_FOR_ADMINS, method = RequestMethod.GET)
 	public String showTeamDinnerRouteForAdmin(@PathVariable("teamKey") String teamKey, Model model, HttpServletRequest request) {
@@ -58,18 +64,63 @@ public class TeamRouteController {
 	@RequestMapping(value = RequestMappings.TEAM_DINNER_ROUTE_FOR_PARTICIPANT, method = RequestMethod.GET)
 	public String showTeamDinnerRouteForParticipant(@PathVariable("teamKey") final String teamKey,
 			@PathVariable("participantKey") final String participantKey, Model model, HttpServletRequest request, Locale locale) {
-		
+
 		adminValidator.validateNaturalKeys(Arrays.asList(teamKey, participantKey));
-		
+
 		final Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
-		if (team == null || (!isParticipantContainedInTeam(team, participantKey))) {
-			model.addAttribute("errorMessage", messages.getMessage("error.route.invalid.link", new Object[]{}, locale));
-			return "dinnerroute-ng/error-ng";
-		}
+		
+		validateParticipantContainedInTeam(team, participantKey);
 
 		return showTeamDinnerRoute(team, model, request);
 	}
+
+	@RequestMapping(value = RequestMappings.TEAM_MANAGE_HOST, method = RequestMethod.GET)
+	public String showManageHostForParticipant(@PathVariable("teamKey") final String teamKey,
+			@PathVariable("participantKey") final String participantKey, Model model, HttpServletRequest request, Locale locale) {
+
+		adminValidator.validateNaturalKeys(Arrays.asList(teamKey, participantKey));
+
+		final Team team = runningDinnerService.loadSingleTeamWithVisitationPlan(teamKey);
+		
+		validateParticipantContainedInTeam(team, participantKey);
+
+		TeamTO teamTO = new TeamTO(team);
+		
+		model.addAttribute("teamjson", transformToJson(teamTO));
+
+		model.addAttribute("participantEditorKey", participantKey);
+		
+		return "dinnerroute-ng/manage-host-ng";
+	}
+
+	@RequestMapping(value = RequestMappings.TEAM_MANAGE_HOST, method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public TeamTO updateHost(@PathVariable("teamKey") final String teamKey,
+			@PathVariable("participantKey") final String participantKey, @RequestBody final ChangeTeamHostTO changeTeamHostTO) {
+		
+		adminValidator.validateNaturalKeys(Arrays.asList(teamKey, participantKey));
+
+		ChangeTeamHost changeTeamHost = toEntity(changeTeamHostTO, participantKey);
+		
+		Team changedTeam = runningDinnerService.changeSingleTeamHost(changeTeamHost);
+		TeamTO changedTeamTO = new TeamTO(changedTeam);
+		return changedTeamTO;
+	}
 	
+	
+	public static ChangeTeamHost toEntity(final ChangeTeamHostTO changeTeamHostTO, final String participantKey) {
+		SingleTeamParticipantChange changedTeamHost = changeTeamHostTO.getChangedTeamHost();
+		ChangeTeamHost result = new ChangeTeamHost(changedTeamHost.getTeamKey(), changedTeamHost.getParticipantKey(),
+				changeTeamHostTO.getComment(), participantKey, changeTeamHostTO.isSendMailToMe());
+		return result;
+	}
+
+	
+	private void validateParticipantContainedInTeam(final Team team, final String participantKey) {
+		Assert.notNull(team, "Team with key " + team.getNaturalKey() + " could not be found!");
+		Assert.isTrue(team.isParticipantTeamMember(participantKey), "Modifying Participant must be member of team " + team.getNaturalKey());
+	}
+
 	private String showTeamDinnerRoute(final Team team, final Model model, final HttpServletRequest request) {
 		List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
@@ -89,17 +140,7 @@ public class TeamRouteController {
 		return "dinnerroute-ng/route-ng";
 	}
 
-	private boolean isParticipantContainedInTeam(final Team team, final String participantKey) {
-		Set<Participant> teamMembers = team.getTeamMembers();
-		for (Participant teamMember : teamMembers) {
-			if (StringUtils.equals(teamMember.getNaturalKey(), participantKey)) {
-				return true;
-			}
-		}
-		return false;
-	}
-	
-	private String transformToJson(final TeamRouteListTO result) {
+	private <T> String transformToJson(final T result) {
 
 		ObjectMapper jsonMapper = new ObjectMapper();
 		try {

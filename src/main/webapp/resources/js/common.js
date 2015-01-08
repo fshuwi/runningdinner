@@ -89,7 +89,7 @@ function clearModalAjaxLoaders() {
 		settings = $.extend({
 			container: "<span></span>",
 			classname: "charcounter",
-			format: "(%1 characters remaining)",
+			format: "(%1 Zeichen übrig)",
 			pulse: true,
 			delay: 0
 		}, settings);

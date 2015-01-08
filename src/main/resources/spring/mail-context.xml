@@ -21,11 +21,10 @@
     		p:subject="Running Dinner" p:replyTo="${mail.replyto}" /> 
     	 
     <bean id="emailService" class="org.runningdinner.service.email.EmailService" p:mailSender-ref="mailSender" 
-    	p:runningDinnerCreatedMessageTemplate-ref="runningDinnerCreatedMessageTemplate"
-    	p:baseMessageTemplate-ref="baseMessageTemplate" p:messageSource-ref="messageSource" p:testEmailRecipient=""/>
+    	p:defaultFrom="${mail.from}" p:defaultReplyTo="${mail.replyto}" p:testEmailRecipient=""
+    	p:messageSource-ref="messageSource"  p:urlGenerator-ref="urlGenerator" />
     				
-    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:urlGenerator-ref="urlGenerator" p:emailService-ref="emailService"
-    />
+    <bean id="mailQueue" class="org.runningdinner.service.email.MailQueue" p:urlGenerator-ref="urlGenerator" p:emailService-ref="emailService" />
     
     
     <beans profile="prod">	
@@ -43,8 +42,11 @@
 	   	</bean>
    	</beans>
    	
+   	<beans profile="dev">
+   		<bean id="mailSender" class="org.runningdinner.service.email.mock.MailSenderMockFile" />
+   	</beans>
    	
-   	<beans profile="dev,junit">
+   	<beans profile="junit">
    		<bean id="mailSender" class="org.runningdinner.service.email.mock.MailSenderMockInMemory" />
    	</beans>
     

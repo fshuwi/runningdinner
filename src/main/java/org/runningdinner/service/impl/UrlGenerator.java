@@ -40,7 +40,14 @@ public class UrlGenerator {
 	}
 
 	public String constructPrivateDinnerRouteUrl(final String teamKey, final String participantKey) {
-
+		return internalConstructPrivateTeamUrl(RequestMappings.TEAM_DINNER_ROUTE_FOR_PARTICIPANT, teamKey, participantKey);
+	}
+	
+	public String constructManageHostUrl(final String teamKey, final String participantKey) {
+		return internalConstructPrivateTeamUrl(RequestMappings.TEAM_MANAGE_HOST, teamKey, participantKey);
+	}
+	
+	private String internalConstructPrivateTeamUrl(final String requestMappingUrl, final String teamKey, final String participantKey) {
 		String hostUrlContextToUse = this.hostUrlContext;
 
 		CoreUtil.assertNotEmpty(hostUrlContextToUse, "Host URL of current server could not be retrieved");
@@ -51,8 +58,7 @@ public class UrlGenerator {
 			hostUrlContextToUse = StringUtils.chop(hostUrlContextToUse);
 		}
 
-		String result = RequestMappings.TEAM_DINNER_ROUTE_FOR_PARTICIPANT.replaceFirst("\\{teamKey\\}", teamKey).replaceFirst(
-				"\\{participantKey\\}", participantKey);
+		String result = requestMappingUrl.replaceFirst("\\{teamKey\\}", teamKey).replaceFirst("\\{participantKey\\}", participantKey);
 		return hostUrlContextToUse + result;
 	}
 

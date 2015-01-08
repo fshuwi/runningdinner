@@ -42,9 +42,9 @@
 						
 			<div class="form-group">
 				<label for="message"><spring:message code="label.message" /></label>
-				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}</span>
+				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {meal}, {mealtime}, {host}, {partner}, {managehostlink}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="message_counter">3000 characters remaining</h6>
+				<h6 class="pull-right" id="message_counter">3000 Zeichen &uml;brig</h6>
 				<form:errors path="message"/>
 			</div>
 			
@@ -52,7 +52,7 @@
 				<label for="hostMessagePartTemplate"><spring:message code="label.message.sendteams.host" /></label>
 				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{host}" /></span>
 				<form:textarea path="hostMessagePartTemplate" id="hostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="hostMessagePartTemplate_counter">300 characters remaining</h6>
+				<h6 class="pull-right" id="hostMessagePartTemplate_counter">300 Zeichen &uml;brig</h6>
 				<form:errors path="hostMessagePartTemplate"/>
 			</div>
 			
@@ -60,7 +60,7 @@
 				<label for="nonHostMessagePartTemplate"><spring:message code="label.message.sendteams.nonhost" /></label>
 				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{host}" /></span>
 				<form:textarea path="nonHostMessagePartTemplate" id="nonHostMessagePartTemplate" rows="2" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="nonHostMessagePartTemplate_counter">300 characters remaining</h6>
+				<h6 class="pull-right" id="nonHostMessagePartTemplate_counter">300 Zeichen &uml;brig</h6>
 				<form:errors path="nonHostMessagePartTemplate"/>
 			</div>
 		</div>

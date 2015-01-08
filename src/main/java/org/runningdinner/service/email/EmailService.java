@@ -11,8 +11,11 @@ import org.apache.commons.lang.StringUtils;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.Team;
 import org.runningdinner.core.dinnerplan.TeamRouteBuilder;
+import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.exceptions.MailServerConnectionFailedException;
 import org.runningdinner.exceptions.MailServerConnectionFailedException.MAIL_CONNECTION_ERROR;
+import org.runningdinner.model.ChangeTeamHost;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -34,10 +37,12 @@ public class EmailService {
 
 	private MailSender mailSender;
 
-	private SimpleMailMessage runningDinnerCreatedMessageTemplate;
-	private SimpleMailMessage baseMessageTemplate;
-
 	private MessageSource messageSource;
+
+	private UrlGenerator urlGenerator;
+	
+	private String defaultReplyTo;
+	private String defaultFrom;
 
 	/**
 	 * Used for sending all mails to the same recipient (useful in test/Dev scenarios when real mail interaction shall be tested)
@@ -48,15 +53,18 @@ public class EmailService {
 
 	public void sendRunningDinnerCreatedMessage(final String recipientEmail, final String administrationUrl) {
 
+		final Locale locale = CoreUtil.getDefaultLocale();
+
 		if (!isEmailValid(recipientEmail)) {
 			return;
 		}
 
 		String email = getMailAddress(recipientEmail);
 
-		SimpleMailMessage message = new SimpleMailMessage(runningDinnerCreatedMessageTemplate);
+		SimpleMailMessage message = createSimpleMailMessage(Optional.<MailServerSettings> absent());
+		message.setSubject(messageSource.getMessage("message.subject.runningdinner.created", null, locale));
 		message.setTo(email);
-		String text = messageSource.getMessage("message.template.runningdinner.created", new Object[] { administrationUrl }, Locale.GERMAN);
+		String text = messageSource.getMessage("message.template.runningdinner.created", new Object[] { administrationUrl }, locale);
 		message.setText(text);
 
 		LOGGER.info("Send running dinner created mail with size of {} characters to {}", text.length(), email);
@@ -79,36 +87,14 @@ public class EmailService {
 		for (Team team : teams) {
 
 			Set<Participant> allTeamMembers = team.getTeamMembers();
+
 			for (Participant teamMember : allTeamMembers) {
 
 				LOGGER.debug("Process {} of team {}", teamMember.getName().getFullnameFirstnameFirst(), team);
 
-				final String teamMemberMail = teamMember.getEmail();
-				if (!isEmailValid(teamMemberMail)) {
-					putInvalidMailToResults(sendingResults, teamMember, teamMemberMail, formatter.getLocale());
-					continue;
-				}
-
-				final String email = getMailAddress(teamMemberMail);
-
-				String messageText = formatter.formatTeamMemberMessage(teamMember, team);
-
-				SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
-				mailMessage.setSubject(subject);
-				mailMessage.setTo(email);
-				mailMessage.setText(messageText);
-				enrichWithCustomSettings(mailMessage, customMailServerSettings);
-
-				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
-
-				try {
-					mailSenderActive.send(mailMessage);
-					sendingResults.put(email, true);
-				}
-				catch (Exception ex) {
-					sendingResults.put(email, false);
-					LOGGER.error("Failed to send mail to {}", email, ex);
-				}
+				final String messageText = formatter.formatTeamMemberMessage(teamMember, team);
+				sendMessageToParticipant(teamMember, subject, messageText, mailSenderActive, customMailServerSettings, sendingResults,
+						formatter.getLocale());
 			}
 		}
 
@@ -118,48 +104,51 @@ public class EmailService {
 	public Map<String, Boolean> sendDinnerRouteMessages(List<Team> teams, DinnerRouteMessageFormatter formatter,
 			final Optional<MailServerSettings> customMailServerSettings) {
 
-		Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
-
-		MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
-
+		final Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+		final MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
 		final String subject = formatter.getSubject();
-		for (Team team : teams) {
 
+		for (Team team : teams) {
 			LOGGER.debug("Process team {} for dinnerroute message", team);
 			List<Team> teamDinnerRoute = TeamRouteBuilder.generateDinnerRoute(team);
 
 			for (Participant teamMember : team.getTeamMembers()) {
-
-				final String teamMemberEmail = teamMember.getEmail();
-				if (!isEmailValid(teamMemberEmail)) {
-					putInvalidMailToResults(sendingResults, teamMember, teamMemberEmail, formatter.getLocale());
-					continue;
-				}
-
-				final String email = getMailAddress(teamMemberEmail);
-
-				String messageText = formatter.formatDinnerRouteMessage(teamMember, team, teamDinnerRoute);
-
-				SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
-				mailMessage.setSubject(subject);
-				mailMessage.setTo(email);
-				mailMessage.setText(messageText);
-				enrichWithCustomSettings(mailMessage, customMailServerSettings);
-
-				LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
-
-				try {
-					mailSenderActive.send(mailMessage);
-					sendingResults.put(email, true);
-				}
-				catch (Exception ex) {
-					sendingResults.put(email, false);
-					LOGGER.error("Failed to send mail to {}", email, ex);
-				}
+				final String messageText = formatter.formatDinnerRouteMessage(teamMember, team, teamDinnerRoute);
+				sendMessageToParticipant(teamMember, subject, messageText, mailSenderActive, customMailServerSettings, sendingResults,
+						formatter.getLocale());
 			}
 		}
 
 		return sendingResults;
+	}
+
+	protected void sendMessageToParticipant(final Participant participant, final String subject, final String messageText,
+			final MailSender mailSender, final Optional<MailServerSettings> customMailServerSettings,
+			final Map<String, Boolean> sendingResults, final Locale locale) {
+
+		final String teamMemberEmail = participant.getEmail();
+		if (!isEmailValid(teamMemberEmail)) {
+			putInvalidMailToResults(sendingResults, participant, teamMemberEmail, locale);
+			return;
+		}
+
+		final String email = getMailAddress(teamMemberEmail);
+
+		SimpleMailMessage mailMessage = createSimpleMailMessage(customMailServerSettings);
+		mailMessage.setSubject(subject);
+		mailMessage.setTo(email);
+		mailMessage.setText(messageText);
+
+		LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
+
+		try {
+			mailSender.send(mailMessage);
+			sendingResults.put(email, true);
+		}
+		catch (Exception ex) {
+			sendingResults.put(email, false);
+			LOGGER.error("Failed to send mail to {}", email, ex);
+		}
 	}
 
 	protected void putInvalidMailToResults(final Map<String, Boolean> sendingResults, final Participant teamMember,
@@ -176,44 +165,46 @@ public class EmailService {
 			final ParticipantMessageFormatter formatter, final Optional<MailServerSettings> customMailServerSettings) {
 
 		final Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
-
-		MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
-
+		final MailSender mailSenderActive = getActiveMailSender(customMailServerSettings);
 		final String subject = formatter.getSubject();
 
 		for (Participant participant : participants) {
-
-			LOGGER.debug("Process {}", participant.getName().getFullnameFirstnameFirst());
-
-			final String participantEmail = participant.getEmail();
-			if (!isEmailValid(participantEmail)) {
-				putInvalidMailToResults(sendingResults, participant, participantEmail, formatter.getLocale());
-				continue;
-			}
-
-			final String email = getMailAddress(participantEmail);
-
-			String messageText = formatter.formatParticipantMessage(participant);
-
-			SimpleMailMessage mailMessage = new SimpleMailMessage(baseMessageTemplate);
-			mailMessage.setSubject(subject);
-			mailMessage.setTo(email);
-			mailMessage.setText(messageText);
-			enrichWithCustomSettings(mailMessage, customMailServerSettings);
-
-			LOGGER.info("Send mail with size of {} characters to {}", messageText.length(), email);
-
-			try {
-				mailSenderActive.send(mailMessage);
-				sendingResults.put(email, true);
-			}
-			catch (Exception ex) {
-				sendingResults.put(email, false);
-				LOGGER.error("Failed to send mail to {}", email, ex);
-			}
+			final String messageText = formatter.formatParticipantMessage(participant);
+			sendMessageToParticipant(participant, subject, messageText, mailSenderActive, customMailServerSettings, sendingResults,
+					formatter.getLocale());
 		}
 
 		return sendingResults;
+	}
+
+	public void sendTeamHostChangedMail(final Team team, final ChangeTeamHost changeTeamHost) {
+
+		final Locale locale = CoreUtil.getDefaultLocale();
+
+		final Map<String, Boolean> sendingResults = new HashMap<String, Boolean>();
+		final MailSender mailSenderActive = getActiveMailSender(Optional.<MailServerSettings> absent());
+
+		final String subject = messageSource.getMessage("message.subject.team.host.changed", null, locale);
+		
+		TeamHostChangeFormatter formatter = new TeamHostChangeFormatter(messageSource, locale, urlGenerator);
+
+		Participant teamHostEditor = team.getTeamMemberByKey(changeTeamHost.getModificationParticipantKey());
+		
+		Set<Participant> teamMembers = team.getTeamMembers();
+		for (Participant teamMember : teamMembers) {
+
+			// Don't send mail to participant which changed the host settings
+			if (!changeTeamHost.isSendMailToMe() && teamHostEditor.equals(teamMember)) {
+				continue;
+			}
+
+			final String comment = changeTeamHost.getComment();
+			
+			final String message = formatter.formatTeamHostChangeMessage(team, teamMember, comment, teamHostEditor);
+			
+			sendMessageToParticipant(teamMember, subject, message, mailSenderActive, Optional.<MailServerSettings> absent(),
+					sendingResults, locale);
+		}
 	}
 
 	protected boolean isEmailValid(final String email) {
@@ -290,7 +281,7 @@ public class EmailService {
 		}
 	}
 
-	private MailSender createCustomMailSender(MailServerSettings mailServerSettings) {
+	private MailSender createCustomMailSender(final MailServerSettings mailServerSettings) {
 		JavaMailSenderImpl result = new JavaMailSenderImpl();
 		result.setHost(mailServerSettings.getMailServer());
 
@@ -315,34 +306,34 @@ public class EmailService {
 	}
 
 	/**
-	 * If custom mail server shall be used, we enrich the message with appropriate "from" and "replyto" fields
+	 * If custom mail server shall be used, we enrich the message with appropriate "from" and "replyto" fields. Otherwise we use the default
+	 * settings.
 	 * 
 	 * @param mailMessage
 	 * @param customMailServerSettings
 	 */
-	private void enrichWithCustomSettings(SimpleMailMessage mailMessage, Optional<MailServerSettings> customMailServerSettings) {
+	protected SimpleMailMessage createSimpleMailMessage(final Optional<MailServerSettings> customMailServerSettings) {
+		SimpleMailMessage simpleMailMessage = new SimpleMailMessage();
+		simpleMailMessage.setSubject("Running Dinner");
+
 		if (!customMailServerSettings.isPresent()) {
-			return;
+			simpleMailMessage.setReplyTo(defaultReplyTo);
+			simpleMailMessage.setFrom(defaultFrom);
+			return simpleMailMessage;
 		}
 
 		MailServerSettings mailServerSettings = customMailServerSettings.get();
-		mailMessage.setFrom(mailServerSettings.getFrom());
+		simpleMailMessage.setFrom(mailServerSettings.getFrom());
 
 		if (StringUtils.isNotEmpty(mailServerSettings.getReplyTo())) {
-			mailMessage.setReplyTo(mailServerSettings.getReplyTo());
+			simpleMailMessage.setReplyTo(mailServerSettings.getReplyTo());
 		}
+
+		return simpleMailMessage;
 	}
 
 	public void setMailSender(MailSender mailSender) {
 		this.mailSender = mailSender;
-	}
-
-	public void setRunningDinnerCreatedMessageTemplate(SimpleMailMessage runningDinnerCreatedMessageTemplate) {
-		this.runningDinnerCreatedMessageTemplate = runningDinnerCreatedMessageTemplate;
-	}
-
-	public void setBaseMessageTemplate(SimpleMailMessage baseMessageTemplate) {
-		this.baseMessageTemplate = baseMessageTemplate;
 	}
 
 	public void setMessageSource(MessageSource messageSource) {
@@ -357,4 +348,15 @@ public class EmailService {
 		return mailSender;
 	}
 
+	public void setDefaultReplyTo(String defaultReplyTo) {
+		this.defaultReplyTo = defaultReplyTo;
+	}
+
+	public void setDefaultFrom(String defaultFrom) {
+		this.defaultFrom = defaultFrom;
+	}
+
+	public void setUrlGenerator(UrlGenerator urlGenerator) {
+		this.urlGenerator = urlGenerator;
+	}
 }

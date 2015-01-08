@@ -48,6 +48,8 @@ public class TeamWrapper {
 			
 			addEditLink(teamMemberWrapper, dinnerUuid);
 			
+			teamMemberWrapper.setZip(participant.getAddress().getZip());
+			
 			this.teamMembers.add(teamMemberWrapper);
 			
 			if (participant.isHost()) {

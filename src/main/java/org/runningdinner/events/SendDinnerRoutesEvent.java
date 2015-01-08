@@ -14,7 +14,7 @@ import org.runningdinner.service.email.MailServerSettings;
  * @author Clemens Stich
  * 
  */
-public class SendDinnerRoutesEvent extends BaseMailEvent {
+public class SendDinnerRoutesEvent extends BaseAdminMailEvent {
 
 	private static final long serialVersionUID = 3729494458843378610L;
 

@@ -33,7 +33,9 @@ import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.event.publisher.EventPublisher;
 import org.runningdinner.exceptions.DinnerNotFoundException;
 import org.runningdinner.model.BaseMailReport;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.DinnerRouteMailReport;
+import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.model.RunningDinnerPreference;
@@ -197,13 +199,6 @@ public class RunningDinnerServiceImpl implements RunningDinnerService, Applicati
 		// create new team- and visitation-plans
 		GeneratedTeamsResult result = generateTeamPlan(dinner.getConfiguration(), dinner.getParticipants());
 
-		// TODO: Wtf?!
-		/*
-		 * for (Team team : result.getRegularTeams()) {
-		 * System.out.println(team.getVisitationPlan().toString());
-		 * }
-		 */
-
 		List<Team> regularTeams = result.getRegularTeams();
 		List<Participant> notAssignedParticipants = result.getNotAssignedParticipants();
 
@@ -249,43 +244,42 @@ public class RunningDinnerServiceImpl implements RunningDinnerService, Applicati
 		Set<String> teamKeys = teamHostMappings.keySet();
 		LOGGER.info("Call updateTeamHosters with {} teamKeys", teamKeys.size());
 
-		Collection<String> newParticipantKeysTmp = teamHostMappings.values();
-		LOGGER.debug("Call updateTeamHosters with {} newParticipantKeys", newParticipantKeysTmp.size());
-
-		HashSet<String> newParticipantKeys = new HashSet<String>(newParticipantKeysTmp);
-		Assert.state(newParticipantKeys.size() == newParticipantKeysTmp.size(),
-				"Each participant naturalKey should have been unique in the passed teamHostMappings object, but it was not");
-		LOGGER.debug("All participant naturalKeys are unique");
-
 		List<Team> teams = repository.loadRegularTeamsFromDinnerByKeys(uuid, teamKeys);
 		LOGGER.debug("Found {} teams for the passed teamKeys", teams.size());
 		Assert.state(teams.size() == teamKeys.size(), "There should be modified " + teamKeys.size() + " teams, but found " + teams.size()
 				+ " teams in database");
 
 		for (Team team : teams) {
-			Set<Participant> teamMembers = team.getTeamMembers();
-			LOGGER.debug("Try to assign new hoster to team {}", team.getTeamNumber());
-
-			for (Participant teamMember : teamMembers) {
-				String naturalKey = teamMember.getNaturalKey();
-				if (newParticipantKeys.contains(naturalKey)) {
-					if (!teamMember.isHost()) { // Prevent unnecessary SQL update if this participant was already the host
-						teamMember.setHost(true);
-					}
-				}
-				else {
-					if (teamMember.isHost()) {
-						teamMember.setHost(false);
-					}
-				}
-			}
-
-			LOGGER.debug("Changed hoster of team {}", team.getTeamNumber());
+			
+			final String newHostingParticipantKey = teamHostMappings.get(team.getNaturalKey());
+			Assert.notNull(newHostingParticipantKey, "Expected a new hosting participant key to be found for team " + team.getNaturalKey());
+			
+			changeSingleTeamHost(team, newHostingParticipantKey);
 		}
 
 		return teams;
 	}
 
+	private void changeSingleTeamHost(final Team team, final String newHostingParticipantKey) {
+		Set<Participant> teamMembers = team.getTeamMembers();
+		LOGGER.debug("Try to assign new hoster to team {}", team.getTeamNumber());
+
+		for (Participant teamMember : teamMembers) {
+			if (newHostingParticipantKey.equals(teamMember.getNaturalKey())) {
+				if (!teamMember.isHost()) { // Prevent unnecessary SQL update if this participant was already the host
+					teamMember.setHost(true);
+				}
+			}
+			else {
+				if (teamMember.isHost()) {
+					teamMember.setHost(false);
+				}
+			}
+		}
+
+		LOGGER.debug("Changed hoster of team {}", team.getNaturalKey());
+	}
+	
 	@Override
 	@Transactional
 	public List<Team> switchTeamMembers(String uuid, String firstParticipantKey, String secondParticipantKey) {
@@ -544,9 +538,11 @@ public class RunningDinnerServiceImpl implements RunningDinnerService, Applicati
 		List<TeamMailReport> teamMailStatusInfos = repository.findAllMailReportsForDinner(mergedDinner.getUuid(), TeamMailReport.class);
 		List<DinnerRouteMailReport> dinnerRouteMailStatusInfos = repository.findAllMailReportsForDinner(mergedDinner.getUuid(),
 				DinnerRouteMailReport.class);
+		List<ParticipantMailReport> participantMailStatusInfos = repository.findAllMailReportsForDinner(mergedDinner.getUuid(), ParticipantMailReport.class);
 
 		ArrayList<BaseMailReport> allStatusInfoObjects = new ArrayList<BaseMailReport>(teamMailStatusInfos);
 		allStatusInfoObjects.addAll(dinnerRouteMailStatusInfos);
+		allStatusInfoObjects.addAll(participantMailStatusInfos);
 		for (BaseMailReport statusInfo : allStatusInfoObjects) {
 			repository.remove(statusInfo);
 		}
@@ -664,6 +660,40 @@ public class RunningDinnerServiceImpl implements RunningDinnerService, Applicati
 		}
 		
 		return repository.loadRegularTeamsFromDinnerByKeys(dinnerUuid, teamKeys);
+	}
+	
+	
+	@Transactional
+	public Team changeSingleTeamHost(final ChangeTeamHost changeTeamHost) {
+
+		final String teamKey = changeTeamHost.getTeamKey();
+		final String hostingParticipantKey = changeTeamHost.getHostingParticipantKey();
+
+		final Team team = repository.loadSingleTeamWithVisitationPlan(teamKey, false);
+
+		validateChangeTeamHost(changeTeamHost, team);
+		
+		changeSingleTeamHost(team, hostingParticipantKey);
+		
+		// Publish event only after transaction is successfully committed:
+		TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+			@Override
+			public void afterCommit() {
+				eventPublisher.notifyTeamHostChangeByParticipant(team, changeTeamHost);
+			}
+		});
+		
+		return team;
+	}
+
+	public static void validateChangeTeamHost(final ChangeTeamHost changeTeamHost, final Team loadedTeam) {
+		String hostingParticipantKey = changeTeamHost.getHostingParticipantKey();
+		String modificationParticipantKey = changeTeamHost.getModificationParticipantKey();
+
+		Assert.isTrue(loadedTeam.isParticipantTeamMember(hostingParticipantKey), "New Hosting Participant must be member of team "
+				+ loadedTeam.getNaturalKey());
+		Assert.isTrue(loadedTeam.isParticipantTeamMember(modificationParticipantKey), "Modifying Participant must be member of team "
+				+ loadedTeam.getNaturalKey());
 	}
 
 	@Autowired

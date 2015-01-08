@@ -12,6 +12,8 @@ import org.runningdinner.events.SendParticipantMailsFinishedEvent;
 import org.runningdinner.events.SendParticipantsEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
 import org.runningdinner.events.SendTeamMailsFinishedEvent;
+import org.runningdinner.events.TeamHostChangedByParticipantEvent;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
@@ -99,4 +101,10 @@ public class EventPublisher implements ApplicationEventPublisherAware {
 	public void notifySendParticipantMailsFinished(ParticipantMailReport participantMailReport, Map<String, Boolean> sendingResults) {
 		applicationEventPublisher.publishEvent(new SendParticipantMailsFinishedEvent(this, participantMailReport, sendingResults));
 	}
+
+	public void notifyTeamHostChangeByParticipant(final Team team, final ChangeTeamHost changeTeamHost) {
+		applicationEventPublisher.publishEvent(new TeamHostChangedByParticipantEvent(this, team, changeTeamHost));
+	}
+	
+	
 }

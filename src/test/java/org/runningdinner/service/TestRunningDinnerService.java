@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -18,6 +19,7 @@ import org.runningdinner.core.NoPossibleRunningDinnerException;
 import org.runningdinner.core.Participant;
 import org.runningdinner.core.RunningDinnerConfig;
 import org.runningdinner.core.Team;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.test.util.TestUtil;
@@ -201,9 +203,51 @@ public class TestRunningDinnerService {
 	}
 
 	@Test
-	public void testSaveTeamHosts() {
-		// TODO
-		// runningDinnerService.updateTeamHosters(MY_TEST_UUID, null);
+	public void testChangeTeamHost() throws NoPossibleRunningDinnerException {
+
+		testPersistGeneratedTeams();
+
+		// Pick first team:
+		List<Team> teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
+		Team team = teams.get(0);
+
+		List<Participant> teamMembers = new ArrayList<Participant>(team.getTeamMembers());
+		Participant p1 = teamMembers.get(0);
+		Participant p2 = teamMembers.get(1);
+
+		// Set p1 as host and reload team for checking:
+		ChangeTeamHost changeTeamHost = new ChangeTeamHost(team.getNaturalKey(), p1.getNaturalKey(), "My Comment #1", p2.getNaturalKey(),
+				false);
+		runningDinnerService.changeSingleTeamHost(changeTeamHost);
+		team = runningDinnerService.loadSingleTeamWithVisitationPlan(team.getNaturalKey());
+		assertEquals(p1, team.getHostTeamMember());
+
+		// Set p2 as new host and reload team for checking
+		changeTeamHost = new ChangeTeamHost(team.getNaturalKey(), p2.getNaturalKey(), "My Comment #2", p2.getNaturalKey(), false);
+		runningDinnerService.changeSingleTeamHost(changeTeamHost);
+		team = runningDinnerService.loadSingleTeamWithVisitationPlan(team.getNaturalKey());
+		assertEquals(p2, team.getHostTeamMember());
+	}
+
+	@Test
+	public void testChangeTeamHostInvalidParticipant() throws NoPossibleRunningDinnerException {
+		testPersistGeneratedTeams();
+
+		// Pick first team:
+		List<Team> teams = runningDinnerService.loadRegularTeamsFromDinner(MY_TEST_UUID);
+		Team firstTeam = teams.get(0);
+		Team secondTeam = teams.get(1);
+
+		String wrongParticipantKey = secondTeam.getHostTeamMember().getNaturalKey();
+
+		ChangeTeamHost changeTeamHost = new ChangeTeamHost(firstTeam.getNaturalKey(), wrongParticipantKey, "", wrongParticipantKey, false);
+		try {
+			runningDinnerService.changeSingleTeamHost(changeTeamHost);
+			fail("Expected an exception to be thrown!");
+		}
+		catch (Exception ex) {
+			assertEquals(true, true);
+		}
 	}
 
 	@Test

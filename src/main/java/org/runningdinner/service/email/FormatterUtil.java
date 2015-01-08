@@ -18,11 +18,16 @@ public class FormatterUtil {
 
 	public static final String FIRSTNAME = "\\{firstname\\}";
 	public static final String LASTNAME = "\\{lastname\\}";
+	public static final String EMAIL = "\\{email\\}";
 
 	public static final String MEAL = "\\{meal\\}";
 	public static final String MEALTIME = "\\{mealtime\\}";
 	public static final String HOST = "\\{host\\}";
 
+	public static final String PARTNER_MESSAGE = "\\{partnermessage\\}";
+	public static final String ARRANGEMENT = "\\{arrangement\\}";
+	public static final String MANGE_HOST_LINK = "\\{managehostlink\\}";
+	
 	public static final String ROUTE = "\\{route\\}";
 	public static final String ROUTELINK = "\\{routelink\\}";
 	public static final String HOSTADDRESS = "\\{hostaddress\\}";

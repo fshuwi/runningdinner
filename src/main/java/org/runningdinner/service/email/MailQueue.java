@@ -18,6 +18,8 @@ import org.runningdinner.events.NewRunningDinnerEvent;
 import org.runningdinner.events.SendDinnerRoutesEvent;
 import org.runningdinner.events.SendParticipantsEvent;
 import org.runningdinner.events.SendTeamArrangementsEvent;
+import org.runningdinner.events.TeamHostChangedByParticipantEvent;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.DinnerRouteMailReport;
 import org.runningdinner.model.ParticipantMailReport;
 import org.runningdinner.model.RunningDinner;
@@ -164,6 +166,9 @@ public class MailQueue {
 						sendParticipantMails((SendParticipantsEvent)event);
 					}
 
+					if (event instanceof TeamHostChangedByParticipantEvent) {
+						sendTeamHostChangedMail((TeamHostChangedByParticipantEvent)event);
+					}
 				}
 				catch (Exception ex) {
 					LOGGER.error("Fatal error while processing event {}", event, ex);
@@ -208,6 +213,12 @@ public class MailQueue {
 			Map<String, Boolean> sendingResults = emailService.sendMessageToParticipants(participants, participantMessageFormatter, event.getCustomMailServerSettings());
 
 			eventPublisher.notifySendParticipantMailsFinished(participantMailReport, sendingResults);
+		}
+		
+		private void sendTeamHostChangedMail(TeamHostChangedByParticipantEvent event) {
+			ChangeTeamHost changeTeamHost = event.getChangeTeamHost();
+			Team team = event.getTeam();
+			emailService.sendTeamHostChangedMail(team, changeTeamHost);
 		}
 	}
 

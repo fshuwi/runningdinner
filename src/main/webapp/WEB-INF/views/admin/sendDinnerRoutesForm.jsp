@@ -43,7 +43,7 @@
 				<label for="message"><spring:message code="label.message" /></label>
 				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}, {route}, {routelink}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="message_counter">3000 characters remaining</h6>
+				<h6 class="pull-right" id="message_counter">3000 Zeichen &uml;brig</h6>
 				<form:errors path="message"/>
 			</div>
 			
@@ -51,7 +51,7 @@
 				<label for="selfTemplate"><spring:message code="label.message.dinnerroute.selftemplate" /></label>
 				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{route}" />. <spring:message code="label.message.template.help" />: {firstname}, {lastname}, {meal}, {mealtime}</span>
 				<form:textarea path="selfTemplate" id="selfTemplate" rows="3" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="selfTemplate_counter">300 characters remaining</h6>
+				<h6 class="pull-right" id="selfTemplate_counter">300 Zeichen &uml;brig</h6>
 				<form:errors path="selfTemplate"/>
 			</div>
 			
@@ -59,7 +59,7 @@
 				<label for="hostsTemplate"><spring:message code="label.message.dinnerroute.hoststemplate" /></label>
 				<span class="help-block"><spring:message code="label.message.template.replacement" arguments="{route}" />. <spring:message code="label.message.template.help" />: {firstname}, {lastname}, {meal}, {mealtime}, {hostaddress}</span>
 				<form:textarea path="hostsTemplate" id="hostsTemplate" rows="4" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="hostsTemplate_counter">300 characters remaining</h6>
+				<h6 class="pull-right" id="hostsTemplate_counter">300 Zeichen &uml;brig</h6>
 				<form:errors path="hostsTemplate"/>
 			</div>
 		</div>

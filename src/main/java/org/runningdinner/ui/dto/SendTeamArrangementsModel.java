@@ -3,6 +3,7 @@ package org.runningdinner.ui.dto;
 import java.util.Locale;
 
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.springframework.context.MessageSource;
 
 public class SendTeamArrangementsModel extends BaseSendMailsModel {
@@ -36,13 +37,14 @@ public class SendTeamArrangementsModel extends BaseSendMailsModel {
 		this.nonHostMessagePartTemplate = nonHostMessagePartTemplate;
 	}
 
-	public TeamArrangementMessageFormatter getTeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale) {
+	public TeamArrangementMessageFormatter getTeamArrangementMessageFormatter(final MessageSource messageSource, final Locale locale, final UrlGenerator urlGenerator) {
 		// Maybe use locale for dateformat!
 		TeamArrangementMessageFormatter result = new TeamArrangementMessageFormatter(messageSource, locale);
 		result.setMessageTemplate(message);
 		result.setHostMessagePartTemplate(hostMessagePartTemplate);
 		result.setNonHostMessagePartTemplate(nonHostMessagePartTemplate);
 		result.setSubject(subject);
+		result.setUrlGenerator(urlGenerator);
 		return result;
 	}
 }

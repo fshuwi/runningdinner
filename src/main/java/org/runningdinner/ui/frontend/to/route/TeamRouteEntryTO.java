@@ -1,4 +1,4 @@
-package org.runningdinner.ui.route;
+package org.runningdinner.ui.frontend.to.route;
 
 import org.runningdinner.core.MealClass;
 

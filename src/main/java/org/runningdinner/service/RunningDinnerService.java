@@ -17,6 +17,7 @@ import org.runningdinner.core.converter.ConversionException;
 import org.runningdinner.core.converter.ConverterFactory.INPUT_FILE_TYPE;
 import org.runningdinner.core.converter.config.ParsingConfiguration;
 import org.runningdinner.exceptions.DinnerNotFoundException;
+import org.runningdinner.model.ChangeTeamHost;
 import org.runningdinner.model.RunningDinner;
 import org.runningdinner.model.RunningDinnerInfo;
 import org.runningdinner.model.RunningDinnerPreferences;
@@ -261,5 +262,7 @@ public interface RunningDinnerService {
 	void updateMealTimes(String uuid, Set<MealClass> meals);
 
 	Collection<Team> getAllCrossedTeams(final String dinnerUuid, final String teamKey);
+	
+	Team changeSingleTeamHost(final ChangeTeamHost changeTeamHost);
 
 }

@@ -1,5 +1,7 @@
 package org.runningdinner.ui.json;
 
+import org.runningdinner.core.ParticipantAddress;
+
 /**
  * Wraps up the attributes of a team-member (participant) that is used for displaying the results in a JSON-AJAX request
  * 
@@ -12,6 +14,8 @@ public class TeamMemberWrapper {
 	protected String naturalKey;
 	protected boolean host;
 
+	protected int zip;
+	
 	protected String editLink;
 
 	public TeamMemberWrapper() {
@@ -54,9 +58,18 @@ public class TeamMemberWrapper {
 	public void setEditLink(String editLink) {
 		this.editLink = editLink;
 	}
+	
+	public int getZip() {
+		return zip;
+	}
+
+	public void setZip(int zip) {
+		this.zip = zip;
+	}
 
 	@Override
 	public String toString() {
 		return fullname;
 	}
+
 }

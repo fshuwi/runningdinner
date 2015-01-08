@@ -14,7 +14,7 @@ import org.runningdinner.service.email.ParticipantMessageFormatter;
  * @author Clemens Stich
  * 
  */
-public class SendParticipantsEvent extends BaseMailEvent {
+public class SendParticipantsEvent extends BaseAdminMailEvent {
 
 	private static final long serialVersionUID = -268961430347730710L;
 

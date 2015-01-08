@@ -42,7 +42,7 @@
 				<label for="message"><spring:message code="label.message" /></label>
 				<span class="help-block"><spring:message code="label.message.template.help" />: {firstname}, {lastname}</span>
 				<form:textarea path="message" id="message" rows="10" style="margin-bottom:5px;" class="form-control counted" />
-				<h6 class="pull-right" id="message_counter">3000 characters remaining</h6>
+				<h6 class="pull-right" id="message_counter">3000 Zeichen &uml;brig</h6>
 				<form:errors path="message"/>
 			</div>
 		</div>

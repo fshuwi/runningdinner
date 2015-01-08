@@ -291,7 +291,7 @@ public class AdminController extends AbstractBaseController {
 		}
 
 		int numTeams = communicationService.sendTeamMessages(uuid, sendTeamsModel.getSelectedEntities(),
-				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale), getMailServerSettings(sendTeamsModel));
+				sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale, urlGenerator), getMailServerSettings(sendTeamsModel));
 
 		String messageText = messages.getMessage("text.sendmessage.notification.teams", new Object[] { numTeams }, locale);
 		return generateStatusPageRedirect(RequestMappings.SEND_TEAM_MAILS, uuid, redirectAttributes, new SimpleStatusMessage(
@@ -318,7 +318,7 @@ public class AdminController extends AbstractBaseController {
 		Team firstTeam = sendMailsPreviewModel.getTeam();
 
 		// ... and add formatted messages to it:
-		TeamArrangementMessageFormatter formatter = sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale);
+		TeamArrangementMessageFormatter formatter = sendTeamsModel.getTeamArrangementMessageFormatter(messages, locale, urlGenerator);
 		Set<Participant> teamMembers = firstTeam.getTeamMembers();
 		for (Participant teamMember : teamMembers) {
 			String message = formatter.formatTeamMemberMessage(teamMember, firstTeam);
