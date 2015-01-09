@@ -31,7 +31,7 @@
 	<div class="row">
 		<div class="col-xs-12">
 			<h3>Gastgeber festlegen</h3>
-			<h5>Hier könnt ihr innerhalb eures Teams den Gastgeber selbstständig ändern.</h5>
+			<h5>Hier kannst du den Gastgeber von eurem Team selbstständig ändern. Ihr könnt dies beliebig oft tun - nachdem jedoch die Dinner-Routen veröffentlicht wurden ist die Festlegung fix, da eure Gäste die Adresse des ausgewählten Gastgebers mitgeteilt bekommen.</h5>
 		</div>
 	</div>
 	
@@ -39,8 +39,8 @@
 		<div class="col-xs-12">
 			<div class="well">
 				<div class="form-group">
-					<label class="control-label" for="teamHostSelect">LABEL</label>
-					<span class="help-block">HELPLABEL</span>
+					<label class="control-label" for="teamHostSelect">Gastgeber Auswahl</label>
+					<span class="help-block">Nachdem du einen neuen Gastgeber ausgewählt hast kannst du diesen Speichern.</span>
 					<div class="row">
 						<div class="col-xs-4">
 							<select id="teamHostSelect" class="form-control"></select>
@@ -51,7 +51,7 @@
 						
 				<div class="form-group">
 					<label for="comment">Persönlicher Kommentar</label>
-					<span class="help-block">Blabla</span>
+					<span class="help-block">Dein Teampartner erhält eine automatische Benachrichtung wenn du den Gastgeber änderst. Hier kannst du noch eine persönliche Nachricht hinterlassen.</span>
 					<textarea id="comment" rows="5" style="margin-bottom:5px;" class="form-control counted"></textarea>
 					<h6 class="pull-right" id="comment_counter">3000 Zeichen &uml;brig</h6>
 				</div>
