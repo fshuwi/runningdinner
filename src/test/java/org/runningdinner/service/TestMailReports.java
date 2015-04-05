@@ -14,6 +14,7 @@ import org.runningdinner.core.Team;
 import org.runningdinner.core.util.CoreUtil;
 import org.runningdinner.model.TeamMailReport;
 import org.runningdinner.service.email.TeamArrangementMessageFormatter;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.runningdinner.test.util.TestUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
@@ -37,6 +38,9 @@ public class TestMailReports {
 
 	@Autowired
 	protected MessageSource messageSource;
+	
+	@Autowired
+	protected UrlGenerator urlGenerator;
 
 	@Test
 	public void testNoMailReportAvailable() throws NoPossibleRunningDinnerException {
@@ -59,6 +63,7 @@ public class TestMailReports {
 		messageFormatter.setMessageTemplate(messageSource.getMessage("message.template.teams", null, Locale.GERMAN));
 		messageFormatter.setHostMessagePartTemplate(messageSource.getMessage("message.template.teams.host", null, Locale.GERMAN));
 		messageFormatter.setNonHostMessagePartTemplate(messageSource.getMessage("message.template.teams.nonhost", null, Locale.GERMAN));
+		messageFormatter.setUrlGenerator(urlGenerator);
 		communicationService.sendTeamMessages(uuid, teamKeys, messageFormatter, null);
 
 		TeamMailReport mailReport = communicationService.findLastTeamMailReport(uuid);

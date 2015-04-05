@@ -17,7 +17,9 @@ import org.runningdinner.core.Participant;
 import org.runningdinner.core.ParticipantAddress;
 import org.runningdinner.core.ParticipantName;
 import org.runningdinner.core.Team;
+import org.runningdinner.service.impl.UrlGenerator;
 import org.runningdinner.test.util.TestUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.support.ResourceBundleMessageSource;
 import org.springframework.test.context.ActiveProfiles;
@@ -42,6 +44,9 @@ public class TestTeamMessageFormatter {
 	private SimpleDateFormat dateFormat = new SimpleDateFormat(timeFormat);
 
 	protected MessageSource messages;
+	
+	@Autowired
+	protected UrlGenerator urlGenerator;
 
 	@Before
 	public void setUp() {
@@ -55,7 +60,7 @@ public class TestTeamMessageFormatter {
 		formatter.setMessageTemplate("{firstname} {lastname}/{meal}/{mealtime}/{host}/{partner}");
 		formatter.setNonHostMessagePartTemplate("{partner}");
 		formatter.setHostMessagePartTemplate("YOU");
-
+		formatter.setUrlGenerator(urlGenerator);
 	}
 
 	@Test
